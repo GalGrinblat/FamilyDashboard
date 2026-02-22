@@ -1,37 +1,71 @@
-import Link from "next/link";
-import { Home, PieChart, Calendar } from "lucide-react";
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import {
+    Home,
+    Wallet,
+    Settings,
+    Sofa,
+    CalendarDays,
+    Menu
+} from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+
+const navItems = [
+    { href: "/", label: "ראשי", icon: Home },
+    { href: "/finance", label: "פיננסים", icon: Wallet },
+    { href: "/household", label: "משק בית", icon: Sofa },
+    { href: "/planning", label: "תכנון", icon: CalendarDays },
+]
 
 export function Sidebar() {
-    const navItems = [
-        { name: "ראשי", href: "/", icon: Home },
-        { name: "פיננסים", href: "/finance", icon: PieChart },
-        { name: "תכנון", href: "/planning", icon: Calendar },
-    ];
+    const pathname = usePathname()
+
+    const NavLinks = () => (
+        <nav className="space-y-2 flex-1 pt-6">
+            {navItems.map((item) => {
+                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`) && item.href !== "/"
+                return (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${isActive ? "bg-zinc-100 dark:bg-zinc-800 font-medium" : "text-zinc-500 dark:text-zinc-400"
+                            }`}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        {item.label}
+                    </Link>
+                )
+            })}
+        </nav>
+    )
 
     return (
-        <aside className="w-64 h-screen bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-800 hidden md:flex flex-col flex-shrink-0 sticky top-0">
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800">
-                <h1 className="text-xl font-bold text-zinc-900 dark:text-white">לוח משפחה</h1>
+        <>
+            <div className="hidden border-l bg-zinc-50 dark:bg-zinc-950 md:block w-64 min-h-screen p-4 flex-col">
+                <div className="flex h-14 items-center border-b px-4 font-semibold text-lg">
+                    ניהול משק בית
+                </div>
+                <NavLinks />
             </div>
-            <nav className="flex-1 py-4">
-                <ul className="space-y-1">
-                    {navItems.map((item) => (
-                        <li key={item.name}>
-                            <Link
-                                href={item.href}
-                                className="flex items-center gap-3 px-6 py-3 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-900 transition-colors"
-                                aria-label={item.name}
-                            >
-                                <item.icon className="w-5 h-5 flex-shrink-0" />
-                                <span className="font-medium">{item.name}</span>
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-            <div className="p-6 border-t border-zinc-200 dark:border-zinc-800">
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">© 2026 משפחה</p>
+
+            <div className="flex w-full items-center justify-between border-b bg-zinc-50 p-4 md:hidden dark:bg-zinc-950">
+                <span className="font-semibold">ניהול משק בית</span>
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Toggle navigation menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="flex flex-col">
+                        <NavLinks />
+                    </SheetContent>
+                </Sheet>
             </div>
-        </aside>
-    );
+        </>
+    )
 }

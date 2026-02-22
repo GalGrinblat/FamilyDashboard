@@ -34,16 +34,20 @@ A comprehensive family management system for tracking finances, assets, insuranc
 - **Payment Management (ניהול תשלומים):** Mapping expenses to sources (Bank/Credit Card).
 - **Expense Engine (מנוע הוצאות):** CSV upload area for automated AI classification.
 
-### 3. Planning (תכנון) - Sub-sections:
+### 3. Household (משק בית)
+- **Appliances (מכשירי חשמל):** Tracking of household items.
+- **Furniture (ריהוט):** Tracking of household items.
+- **Electronics (אלקטרוניקה):** Tracking of household items.
+
+### 4. Planning (תכנון) - Sub-sections:
 - **Periodic Planning (תכנון עיתי):** Calendar for car tests, insurance renewals, home maintenance.
 - **Vacation Planning (תכנון חופשות):** Budgeting and itinerary planning for future trips.
 
 ## 💾 Database Schema (Supabase)
-- **Tables:** `categories`, `accounts`, `transactions`, `assets`, `reminders`.
+- **Tables:** `categories`, `accounts`, `trips`, `transactions`, `assets`, `household_items`, `reminders`, `merchant_mappings`.
 - **Security:** Implement Row Level Security (RLS) so users only see their family's data.
 - **Optimization:** Add a mapping table for merchants to cache AI classifications.
 
 ## 🚀 Advanced Features (Phase 2)
-- **WhatsApp Integration:** API endpoint for a family bot to push tasks/expenses.
 - **Currency Handling:** Automated conversion from USD/EUR to ILS for investments.
 - **Deduplication:** Logic to merge identical transactions appearing in both Bank and Credit Card exports.
