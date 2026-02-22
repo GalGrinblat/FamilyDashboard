@@ -163,6 +163,44 @@ export interface Database {
                     updated_at?: string | null
                 }
             }
+            recurring_flows: {
+                Row: {
+                    id: string
+                    name: string
+                    amount: number
+                    type: string
+                    category_id: string | null
+                    frequency: string
+                    next_date: string | null
+                    is_active: boolean | null
+                    created_at: string | null
+                    updated_at: string | null
+                }
+                Insert: {
+                    id?: string
+                    name: string
+                    amount: number
+                    type: string
+                    category_id?: string | null
+                    frequency: string
+                    next_date?: string | null
+                    is_active?: boolean | null
+                    created_at?: string | null
+                    updated_at?: string | null
+                }
+                Update: {
+                    id?: string
+                    name?: string
+                    amount?: number
+                    type?: string
+                    category_id?: string | null
+                    frequency?: string
+                    next_date?: string | null
+                    is_active?: boolean | null
+                    created_at?: string | null
+                    updated_at?: string | null
+                }
+            }
             reminders: {
                 Row: {
                     id: string
@@ -198,6 +236,7 @@ export interface Database {
                     account_id: string | null
                     category_id: string | null
                     trip_id: string | null
+                    recurring_flow_id: string | null
                     amount: number
                     date: string
                     description: string | null
@@ -214,6 +253,7 @@ export interface Database {
                     account_id?: string | null
                     category_id?: string | null
                     trip_id?: string | null
+                    recurring_flow_id?: string | null
                     amount: number
                     date: string
                     description?: string | null
@@ -230,6 +270,7 @@ export interface Database {
                     account_id?: string | null
                     category_id?: string | null
                     trip_id?: string | null
+                    recurring_flow_id?: string | null
                     amount?: number
                     date?: string
                     description?: string | null

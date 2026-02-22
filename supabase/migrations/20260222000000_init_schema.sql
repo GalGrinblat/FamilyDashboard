@@ -41,6 +41,7 @@ CREATE TABLE transactions (
   account_id uuid REFERENCES accounts(id),
   category_id uuid REFERENCES categories(id),
   trip_id uuid REFERENCES trips(id), -- Links specific expenses to vacations
+  recurring_flow_id uuid, -- Linking expected with actual transactions 
   amount numeric(12,2) NOT NULL,
   date date NOT NULL,
   description text,
@@ -87,6 +88,20 @@ CREATE TABLE reminders (
   due_date date NOT NULL,
   type text NOT NULL, -- 'insurance', 'car_test', 'maintenance'
   is_completed boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- recurring_flows Table: "Expected vs Actual" architecture for budgeting salaries, rents, etc.
+CREATE TABLE recurring_flows (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL, -- e.g. 'Gal Salary', 'Apartment Rent'
+  amount numeric(12,2) NOT NULL, -- Expected amount
+  type text NOT NULL, -- 'income' or 'expense'
+  category_id uuid REFERENCES categories(id),
+  frequency text NOT NULL, -- 'monthly', 'yearly', 'weekly'
+  next_date date, -- Date of next expected occurrence
+  is_active boolean DEFAULT true,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );
