@@ -4,16 +4,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { AddReminderDialog } from "@/components/planning/AddReminderDialog"
+import { AddTripDialog } from "@/components/planning/AddTripDialog"
 
 function RemindersTable({ items }: { items: any[] }) {
     if (!items || items.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>אין תזכורות מתוכננות כרגע.</p>
-                <Button variant="outline" className="mt-4">
-                    <Plus className="ml-2 h-4 w-4" />
-                    הוסף תזכורת
-                </Button>
+                <AddReminderDialog triggerButton={
+                    <Button variant="outline" className="mt-4">
+                        <Plus className="ml-2 h-4 w-4" />
+                        הוסף תזכורת
+                    </Button>
+                } />
             </div>
         )
     }
@@ -55,10 +59,12 @@ function TripsTable({ items }: { items: any[] }) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>אין חופשות מתוכננות כרגע.</p>
-                <Button variant="outline" className="mt-4">
-                    <Plus className="ml-2 h-4 w-4" />
-                    הוסף חופשה
-                </Button>
+                <AddTripDialog triggerButton={
+                    <Button variant="outline" className="mt-4">
+                        <Plus className="ml-2 h-4 w-4" />
+                        הוסף חופשה
+                    </Button>
+                } />
             </div>
         )
     }
@@ -103,14 +109,8 @@ export default async function PlanningPage() {
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">תכנון</h2>
                 <div className="flex gap-2">
-                    <Button variant="outline">
-                        <Plus className="ml-2 h-4 w-4" />
-                        חופשה חדשה
-                    </Button>
-                    <Button>
-                        <Plus className="ml-2 h-4 w-4" />
-                        תזכורת חדשה
-                    </Button>
+                    <AddTripDialog />
+                    <AddReminderDialog />
                 </div>
             </div>
 
