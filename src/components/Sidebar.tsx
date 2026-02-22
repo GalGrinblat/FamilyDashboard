@@ -45,26 +45,11 @@ export function Sidebar() {
 
     return (
         <>
-            <div className="hidden border-l bg-zinc-50 dark:bg-zinc-950 md:block w-64 min-h-screen p-4 flex-col">
+            <div className="hidden border-l bg-zinc-50 dark:bg-zinc-950 md:flex w-64 min-h-screen p-4 flex-col">
                 <div className="flex h-14 items-center border-b px-4 font-semibold text-lg">
                     ניהול משק בית
                 </div>
                 <NavLinks />
-            </div>
-
-            <div className="flex w-full items-center justify-between border-b bg-zinc-50 p-4 md:hidden dark:bg-zinc-950">
-                <span className="font-semibold">ניהול משק בית</span>
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-                            <Menu className="h-5 w-5" />
-                            <span className="sr-only">Toggle navigation menu</span>
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="flex flex-col">
-                        <NavLinks />
-                    </SheetContent>
-                </Sheet>
             </div>
         </>
     )

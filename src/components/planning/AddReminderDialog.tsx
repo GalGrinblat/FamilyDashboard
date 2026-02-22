@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -24,11 +24,33 @@ import {
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
 
-export function AddReminderDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
+export function AddReminderDialog({
+    triggerButton,
+    forceOpen = false,
+    onForceClose
+}: {
+    triggerButton?: React.ReactNode,
+    forceOpen?: boolean,
+    onForceClose?: () => void
+}) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const supabase = createClient()
+
+    // Sync external open state
+    useEffect(() => {
+        if (forceOpen) {
+            setOpen(true)
+        }
+    }, [forceOpen])
+
+    const handleOpenChange = (newOpen: boolean) => {
+        setOpen(newOpen)
+        if (!newOpen && onForceClose) {
+            onForceClose()
+        }
+    }
 
     // Form State
     const [title, setTitle] = useState("")
@@ -55,6 +77,7 @@ export function AddReminderDialog({ triggerButton }: { triggerButton?: React.Rea
             alert("שגיאה בהוספת התזכורת")
         } else {
             setOpen(false)
+            if (onForceClose) onForceClose()
             // Reset form
             setTitle("")
             setType("maintenance")
@@ -65,7 +88,7 @@ export function AddReminderDialog({ triggerButton }: { triggerButton?: React.Rea
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 {triggerButton || (
                     <Button>

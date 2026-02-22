@@ -24,37 +24,72 @@ function RecurringFlowsTable({ flows }: { flows: any[] }) {
     }
 
     return (
-        <Table className="border-t border-zinc-100 dark:border-zinc-800">
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="text-right">שם התזרים</TableHead>
-                    <TableHead className="text-right">סוג</TableHead>
-                    <TableHead className="text-right">תדירות</TableHead>
-                    <TableHead className="text-right">תאריך קרוב</TableHead>
-                    <TableHead className="text-right">סכום צפוי</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="w-full">
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <Table className="border-t border-zinc-100 dark:border-zinc-800">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-right">שם התזרים</TableHead>
+                            <TableHead className="text-right">סוג</TableHead>
+                            <TableHead className="text-right">תדירות</TableHead>
+                            <TableHead className="text-right">תאריך קרוב</TableHead>
+                            <TableHead className="text-right">סכום צפוי</TableHead>
+                            <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {flows.map(flow => (
+                            <TableRow key={flow.id}>
+                                <TableCell className="font-medium">{flow.name}</TableCell>
+                                <TableCell>
+                                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${flow.type === 'income' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'
+                                        }`}>
+                                        {flow.type === 'income' ? 'הכנסה' : 'הוצאה'}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}
+                                </TableCell>
+                                <TableCell>{flow.next_date ? new Date(flow.next_date).toLocaleDateString("he-IL") : '-'}</TableCell>
+                                <TableCell className={`font-semibold ${flow.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
+                                    {flow.type === 'expense' ? '-' : '+'}₪{flow.amount.toLocaleString()}
+                                </TableCell>
+                                <TableCell>
+                                    <AddRecurringFlowDialog flowToEdit={flow} />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
                 {flows.map(flow => (
-                    <TableRow key={flow.id}>
-                        <TableCell className="font-medium">{flow.name}</TableCell>
-                        <TableCell>
-                            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${flow.type === 'income' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'
-                                }`}>
+                    <div key={flow.id} className="flex flex-col space-y-3 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative">
+                        <div className="absolute top-2 right-2">
+                            <AddRecurringFlowDialog flowToEdit={flow} />
+                        </div>
+                        <div className="flex justify-between items-start pt-2">
+                            <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">{flow.name}</span>
+                            <span className={`font-semibold ${flow.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                {flow.type === 'expense' ? '-' : '+'}₪{flow.amount.toLocaleString()}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${flow.type === 'income' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'}`}>
                                 {flow.type === 'income' ? 'הכנסה' : 'הוצאה'}
                             </span>
-                        </TableCell>
-                        <TableCell>
-                            {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}
-                        </TableCell>
-                        <TableCell>{flow.next_date ? new Date(flow.next_date).toLocaleDateString("he-IL") : '-'}</TableCell>
-                        <TableCell className={`font-semibold ${flow.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
-                            {flow.type === 'expense' ? '-' : '+'}₪{flow.amount.toLocaleString()}
-                        </TableCell>
-                    </TableRow>
+                            <span>•</span>
+                            <span>{flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}</span>
+                            <span>•</span>
+                            <span>{flow.next_date ? new Date(flow.next_date).toLocaleDateString("he-IL") : '-'}</span>
+                        </div>
+                    </div>
                 ))}
-            </TableBody>
-        </Table>
+            </div>
+        </div>
     )
 }
 

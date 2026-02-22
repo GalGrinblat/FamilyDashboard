@@ -23,26 +23,53 @@ function ItemsTable({ items }: { items: any[] }) {
     }
 
     return (
-        <Table className="border-t border-zinc-100 dark:border-zinc-800">
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="text-right">שם הפריט</TableHead>
-                    <TableHead className="text-right">תאריך רכישה</TableHead>
-                    <TableHead className="text-right">מחיר</TableHead>
-                    <TableHead className="text-right">תום אחריות</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="w-full">
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <Table className="border-t border-zinc-100 dark:border-zinc-800">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-right">שם הפריט</TableHead>
+                            <TableHead className="text-right">תאריך רכישה</TableHead>
+                            <TableHead className="text-right">מחיר</TableHead>
+                            <TableHead className="text-right">תום אחריות</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {items.map(item => (
+                            <TableRow key={item.id}>
+                                <TableCell className="font-medium">{item.name}</TableCell>
+                                <TableCell>{item.purchase_date ? new Date(item.purchase_date).toLocaleDateString("he-IL") : '-'}</TableCell>
+                                <TableCell>{item.purchase_price ? `₪${item.purchase_price.toLocaleString()}` : '-'}</TableCell>
+                                <TableCell>{item.warranty_expiry ? new Date(item.warranty_expiry).toLocaleDateString("he-IL") : '-'}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
                 {items.map(item => (
-                    <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.purchase_date ? new Date(item.purchase_date).toLocaleDateString("he-IL") : '-'}</TableCell>
-                        <TableCell>{item.purchase_price ? `₪${item.purchase_price.toLocaleString()}` : '-'}</TableCell>
-                        <TableCell>{item.warranty_expiry ? new Date(item.warranty_expiry).toLocaleDateString("he-IL") : '-'}</TableCell>
-                    </TableRow>
+                    <div key={item.id} className="flex flex-col space-y-2 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+                        <div className="flex justify-between items-start">
+                            <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">{item.name}</span>
+                            <span className="font-medium">{item.purchase_price ? `₪${item.purchase_price.toLocaleString()}` : '-'}</span>
+                        </div>
+                        <div className="flex flex-col gap-1 text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                            <div className="flex justify-between">
+                                <span>תאריך רכישה:</span>
+                                <span>{item.purchase_date ? new Date(item.purchase_date).toLocaleDateString("he-IL") : '-'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>תום אחריות:</span>
+                                <span>{item.warranty_expiry ? new Date(item.warranty_expiry).toLocaleDateString("he-IL") : '-'}</span>
+                            </div>
+                        </div>
+                    </div>
                 ))}
-            </TableBody>
-        </Table>
+            </div>
+        </div>
     )
 }
 
@@ -63,33 +90,60 @@ function CarsTable({ cars, reminders }: { cars: any[], reminders: any[] }) {
 
     return (
         <div className="space-y-4">
-            <Table className="border-t border-zinc-100 dark:border-zinc-800">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="text-right">שם הרכב</TableHead>
-                        <TableHead className="text-right">מספר רישוי</TableHead>
-                        <TableHead className="text-right">שנתון</TableHead>
-                        <TableHead className="text-right">שווי מוערך (₪)</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {cars.map(car => {
-                        const metadata = (car.metadata || {}) as any
-                        return (
-                            <TableRow key={car.id}>
-                                <TableCell className="font-medium text-blue-600 dark:text-blue-400 font-semibold">{car.name}</TableCell>
-                                <TableCell>{metadata.license_plate || '-'}</TableCell>
-                                <TableCell>{metadata.year || '-'}</TableCell>
-                                <TableCell className="font-medium">{car.estimated_value ? `₪${car.estimated_value.toLocaleString()}` : '-'}</TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <Table className="border-t border-zinc-100 dark:border-zinc-800">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-right">שם הרכב</TableHead>
+                            <TableHead className="text-right">מספר רישוי</TableHead>
+                            <TableHead className="text-right">שנתון</TableHead>
+                            <TableHead className="text-right">שווי מוערך (₪)</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {cars.map(car => {
+                            const metadata = (car.metadata || {}) as any
+                            return (
+                                <TableRow key={car.id}>
+                                    <TableCell className="font-medium text-blue-600 dark:text-blue-400 font-semibold">{car.name}</TableCell>
+                                    <TableCell>{metadata.license_plate || '-'}</TableCell>
+                                    <TableCell>{metadata.year || '-'}</TableCell>
+                                    <TableCell className="font-medium">{car.estimated_value ? `₪${car.estimated_value.toLocaleString()}` : '-'}</TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
+                {cars.map(car => {
+                    const metadata = (car.metadata || {}) as any
+                    return (
+                        <div key={car.id} className="flex flex-col space-y-2 p-4 rounded-xl border border-blue-100 bg-white shadow-sm dark:border-blue-900/30 dark:bg-zinc-950">
+                            <div className="flex justify-between items-start">
+                                <span className="font-semibold text-blue-700 dark:text-blue-400 text-lg">{car.name}</span>
+                                <span className="font-bold">{car.estimated_value ? `₪${car.estimated_value.toLocaleString()}` : '-'}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+                                <span className="flex items-center gap-1">
+                                    <span className="font-medium text-zinc-500">מספר רישוי:</span> {metadata.license_plate || '-'}
+                                </span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1">
+                                    <span className="font-medium text-zinc-500">שנתון:</span> {metadata.year || '-'}
+                                </span>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
 
             {/* Display relevant reminders */}
             {reminders && reminders.length > 0 && (
-                <div className="px-6 pb-6">
+                <div className="px-4 md:px-6 pb-6">
                     <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-zinc-900 border-b pb-2 dark:text-zinc-100 dark:border-zinc-800">ראדאר התראות צי רכבים</h4>
                     <div className="grid gap-2 grid-cols-1 md:grid-cols-2">
                         {reminders.map(r => (

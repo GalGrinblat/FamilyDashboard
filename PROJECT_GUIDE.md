@@ -17,6 +17,18 @@ A comprehensive family management system for tracking finances, assets, insuranc
 3. **Architecture:** Use Server Components for data fetching and Client Components for interactive UI (forms, tabs, uploads).
 4. **Shadcn/ui:** Use Shadcn for the base components, ensuring they are adjusted for RTL (check animation directions).
 
+## 📱 Mobile & PWA Strategy
+1. **Responsive Design:** - Use a **Bottom Navigation Bar** for mobile (`max-width: 768px`) and a **Sidebar** for desktop.
+   - Convert all Data Tables into **Mobile Cards** on small screens.
+2. **Touch-First UI:**
+   - Ensure all buttons have a minimum touch target of 44x44px.
+   - Implement "Swipe to Delete" or "Swipe to Edit" for list items (Shopping List/Transactions).
+3. **PWA Features:**
+   - Implement a `manifest.json` and service workers for "Add to Home Screen" support.
+   - Use `next-pwa` or similar to enable basic offline caching for the "Shopping List" and "Overview" tabs.
+4. **Quick Entry:**
+   - Add a Global Floating Action Button (FAB) on mobile for "Quick Add" (Expense/Inventory item).
+   
 ## 🗺 Application Sitemap & Navigation
 
 ### 1. Overview (ראשי)

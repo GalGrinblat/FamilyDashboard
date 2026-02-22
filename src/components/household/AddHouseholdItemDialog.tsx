@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -24,11 +24,33 @@ import {
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
 
-export function AddHouseholdItemDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
+export function AddHouseholdItemDialog({
+    triggerButton,
+    forceOpen = false,
+    onForceClose
+}: {
+    triggerButton?: React.ReactNode,
+    forceOpen?: boolean,
+    onForceClose?: () => void
+}) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const supabase = createClient()
+
+    // Sync external open state
+    useEffect(() => {
+        if (forceOpen) {
+            setOpen(true)
+        }
+    }, [forceOpen])
+
+    const handleOpenChange = (newOpen: boolean) => {
+        setOpen(newOpen)
+        if (!newOpen && onForceClose) {
+            onForceClose()
+        }
+    }
 
     // Form State
     const [name, setName] = useState("")
@@ -59,6 +81,7 @@ export function AddHouseholdItemDialog({ triggerButton }: { triggerButton?: Reac
             alert("שגיאה בהוספת הפריט")
         } else {
             setOpen(false)
+            if (onForceClose) onForceClose()
             // Reset form
             setName("")
             setCategory("appliance")
@@ -71,7 +94,7 @@ export function AddHouseholdItemDialog({ triggerButton }: { triggerButton?: Reac
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 {triggerButton || (
                     <Button>
