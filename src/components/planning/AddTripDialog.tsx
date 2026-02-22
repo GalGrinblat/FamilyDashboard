@@ -40,7 +40,8 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
             budget: budget ? parseFloat(budget) : null,
         }
 
-        const { error } = await supabase.from("trips").insert(payload as any)
+        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+        const { error } = await supabase.from("trips").insert(payload)
 
         setLoading(false)
 

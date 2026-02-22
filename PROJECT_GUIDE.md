@@ -17,6 +17,12 @@ A comprehensive family management system for tracking finances, assets, insuranc
 3. **Architecture:** Use Server Components for data fetching and Client Components for interactive UI (forms, tabs, uploads).
 4. **Shadcn/ui:** Use Shadcn for the base components, ensuring they are adjusted for RTL (check animation directions).
 
+## TypeScript
+- **Strict Typing**: NEVER use the `any` type under any circumstances.
+- **Defined Types**: ALWAYS use strictly defined types or interfaces for variables, function parameters, and return types.
+- **Supabase**: When working with database payloads, always import and use the strictly generated types from the `Database` schema (e.g., `Database['public']['Tables']['table_name']['Row']`).
+- **Unknown Data**: If the exact shape of data is truly unknown at runtime, use the `unknown` type and employ type-narrowing/validation before use, but prefer explicitly mapping the expected structure.
+
 ## 📱 Mobile & PWA Strategy
 1. **Responsive Design:** - Use a **Bottom Navigation Bar** for mobile (`max-width: 768px`) and a **Sidebar** for desktop.
    - Convert all Data Tables into **Mobile Cards** on small screens.

@@ -7,8 +7,12 @@ import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/finance/TransactionsTable"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDialog"
+import { Database } from "@/types/database.types"
+import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
 
-function RecurringFlowsTable({ flows }: { flows: any[] }) {
+type FlowRow = Database['public']['Tables']['recurring_flows']['Row']
+
+function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
     if (!flows || flows.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
@@ -105,14 +109,14 @@ export default async function FinancePage() {
         `)
         .order('date', { ascending: false })
 
-    const transactions = rawTransactions as any[] || []
+    const transactions = rawTransactions as TransactionWithCategory[] || []
 
     // Fetch recurring flows
     const { data: recurringFlows } = await supabase
         .from('recurring_flows')
         .select('*')
         .order('created_at', { ascending: false })
-    const flows = recurringFlows as any[] || []
+    const flows = recurringFlows || []
 
 
     // Map categories to Tabs visually. For a real app, we would map `categories.parent_id` to these buckets.

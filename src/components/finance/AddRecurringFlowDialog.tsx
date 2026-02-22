@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Database } from "@/types/database.types";
+
+type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
+type RecurringFlowInsert = Database['public']['Tables']['recurring_flows']['Insert'];
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,7 +34,7 @@ export function AddRecurringFlowDialog({
   flowToEdit,
 }: {
   triggerButton?: React.ReactNode;
-  flowToEdit?: any;
+  flowToEdit?: RecurringFlowRow;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -78,13 +83,17 @@ export function AddRecurringFlowDialog({
 
     let error;
 
-    if (isEditing) {
-      const { error: updateError } = await (supabase.from("recurring_flows") as any)
+    if (isEditing && flowToEdit) {
+      const { error: updateError } = await supabase
+        .from("recurring_flows")
+        // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .update(payload)
         .eq("id", flowToEdit.id);
       error = updateError;
     } else {
-      const { error: insertError } = await (supabase.from("recurring_flows") as any)
+      const { error: insertError } = await supabase
+        .from("recurring_flows")
+        // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .insert(payload);
       error = insertError;
     }

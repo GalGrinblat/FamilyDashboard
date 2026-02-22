@@ -6,8 +6,12 @@ import { Plus } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { AddReminderDialog } from "@/components/planning/AddReminderDialog"
 import { AddTripDialog } from "@/components/planning/AddTripDialog"
+import { Database } from "@/types/database.types"
 
-function RemindersTable({ items }: { items: any[] }) {
+type ReminderRow = Database['public']['Tables']['reminders']['Row']
+type TripRow = Database['public']['Tables']['trips']['Row']
+
+function RemindersTable({ items }: { items: ReminderRow[] }) {
     if (!items || items.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
@@ -54,7 +58,7 @@ function RemindersTable({ items }: { items: any[] }) {
     )
 }
 
-function TripsTable({ items }: { items: any[] }) {
+function TripsTable({ items }: { items: TripRow[] }) {
     if (!items || items.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
@@ -98,11 +102,11 @@ export default async function PlanningPage() {
 
     // Fetch Reminders
     const { data: remindersData } = await supabase.from('reminders').select('*').order('due_date', { ascending: true })
-    const reminders = remindersData as any[] || []
+    const reminders = (remindersData as ReminderRow[]) || []
 
     // Fetch Trips
     const { data: tripsData } = await supabase.from('trips').select('*').order('start_date', { ascending: true })
-    const trips = tripsData as any[] || []
+    const trips = (tripsData as TripRow[]) || []
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">

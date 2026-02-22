@@ -68,7 +68,8 @@ export function AddReminderDialog({
             is_completed: false
         }
 
-        const { error } = await supabase.from("reminders").insert(payload as any)
+        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+        const { error } = await supabase.from("reminders").insert(payload)
 
         setLoading(false)
 

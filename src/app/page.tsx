@@ -7,6 +7,14 @@ import {
 } from "@/components/ui/card"
 import { AlertCircle, ArrowDownRight, ArrowUpRight, CarFront, ShieldCheck, Wallet, Wrench } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
+import { Database } from "@/types/database.types"
+
+type AccountRef = Pick<Database['public']['Tables']['accounts']['Row'], 'current_balance'>
+type AssetRef = Pick<Database['public']['Tables']['assets']['Row'], 'estimated_value'>
+type TransactionRef = Pick<Database['public']['Tables']['transactions']['Row'], 'amount'> & {
+  categories: Pick<Database['public']['Tables']['categories']['Row'], 'type'> | Pick<Database['public']['Tables']['categories']['Row'], 'type'>[] | null
+}
+type ReminderRef = Database['public']['Tables']['reminders']['Row']
 
 // Helper function to format currency
 const formatILS = (amount: number) => {
@@ -27,11 +35,14 @@ export default async function Home() {
   const supabase = await createClient()
 
   // 1. Calculate Net Worth (Accounts balances + Assets estimated values)
-  const { data: accounts } = await supabase.from('accounts').select('current_balance')
-  const { data: assets } = await supabase.from('assets').select('estimated_value')
+  const { data: accountsRaw } = await supabase.from('accounts').select('current_balance')
+  const { data: assetsRaw } = await supabase.from('assets').select('estimated_value')
 
-  const totalBalance = (accounts as any[])?.reduce((acc, curr) => acc + (curr.current_balance || 0), 0) || 0
-  const totalAssetsValue = (assets as any[])?.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0) || 0
+  const accounts = accountsRaw as AccountRef[] | null
+  const assets = assetsRaw as AssetRef[] | null
+
+  const totalBalance = accounts?.reduce((acc, curr) => acc + (curr.current_balance || 0), 0) || 0
+  const totalAssetsValue = assets?.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0) || 0
   const netWorth = totalBalance + totalAssetsValue
 
   // 2. Calculate Monthly Burn Rate (Sum of expense transactions for the current month)
@@ -47,7 +58,9 @@ export default async function Home() {
     `)
     .gte('date', startOfMonth.toISOString())
 
-  const monthlyBurnRate = (transactionsData as any[])?.reduce((acc, curr) => {
+  const transactions = transactionsData as TransactionRef[] | null
+
+  const monthlyBurnRate = transactions?.reduce((acc, curr) => {
     const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
 
     if (catType === 'expense') {
@@ -68,7 +81,7 @@ export default async function Home() {
     .order('due_date', { ascending: true })
     .limit(5)
 
-  const reminders = data as any[]
+  const reminders = (data as ReminderRef[]) || []
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

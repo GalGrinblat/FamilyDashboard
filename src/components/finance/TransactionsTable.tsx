@@ -1,6 +1,14 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Database } from "@/types/database.types"
 
-export function TransactionsTable({ transactions }: { transactions: any[] }) {
+type TransactionRow = Database['public']['Tables']['transactions']['Row']
+type CategoryRow = Database['public']['Tables']['categories']['Row']
+
+export type TransactionWithCategory = TransactionRow & {
+    categories?: Partial<CategoryRow> | Partial<CategoryRow>[] | null
+}
+
+export function TransactionsTable({ transactions }: { transactions: TransactionWithCategory[] }) {
     if (!transactions || transactions.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">

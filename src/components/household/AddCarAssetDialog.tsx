@@ -44,7 +44,8 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
             }
         }
 
-        const { error } = await supabase.from("assets").insert(payload as any)
+        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+        const { error } = await supabase.from("assets").insert(payload)
 
         setLoading(false)
 

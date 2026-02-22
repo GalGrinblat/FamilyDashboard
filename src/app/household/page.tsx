@@ -6,8 +6,13 @@ import { Plus, Car as CarIcon, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
 import { AddCarAssetDialog } from "@/components/household/AddCarAssetDialog"
+import { Database } from "@/types/database.types"
 
-function ItemsTable({ items }: { items: any[] }) {
+type HouseholdItemRow = Database['public']['Tables']['household_items']['Row']
+type AssetRow = Database['public']['Tables']['assets']['Row']
+type ReminderRow = Database['public']['Tables']['reminders']['Row']
+
+function ItemsTable({ items }: { items: HouseholdItemRow[] }) {
     if (!items || items.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
@@ -73,7 +78,7 @@ function ItemsTable({ items }: { items: any[] }) {
     )
 }
 
-function CarsTable({ cars, reminders }: { cars: any[], reminders: any[] }) {
+function CarsTable({ cars, reminders }: { cars: AssetRow[], reminders: ReminderRow[] }) {
     if (!cars || cars.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
@@ -103,7 +108,7 @@ function CarsTable({ cars, reminders }: { cars: any[], reminders: any[] }) {
                     </TableHeader>
                     <TableBody>
                         {cars.map(car => {
-                            const metadata = (car.metadata || {}) as any
+                            const metadata = (car.metadata || {}) as { license_plate?: string; year?: string }
                             return (
                                 <TableRow key={car.id}>
                                     <TableCell className="font-medium text-blue-600 dark:text-blue-400 font-semibold">{car.name}</TableCell>
@@ -120,7 +125,7 @@ function CarsTable({ cars, reminders }: { cars: any[], reminders: any[] }) {
             {/* Mobile View */}
             <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
                 {cars.map(car => {
-                    const metadata = (car.metadata || {}) as any
+                    const metadata = (car.metadata || {}) as { license_plate?: string; year?: string }
                     return (
                         <div key={car.id} className="flex flex-col space-y-2 p-4 rounded-xl border border-blue-100 bg-white shadow-sm dark:border-blue-900/30 dark:bg-zinc-950">
                             <div className="flex justify-between items-start">
@@ -173,7 +178,7 @@ export default async function HouseholdPage() {
         .select('*')
         .order('created_at', { ascending: false })
 
-    const items = householdData as any[] || []
+    const items = (householdData as HouseholdItemRow[]) || []
     const appliances = items.filter(i => i.category === 'appliance')
     const furniture = items.filter(i => i.category === 'furniture')
     const electronics = items.filter(i => i.category === 'electronics')
@@ -184,7 +189,7 @@ export default async function HouseholdPage() {
         .select('*')
         .eq('type', 'vehicle')
         .order('created_at', { ascending: false })
-    const cars = assetsData as any[] || []
+    const cars = (assetsData as AssetRow[]) || []
 
     // 3. Fetch Car alerts (tests / insurance)
     const { data: remindersData } = await supabase
@@ -193,7 +198,7 @@ export default async function HouseholdPage() {
         .in('type', ['car_test', 'insurance'])
         .eq('is_completed', false)
         .order('due_date', { ascending: true })
-    const notifications = remindersData as any[] || []
+    const notifications = (remindersData as ReminderRow[]) || []
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
