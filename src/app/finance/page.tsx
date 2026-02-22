@@ -1,12 +1,28 @@
-"use client"
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { UploadCloud } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
+import { TransactionsTable } from "@/components/finance/TransactionsTable"
+import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 
-export default function FinancePage() {
+export default async function FinancePage() {
+    const supabase = await createClient()
+
+    // Fetch all transactions with categories
+    const { data: rawTransactions } = await supabase
+        .from('transactions')
+        .select(`
+            id, amount, date, description, merchant, account_id,
+            categories ( name_he, name_en, type )
+        `)
+        .order('date', { ascending: false })
+
+    const transactions = rawTransactions as any[] || []
+
+    // Map categories to Tabs visually. For a real app, we would map `categories.parent_id` to these buckets.
+    // Here we'll do a simple mock filter based on existence of data to feed the tables.
+    const incomes = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === 'income')
+    const generalExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === 'expense')
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -35,8 +51,8 @@ export default function FinancePage() {
                                 <CardTitle>הכנסות</CardTitle>
                                 <CardDescription>מעקב אחר משכורות, הכנסות משכר דירה, וקצבאות.</CardDescription>
                             </CardHeader>
-                            <CardContent className="h-64 flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                                טבלת מעקב הכנסות תופיע כאן.
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={incomes} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -48,20 +64,20 @@ export default function FinancePage() {
                                 <CardDescription>תיק מניות, קריפטו, וסטטוס נדל״ן.</CardDescription>
                             </CardHeader>
                             <CardContent className="h-64 flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                                מעקב שווי נקי ונכסים.
+                                מעקב שווי נקי ונכסים. משיכת API ממערכות סחר חיצוניות.
                             </CardContent>
                         </Card>
                     </TabsContent>
 
-                    {/* ... other standard tabs ... */}
                     <TabsContent value="housing" className="m-0">
                         <Card>
                             <CardHeader>
                                 <CardTitle>מגורים</CardTitle>
                                 <CardDescription>שכירות/משכנתא, חשמל, מים, ארנונה, אינטרנט ותמי4.</CardDescription>
                             </CardHeader>
-                            <CardContent className="h-64 flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                                טבלת הוצאות מבוססות מגורים.
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                {/* Normally we would filter by 'housing' related category IDs here */}
+                                <TransactionsTable transactions={generalExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -72,8 +88,8 @@ export default function FinancePage() {
                                 <CardTitle>בריאות</CardTitle>
                                 <CardDescription>ביטוחי בריאות, קופת חולים, וביטוחי חיים.</CardDescription>
                             </CardHeader>
-                            <CardContent className="h-64 flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                                מעקב תשלומים ותשלומי ביטוח חיים.
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={[]} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -84,41 +100,63 @@ export default function FinancePage() {
                                 <CardTitle>רכב</CardTitle>
                                 <CardDescription>דלק, טסט לרכב, ביטוח, טיפולים וחניה.</CardDescription>
                             </CardHeader>
-                            <CardContent className="h-64 flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                                הוצאות רכב שוטפות.
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={[]} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="sports" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>ספורט וחוגים</CardTitle>
+                                <CardDescription>מעקב הוצאות באולינג, חוגי ילדים ופנאי.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={[]} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="supermarket" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>סופרמרקט</CardTitle>
+                                <CardDescription>הוצאות מזון ומוצרי צריכה בסיסיים.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={[]} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="vacation" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>חופשות</CardTitle>
+                                <CardDescription>סיווג הוצאות לטיולים ומעקב מול התקציב שהוגדר ב׳תכנון׳.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={[]} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="payments" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>ניהול תשלומים</CardTitle>
+                                <CardDescription>פירוט תנועות מיפוי מולטי-בנק וכרטיסי אשראי.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={transactions} />
                             </CardContent>
                         </Card>
                     </TabsContent>
 
                     {/* AI Engine Tab with specific UI */}
                     <TabsContent value="ai_engine" className="m-0">
-                        <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm">
-                            <CardHeader className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-t-xl pb-6">
-                                <CardTitle className="text-indigo-700 dark:text-indigo-300">מנוע AI לסיווג הוצאות</CardTitle>
-                                <CardDescription>
-                                    העלה כאן קבצי Excel/CSV מהבנק או מאתר חברת האשראי לסיווג חכם של הוצאות.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-indigo-200 dark:border-indigo-800/50 rounded-xl bg-indigo-50/30 dark:bg-indigo-950/20 transition-colors hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40">
-                                    <div className="bg-white dark:bg-zinc-900 p-4 rounded-full shadow-sm mb-4">
-                                        <UploadCloud className="w-8 h-8 text-indigo-500" />
-                                    </div>
-                                    <h3 className="font-semibold text-lg mb-1">גרור קובץ CSV לכאן</h3>
-                                    <p className="text-sm text-muted-foreground mb-6">או בחר קובץ מהמחשב</p>
-
-                                    <div className="flex items-center gap-2">
-                                        <Input id="data-file" type="file" className="hidden" />
-                                        <Button variant="outline" className="border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/50" onClick={() => document.getElementById('data-file')?.click()}>
-                                            בחר קובץ
-                                        </Button>
-                                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                            התחל סיווג
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <ExpenseUploader />
                     </TabsContent>
 
                 </div>
