@@ -38,28 +38,36 @@ A comprehensive family management system for tracking finances, assets, insuranc
 ## 🗺 Application Sitemap & Navigation
 
 ### 1. Overview (ראשי)
-- Monthly burn rate, net worth summary, and urgent alerts (upcoming car tests/insurance renewals).
+- High-level KPIs: Monthly burn rate, net worth summary, and urgent upcoming alerts.
 
-### 2. Finance (פיננסים) - Sub-tabs:
-- **Income (הכנסות):** Salaries, rent income, child benefits.
-- **Assets & Investments (נכסים והשקעות):** Stock portfolio, crypto, real estate status.
-- **Housing (מגורים):** Rent/Mortgage, Utilities (Electricity, Water, Arnona, Internet, Tami4).
-- **Health (בריאות):** Medical insurance, HMO (Kupat Holim), Life insurance.
-- **Car (רכב):** Fuel, annual test (test), insurance, maintenance, parking.
-- **Sports & Hobbies (ספורט וחוגים):** Bowling stats/gear, Inna's classes, Oren's classes.
-- **Supermarket (סופרמרקט):** Grocery spending tracking.
-- **Vacation Expenses (חופשות):** Actual spending on past/current trips.
-- **Payment Management (ניהול תשלומים):** Mapping expenses to sources (Bank/Credit Card).
+### 2. Transactions & Cash Flow (תנועות / עו״ש)
+- **Current Month (החודש השוטף):** General spending (Supermarket, Vacations, Hobbies) and tracking the execution of monthly payments.
+- **Payment Management (ניהול תשלומים):** Mapping expenses to Bank/Credit Card sources.
 - **Expense Engine (מנוע הוצאות):** CSV upload area for automated AI classification.
 
-### 3. Household (משק בית)
-- **Appliances (מכשירי חשמל):** Tracking of household items.
-- **Furniture (ריהוט):** Tracking of household items.
-- **Electronics (אלקטרוניקה):** Tracking of household items.
+### 3. Finance & Wealth (פיננסים ונכסים)
+- **Income Sources (מקורות הכנסה):** Salaries, rent income, child benefits.
+- **Assets & Investments (השקעות):** Stock portfolios, crypto, real estate capital.
 
-### 4. Planning (תכנון) - Sub-sections:
-- **Periodic Planning (תכנון עיתי):** Calendar for car tests, insurance renewals, home maintenance.
+### 4. Housing & Household (מגורים ומשק בית)
+- **Contracts & Utilities (חוזים ושירותים):** Mortgage/Rent tracking, Internet, Electricity, Water providers.
+- **Inventory (תכולה):** Appliances, Furniture, Electronics tracking.
+
+### 5. Vehicles (רכבים)
+- **Fleet Overview (צי רכבים):** Vehicle values and details.
+- **Maintenance & Licensing (טיפולים ורישוי):** Tracking annual tests (טסט), garage visits, and mileage.
+
+### 6. Insurances (ביטוחים)
+- **Health & Life (בריאות וחיים):** HMO, private medical, life insurance.
+- **Property Insurance (ביטוחי מבנה ותכולה):** Home insurances.
+- **Vehicle Insurance (ביטוחי רכב):** Mandatory (חובה) and Comprehensive (מקיף) tracking.
+
+### 7. Planning (תכנון)
+- **Periodic Planning (תכנון עיתי):** Visual timeline for insurance renewals, car tests, and home maintenance.
 - **Vacation Planning (תכנון חופשות):** Budgeting and itinerary planning for future trips.
+
+### 8. Settings (הגדרות)
+- **Category Manager:** Customizing transaction classification and AI rules.
 
 ## 💾 Database Schema (Supabase)
 - **Tables:** `categories`, `accounts`, `trips`, `transactions`, `assets`, `household_items`, `reminders`, `merchant_mappings`.

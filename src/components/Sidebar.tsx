@@ -8,7 +8,11 @@ import {
     Settings,
     Sofa,
     CalendarDays,
-    Menu
+    Menu,
+    ArrowRightLeft,
+    PieChart,
+    Car,
+    Shield
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -16,8 +20,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const navItems = [
     { href: "/", label: "ראשי", icon: Home },
-    { href: "/finance", label: "פיננסים", icon: Wallet },
-    { href: "/household", label: "משק בית", icon: Sofa },
+    { href: "/transactions", label: "תנועות / עו״ש", icon: ArrowRightLeft },
+    { href: "/finance", label: "פיננסים ונכסים", icon: PieChart },
+    { href: "/housing", label: "מגורים ומשק בית", icon: Sofa },
+    { href: "/vehicles", label: "רכבים", icon: Car },
+    { href: "/insurances", label: "ביטוחים", icon: Shield },
     { href: "/planning", label: "תכנון", icon: CalendarDays },
     { href: "/settings", label: "הגדרות", icon: Settings },
 ]
