@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/finance/TransactionsTable"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDialog"
-import { CsvUploadEngine } from "@/components/finance/CsvUploadEngine"
+
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
 

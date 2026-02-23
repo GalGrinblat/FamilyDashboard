@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CsvUploadEngine, ParsedTransactionRow } from "@/components/finance/CsvUploadEngine"
+import { StatementUploadEngine, ParsedTransactionRow } from "@/components/finance/StatementUploadEngine"
 import { ReviewTransactionsTable, ClassifiedTransactionRow } from "@/components/finance/ReviewTransactionsTable"
 
 export function ExpenseUploader({ categories }: { categories: { id: string, name_he: string }[] }) {
@@ -60,7 +60,7 @@ export function ExpenseUploader({ categories }: { categories: { id: string, name
         <div className="space-y-6">
             {!classifiedRows ? (
                 <div className="relative">
-                    <CsvUploadEngine onUploadComplete={handleUploadComplete} />
+                    <StatementUploadEngine onUploadComplete={handleUploadComplete} />
                     {isClassifying && (
                         <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl border border-indigo-200 dark:border-indigo-800">
                             <div className="bg-white dark:bg-zinc-900 shadow-lg px-8 py-6 rounded-2xl flex flex-col items-center">

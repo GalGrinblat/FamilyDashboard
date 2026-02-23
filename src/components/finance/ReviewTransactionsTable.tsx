@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ParsedTransactionRow } from "./CsvUploadEngine"
+import { ParsedTransactionRow } from "./StatementUploadEngine"
 import { CheckCircle2, ChevronLeft, Loader2 } from "lucide-react"
 
 export interface ClassifiedTransactionRow extends ParsedTransactionRow {
