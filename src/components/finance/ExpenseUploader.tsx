@@ -1,37 +1,85 @@
 "use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { UploadCloud } from "lucide-react"
 
-export function ExpenseUploader() {
+import { useState } from "react"
+import { CsvUploadEngine, ParsedTransactionRow } from "@/components/finance/CsvUploadEngine"
+import { ReviewTransactionsTable, ClassifiedTransactionRow } from "@/components/finance/ReviewTransactionsTable"
+
+export function ExpenseUploader({ categories }: { categories: { id: string, name_he: string }[] }) {
+    const [isClassifying, setIsClassifying] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [classifiedRows, setClassifiedRows] = useState<ClassifiedTransactionRow[] | null>(null)
+
+    const handleUploadComplete = async (data: ParsedTransactionRow[]) => {
+        setIsClassifying(true)
+        try {
+            const res = await fetch("/api/classify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+
+            if (!res.ok) throw new Error("Classification failed")
+
+            const payload = await res.json()
+            setClassifiedRows(payload.results || [])
+        } catch (err) {
+            console.error(err)
+            alert("אירעה שגיאה בשרת הסיווג (API Error).")
+        } finally {
+            setIsClassifying(false)
+        }
+    }
+
+    const handleReset = () => {
+        setClassifiedRows(null)
+    }
+
+    const handleConfirm = async (finalRows: ClassifiedTransactionRow[]) => {
+        setIsSubmitting(true)
+        try {
+            const res = await fetch("/api/transactions/batch", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(finalRows)
+            })
+
+            if (!res.ok) throw new Error("Failed to save transactions")
+
+            alert("תנועות נשמרו בהצלחה במסד הנתונים!")
+            handleReset()
+            // In a real app we'd trigger a router.refresh() here so the UI tables see the new data
+        } catch (error) {
+            console.error(error)
+            alert("שגיאה בשמירת התנועות לרשומות הבסיס.")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
     return (
-        <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-sm">
-            <CardHeader className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-t-xl pb-6">
-                <CardTitle className="text-indigo-700 dark:text-indigo-300">מנוע AI לסיווג הוצאות</CardTitle>
-                <CardDescription>
-                    העלה כאן קבצי Excel/CSV מהבנק או מאתר חברת האשראי לסיווג חכם של הוצאות.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
-                <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-indigo-200 dark:border-indigo-800/50 rounded-xl bg-indigo-50/30 dark:bg-indigo-950/20 transition-colors hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40">
-                    <div className="bg-white dark:bg-zinc-900 p-4 rounded-full shadow-sm mb-4">
-                        <UploadCloud className="w-8 h-8 text-indigo-500" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-1">גרור קובץ CSV לכאן</h3>
-                    <p className="text-sm text-muted-foreground mb-6">או בחר קובץ מהמחשב</p>
-
-                    <div className="flex items-center gap-2">
-                        <Input id="data-file" type="file" className="hidden" />
-                        <Button variant="outline" className="border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:hover:bg-indigo-900/50" onClick={() => document.getElementById('data-file')?.click()}>
-                            בחר קובץ
-                        </Button>
-                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                            התחל סיווג
-                        </Button>
-                    </div>
+        <div className="space-y-6">
+            {!classifiedRows ? (
+                <div className="relative">
+                    <CsvUploadEngine onUploadComplete={handleUploadComplete} />
+                    {isClassifying && (
+                        <div className="absolute inset-0 bg-white/50 dark:bg-black/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl border border-indigo-200 dark:border-indigo-800">
+                            <div className="bg-white dark:bg-zinc-900 shadow-lg px-8 py-6 rounded-2xl flex flex-col items-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+                                <h3 className="font-semibold text-lg">המנוע החכם סורק את התנועות...</h3>
+                                <p className="text-sm text-muted-foreground mt-1">מצליב נתונים מול בסיס הנתונים ו-AI</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </CardContent>
-        </Card>
+            ) : (
+                <ReviewTransactionsTable
+                    rows={classifiedRows}
+                    categories={categories}
+                    onConfirm={handleConfirm}
+                    onCancel={handleReset}
+                    isSubmitting={isSubmitting}
+                />
+            )}
+        </div>
     )
 }

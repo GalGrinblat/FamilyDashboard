@@ -4,6 +4,7 @@ import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { GlobalFAB } from "@/components/layout/GlobalFAB";
+import { createClient } from "@/lib/supabase/server";
 
 const assistant = Assistant({
   subsets: ["hebrew", "latin"],
@@ -16,11 +17,19 @@ export const metadata: Metadata = {
   description: "Family Operations Dashboard",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: rawCategories } = await supabase
+    .from('categories')
+    .select('id, name_he')
+    .order('name_he', { ascending: true });
+
+  const categories = rawCategories || [];
+
   return (
     <html lang="he" dir="rtl">
       <body
@@ -31,7 +40,7 @@ export default function RootLayout({
           {children}
         </main>
         <MobileNav />
-        <GlobalFAB />
+        <GlobalFAB categories={categories} />
       </body>
     </html>
   );

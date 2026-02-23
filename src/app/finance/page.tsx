@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/finance/TransactionsTable"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDialog"
+import { CsvUploadEngine } from "@/components/finance/CsvUploadEngine"
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
 
@@ -110,6 +111,13 @@ export default async function FinancePage() {
         .order('date', { ascending: false })
 
     const transactions = rawTransactions as TransactionWithCategory[] || []
+    // Fetch all categories to feed the Uploader drop-down map
+    const { data: rawCategories } = await supabase
+        .from('categories')
+        .select('id, name_he')
+        .order('name_he', { ascending: true })
+
+    const dbCategories = rawCategories || []
 
     // Fetch recurring flows
     const { data: recurringFlows } = await supabase
@@ -272,7 +280,7 @@ export default async function FinancePage() {
 
                     {/* AI Engine Tab with specific UI */}
                     <TabsContent value="ai_engine" className="m-0">
-                        <ExpenseUploader />
+                        <ExpenseUploader categories={dbCategories} />
                     </TabsContent>
 
                 </div>

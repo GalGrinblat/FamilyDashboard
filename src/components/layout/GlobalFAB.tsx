@@ -15,7 +15,7 @@ import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
 import { AddReminderDialog } from "@/components/planning/AddReminderDialog"
 
-export function GlobalFAB() {
+export function GlobalFAB({ categories }: { categories: { id: string, name_he: string }[] }) {
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false)
     const [isHouseholdOpen, setIsHouseholdOpen] = React.useState(false)
     const [isReminderOpen, setIsReminderOpen] = React.useState(false)
@@ -58,7 +58,7 @@ export function GlobalFAB() {
                     <div className="bg-white dark:bg-zinc-950 p-6 rounded-lg shadow-xl w-full max-w-md relative">
                         <button onClick={() => setIsExpenseOpen(false)} className="absolute top-4 left-4 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100">X</button>
                         <h2 className="text-xl font-bold mb-4" dir="rtl">ייבוא הוצאות</h2>
-                        <ExpenseUploader />
+                        <ExpenseUploader categories={categories} />
                     </div>
                 </div>
             )}
