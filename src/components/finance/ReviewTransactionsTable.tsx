@@ -10,6 +10,7 @@ import { CheckCircle2, ChevronLeft, Loader2 } from "lucide-react"
 export interface ClassifiedTransactionRow extends ParsedTransactionRow {
     suggested_category_id: string | null
     is_ai_classified: boolean
+    suggested_new_category?: { name_he: string; name_en: string; type: string } | null
 }
 
 interface ReviewTransactionsTableProps {
@@ -25,11 +26,14 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
 
     const handleCategoryChange = (index: number, newCategoryId: string) => {
         const updatedRows = [...reviewedRows]
+        // If they select an existing category, it's an override unless they select the "NEW" option itself (which has value="NEW")
         updatedRows[index] = {
             ...updatedRows[index],
-            suggested_category_id: newCategoryId,
+            suggested_category_id: newCategoryId === "NEW" ? null : newCategoryId,
             // If they manually fix it, we consider it a user override (not AI anymore)
-            is_ai_classified: false
+            is_ai_classified: false,
+            // If they changed to an existing category, remove the new suggestion so it doesn't get created
+            suggested_new_category: newCategoryId === "NEW" ? updatedRows[index].suggested_new_category : null
         }
         setReviewedRows(updatedRows)
     }
@@ -81,25 +85,36 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
                                 </TableCell>
                                 <TableCell>
                                     <select
-                                        className={`w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer ${row.suggested_category_id ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-amber-600 dark:text-amber-500 font-bold'
+                                        className={`w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer ${row.suggested_new_category ? 'text-indigo-600 dark:text-indigo-400 font-bold' :
+                                            row.suggested_category_id ? 'text-emerald-700 dark:text-emerald-400 font-medium' : 'text-amber-600 dark:text-amber-500 font-bold'
                                             }`}
-                                        value={row.suggested_category_id || ""}
+                                        value={row.suggested_category_id || (row.suggested_new_category ? "NEW" : "")}
                                         onChange={(e) => handleCategoryChange(idx, e.target.value)}
                                         dir="rtl"
                                     >
                                         <option value="" disabled>-- בחר קטגוריה --</option>
+                                        {row.suggested_new_category && (
+                                            <option value="NEW" className="text-indigo-600 font-bold">
+                                                ★ קטגוריה חדשה: {row.suggested_new_category.name_he}
+                                            </option>
+                                        )}
                                         {categories.map(cat => (
                                             <option key={cat.id} value={cat.id} className="text-zinc-900 dark:text-zinc-100">
                                                 {cat.name_he}
                                             </option>
                                         ))}
                                     </select>
-                                    {row.suggested_category_id && row.is_ai_classified && (
+                                    {row.suggested_new_category && (
+                                        <span className="text-[10px] text-indigo-500 flex items-center gap-1 mt-1 font-medium">
+                                            ✨ בינה מלאכותית מציעה קטגוריה חדשה
+                                        </span>
+                                    )}
+                                    {row.suggested_category_id && row.is_ai_classified && !row.suggested_new_category && (
                                         <span className="text-[10px] text-indigo-500 flex items-center gap-1 mt-1">
                                             ✨ סווג ע״י בינה מלאכותית
                                         </span>
                                     )}
-                                    {row.suggested_category_id && !row.is_ai_classified && (
+                                    {row.suggested_category_id && !row.is_ai_classified && !row.suggested_new_category && (
                                         <span className="text-[10px] text-emerald-600 flex items-center gap-1 mt-1">
                                             ✓ סווג ע״י חוקיות ממיפוי קודם
                                         </span>

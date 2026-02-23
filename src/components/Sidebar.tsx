@@ -19,6 +19,7 @@ const navItems = [
     { href: "/finance", label: "פיננסים", icon: Wallet },
     { href: "/household", label: "משק בית", icon: Sofa },
     { href: "/planning", label: "תכנון", icon: CalendarDays },
+    { href: "/settings", label: "הגדרות", icon: Settings },
 ]
 
 export function Sidebar() {

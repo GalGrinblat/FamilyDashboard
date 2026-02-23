@@ -10,6 +10,7 @@ interface ParsedPayloadRow {
     amount: string | number
     description?: string
     suggested_category_id?: string | null
+    suggested_new_category?: { name_he: string; name_en: string; type: string } | null
 }
 
 export async function POST(req: Request) {
@@ -19,6 +20,40 @@ export async function POST(req: Request) {
 
         if (!payload || !Array.isArray(payload) || payload.length === 0) {
             return NextResponse.json({ error: "Invalid payload format" }, { status: 400 })
+        }
+
+        // 0. Intercept and create NEW categories
+        // Group identical suggested new categories to avoid creating duplicates in a single batch
+        const newCategoryMap = new Map<string, string>() // Key: stringified category, Value: new category ID
+
+        for (const row of payload as ParsedPayloadRow[]) {
+            if (row.suggested_new_category && !row.suggested_category_id) {
+                const mapKey = `${row.suggested_new_category.name_he}-${row.suggested_new_category.type}`
+
+                if (!newCategoryMap.has(mapKey)) {
+                    // Try to insert
+                    const { data: newCat, error: catError } = await supabase
+                        .from('categories')
+                        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete descriptors
+                        .insert({
+                            name_he: row.suggested_new_category.name_he,
+                            name_en: row.suggested_new_category.name_en || row.suggested_new_category.name_he,
+                            type: row.suggested_new_category.type
+                        })
+                        .select('id')
+                        .single()
+
+                    if (catError) {
+                        console.error("Failed to create suggested new AI category:", catError)
+                    } else if (newCat) {
+                        const createdCat = newCat as any
+                        newCategoryMap.set(mapKey, createdCat.id)
+                    }
+                }
+
+                // Link the row to the newly created category
+                row.suggested_category_id = newCategoryMap.get(mapKey) || null
+            }
         }
 
         // 1. Prepare transactions for insertion
@@ -52,18 +87,11 @@ export async function POST(req: Request) {
             }))
 
         // Upsert unique dictionary definitions silently. 
-        // We use ON CONFLICT DO NOTHING (or similar Supabase upsert logic) via ignoring duplicates.
         if (mappingsToLearn.length > 0) {
-            // Because our table doesn't have a unique constraint on raw_merchant_string yet, 
-            // a safer bet is to just let the user save it for now, 
-            // or we add a unique constraint via migration later.
-            // For MVP functionality, we will attempt to insert and ignore errors.
             await supabase
                 .from('merchant_mappings')
                 // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
                 .insert(mappingsToLearn)
-            // Note: without a unique constraint on raw_merchant_string, this will duplicate.
-            // We'll leave it as is for V1 to ensure they at least get saved. 
         }
 
         return NextResponse.json({

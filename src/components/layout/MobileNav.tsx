@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Wallet, Home, Calendar } from "lucide-react"
+import { LayoutDashboard, Wallet, Home, Calendar, Settings as SettingsIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function MobileNav() {
@@ -13,6 +13,7 @@ export function MobileNav() {
         { href: "/finance", icon: Wallet, label: "פיננסים" },
         { href: "/household", icon: Home, label: "משק הבית" },
         { href: "/planning", icon: Calendar, label: "תכנון" },
+        { href: "/settings", icon: SettingsIcon, label: "הגדרות" },
     ]
 
     return (
