@@ -61,6 +61,35 @@ export function StatementUploadEngine({ onUploadComplete }: { onUploadComplete: 
     const processJsonRows = (rawRows: Record<string, unknown>[]) => {
         const parsedData: ParsedTransactionRow[] = []
 
+        const parseIsraeliDate = (dStr: string): string => {
+            if (!dStr) return new Date().toISOString()
+
+            // Handle Excel serial date strings (e.g. "45300")
+            // Commonly used in .xlsx banks extracts
+            if (/^\d{5}(\.\d+)?$/.test(dStr.trim())) {
+                const excelDays = parseFloat(dStr.trim())
+                // Excel epoch is Dec 30, 1899
+                const dateObj = new Date(Date.UTC(1899, 11, 30))
+                dateObj.setUTCDate(dateObj.getUTCDate() + excelDays)
+                return dateObj.toISOString().split('T')[0]
+            }
+
+            const trimmed = dStr.trim().split(/[ T]/)[0] // Handle trailing time
+            const parts = trimmed.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/)
+            if (parts) {
+                const day = parts[1].padStart(2, '0')
+                const month = parts[2].padStart(2, '0')
+                let year = parts[3]
+                if (year.length === 2) year = "20" + year
+                return `${year}-${month}-${day}`
+            }
+            const parsed = new Date(trimmed)
+            if (!isNaN(parsed.getTime())) {
+                return parsed.toISOString()
+            }
+            return new Date().toISOString()
+        }
+
         rawRows.forEach(row => {
             // Primitive guessing logic for Heuristic mapping
             const rowStr = JSON.stringify(row).toLowerCase()
@@ -90,7 +119,7 @@ export function StatementUploadEngine({ onUploadComplete }: { onUploadComplete: 
             for (const key of Object.keys(row)) {
                 const lKey = key.toLowerCase()
                 if (lKey.includes("תאריך") || lKey.includes("date")) {
-                    dateStr = String(row[key])
+                    dateStr = parseIsraeliDate(String(row[key]))
                     break
                 }
             }
