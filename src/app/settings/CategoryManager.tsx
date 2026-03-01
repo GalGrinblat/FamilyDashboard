@@ -46,6 +46,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
     const [nameHe, setNameHe] = useState("")
     const [nameEn, setNameEn] = useState("")
     const [type, setType] = useState("expense")
+    const [domain, setDomain] = useState("general")
 
     const handleOpenDialog = (category?: CategoryRow) => {
         if (category) {
@@ -53,11 +54,13 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             setNameHe(category.name_he)
             setNameEn(category.name_en)
             setType(category.type)
+            setDomain(category.domain || "general")
         } else {
             setEditingCategory(null)
             setNameHe("")
             setNameEn("")
             setType("expense")
+            setDomain("general")
         }
         setOpen(true)
     }
@@ -84,6 +87,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             name_he: nameHe,
             name_en: nameEn || nameHe, // default to HE if missing to prevent null issues
             type,
+            domain
         }
 
         if (editingCategory) {
@@ -147,6 +151,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                             <TableHead className="text-right">שם (עברית)</TableHead>
                             <TableHead className="text-right">שם (En)</TableHead>
                             <TableHead className="text-right">סוג</TableHead>
+                            <TableHead className="text-right">שיוך דיגיטלי (Domain)</TableHead>
                             <TableHead className="w-[100px]"></TableHead>
                         </TableRow>
                     </TableHeader>
@@ -166,6 +171,9 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${category.type === 'expense' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
                                             {category.type === 'expense' ? 'הוצאה' : 'הכנסה'}
                                         </span>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">
+                                        {category.domain === 'housing' ? 'מגורים' : category.domain === 'vehicles' ? 'רכבים' : category.domain === 'insurances' ? 'ביטוחים' : 'כללי'}
                                     </TableCell>
                                     <TableCell className="text-left">
                                         <div className="flex justify-end gap-2">
@@ -226,6 +234,20 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                                 <SelectContent dir="rtl">
                                     <SelectItem value="expense">הוצאה (-)</SelectItem>
                                     <SelectItem value="income">הכנסה (+)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="domain" className="text-right">שיוך אזור</Label>
+                            <Select value={domain} onValueChange={setDomain}>
+                                <SelectTrigger className="col-span-3">
+                                    <SelectValue placeholder="בחר אזור באפליקציה" />
+                                </SelectTrigger>
+                                <SelectContent dir="rtl">
+                                    <SelectItem value="general">כללי (מופיע רק בעו״ש)</SelectItem>
+                                    <SelectItem value="housing">מגורים ומשק בית</SelectItem>
+                                    <SelectItem value="vehicles">רכבים ותחבורה</SelectItem>
+                                    <SelectItem value="insurances">ביטוחים</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

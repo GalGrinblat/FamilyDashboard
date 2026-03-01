@@ -76,6 +76,7 @@ export interface Database {
                     name_he: string
                     name_en: string
                     type: string
+                    domain: string
                     parent_id: string | null
                     sort_order: number | null
                     created_at: string | null
@@ -86,6 +87,7 @@ export interface Database {
                     name_he: string
                     name_en: string
                     type: string
+                    domain?: string
                     parent_id?: string | null
                     sort_order?: number | null
                     created_at?: string | null
@@ -96,6 +98,7 @@ export interface Database {
                     name_he?: string
                     name_en?: string
                     type?: string
+                    domain?: string
                     parent_id?: string | null
                     sort_order?: number | null
                     created_at?: string | null

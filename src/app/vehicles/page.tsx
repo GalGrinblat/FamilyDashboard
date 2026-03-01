@@ -6,6 +6,7 @@ import { Plus, Car as CarIcon, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { AddCarAssetDialog } from "@/components/household/AddCarAssetDialog"
 import { Database } from "@/types/database.types"
+import { TransactionsTable, TransactionWithCategory } from "@/components/finance/TransactionsTable"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
@@ -121,6 +122,18 @@ export default async function VehiclesPage() {
         .order('due_date', { ascending: true })
     const notifications = (remindersData as ReminderRow[]) || []
 
+    // 3. Fetch Vehicles Domain Transactions
+    const { data: rawTransactions } = await supabase
+        .from('transactions')
+        .select(`
+            id, amount, date, description, merchant, account_id,
+            categories!inner ( name_he, name_en, type, domain )
+        `)
+        .eq('categories.domain', 'vehicles')
+        .order('date', { ascending: false })
+
+    const transactions = rawTransactions as unknown as TransactionWithCategory[] || []
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -137,6 +150,7 @@ export default async function VehiclesPage() {
                 <TabsList className="mb-4">
                     <TabsTrigger value="cars">רכבים פעילים</TabsTrigger>
                     <TabsTrigger value="maintenance">טיפולים ותחזוקה</TabsTrigger>
+                    <TabsTrigger value="transactions" className="bg-indigo-50 data-[state=active]:bg-indigo-100 dark:bg-indigo-900/20 dark:data-[state=active]:bg-indigo-900/40">תנועות והוצאות</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="cars" className="m-0">
@@ -159,6 +173,18 @@ export default async function VehiclesPage() {
                         </CardHeader>
                         <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                             רכיב היסטוריית טיפולים יפותח בהמשך.
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="transactions" className="m-0">
+                    <Card className="border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden">
+                        <CardHeader className="bg-indigo-50/30 dark:bg-indigo-900/10">
+                            <CardTitle className="text-indigo-800 dark:text-indigo-300">תנועות והוצאות רכבים</CardTitle>
+                            <CardDescription>ריכוז הוצאות והכנסות תחת קטגוריות המשויכות לחניה, דלק, טיפולים וביטוחים רכובים.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                            <TransactionsTable transactions={transactions} />
                         </CardContent>
                     </Card>
                 </TabsContent>

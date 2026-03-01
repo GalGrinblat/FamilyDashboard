@@ -132,6 +132,10 @@ export default async function FinancePage() {
     const incomes = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === 'income')
     const generalExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === 'expense')
 
+    const housingExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === 'housing')
+    const vehicleExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === 'vehicles')
+    const insuranceExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === 'insurances')
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -201,7 +205,7 @@ export default async function FinancePage() {
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
                                 {/* Normally we would filter by 'housing' related category IDs here */}
-                                <TransactionsTable transactions={generalExpenses} />
+                                <TransactionsTable transactions={housingExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -213,7 +217,7 @@ export default async function FinancePage() {
                                 <CardDescription>ביטוחי בריאות, קופת חולים, וביטוחי חיים.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={[]} />
+                                <TransactionsTable transactions={insuranceExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -225,7 +229,7 @@ export default async function FinancePage() {
                                 <CardDescription>דלק, טסט לרכב, ביטוח, טיפולים וחניה.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={[]} />
+                                <TransactionsTable transactions={vehicleExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -237,7 +241,7 @@ export default async function FinancePage() {
                                 <CardDescription>מעקב הוצאות באולינג, חוגי ילדים ופנאי.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={[]} />
+                                <TransactionsTable transactions={insuranceExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -249,7 +253,7 @@ export default async function FinancePage() {
                                 <CardDescription>הוצאות מזון ומוצרי צריכה בסיסיים.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={[]} />
+                                <TransactionsTable transactions={insuranceExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
