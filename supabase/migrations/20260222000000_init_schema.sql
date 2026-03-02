@@ -88,6 +88,7 @@ CREATE TABLE reminders (
   due_date date NOT NULL,
   type text NOT NULL, -- 'insurance', 'car_test', 'maintenance'
   is_completed boolean DEFAULT false,
+  asset_id uuid REFERENCES assets(id) ON DELETE CASCADE,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );

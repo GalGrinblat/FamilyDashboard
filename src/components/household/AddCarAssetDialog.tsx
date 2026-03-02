@@ -27,12 +27,17 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
     const [name, setName] = useState("")
     const [estimatedValue, setEstimatedValue] = useState("")
     const [licensePlate, setLicensePlate] = useState("")
-    const [year, setYear] = useState("")
+    const [registrationDate, setRegistrationDate] = useState("")
+    const [insuranceEndDate, setInsuranceEndDate] = useState("")
+    const [lastServiceDate, setLastServiceDate] = useState("")
+    const [lastServiceKm, setLastServiceKm] = useState("")
 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
+
+        const productionYear = registrationDate ? new Date(registrationDate).getFullYear().toString() : "";
 
         const payload = {
             name,
@@ -40,28 +45,92 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
             estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
             metadata: {
                 license_plate: licensePlate,
-                year: year
+                year: productionYear,
+                registration_date: registrationDate || null,
+                insurance_end_date: insuranceEndDate || null,
+                last_service_date: lastServiceDate || null,
+                last_service_km: lastServiceKm ? parseInt(lastServiceKm) : null
             }
         }
 
         // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
-        const { error } = await supabase.from("assets").insert(payload)
+        const { data: insertedAsset, error: assetError } = await supabase.from("assets").insert(payload).select().single()
+
+        if (assetError || !insertedAsset) {
+            console.error("Error inserting car asset:", assetError)
+            alert("שגיאה בהוספת הרכב")
+            setLoading(false)
+            return
+        }
+
+        const assetId = (insertedAsset as any).id
+
+        // Auto-generate reminders
+        const remindersToInsert = []
+
+        if (registrationDate) {
+            const regDate = new Date(registrationDate)
+            const today = new Date()
+            let nextTest = new Date(today.getFullYear(), regDate.getMonth(), regDate.getDate())
+            if (nextTest < today) {
+                nextTest.setFullYear(today.getFullYear() + 1)
+            }
+            // 1 month prior
+            nextTest.setMonth(nextTest.getMonth() - 1)
+            remindersToInsert.push({
+                title: `טסט שנתי: ${name}`,
+                due_date: nextTest.toISOString().split('T')[0],
+                type: 'car_test',
+                asset_id: assetId
+            })
+        }
+
+        if (insuranceEndDate) {
+            const insDate = new Date(insuranceEndDate)
+            // 1 month prior
+            insDate.setMonth(insDate.getMonth() - 1)
+            remindersToInsert.push({
+                title: `חידוש ביטוח: ${name}`,
+                due_date: insDate.toISOString().split('T')[0],
+                type: 'insurance',
+                asset_id: assetId
+            })
+        }
+
+        const baseServiceDate = lastServiceDate ? new Date(lastServiceDate) : (registrationDate ? new Date(registrationDate) : null)
+        if (baseServiceDate) {
+            const nextService = new Date(baseServiceDate)
+            nextService.setFullYear(nextService.getFullYear() + 1)
+            nextService.setDate(nextService.getDate() - 7) // 1 week prior
+            remindersToInsert.push({
+                title: `טיפול תקופתי: ${name}`,
+                due_date: nextService.toISOString().split('T')[0],
+                type: 'maintenance',
+                asset_id: assetId
+            })
+        }
+
+        if (remindersToInsert.length > 0) {
+            // @ts-expect-error: Supabase generic schema mapping forces never for bulk inserts
+            const { error: remError } = await supabase.from("reminders").insert(remindersToInsert)
+            if (remError) {
+                console.error("Error inserting reminders:", remError)
+            }
+        }
 
         setLoading(false)
 
-        if (error) {
-            console.error("Error inserting car asset:", error)
-            alert("שגיאה בהוספת הרכב")
-        } else {
-            setOpen(false)
-            // Reset form
-            setName("")
-            setEstimatedValue("")
-            setLicensePlate("")
-            setYear("")
-            // Refresh the page data
-            router.refresh()
-        }
+        setOpen(false)
+        // Reset form
+        setName("")
+        setEstimatedValue("")
+        setLicensePlate("")
+        setRegistrationDate("")
+        setInsuranceEndDate("")
+        setLastServiceDate("")
+        setLastServiceKm("")
+        // Refresh the page data
+        router.refresh()
     }
 
     return (
@@ -108,16 +177,54 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
                         />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="year" className="text-right">
-                            שנת עלייה לכביש
+                        <Label htmlFor="registrationDate" className="text-right whitespace-nowrap">
+                            תאריך עלייה לכביש
                         </Label>
                         <Input
-                            id="year"
+                            id="registrationDate"
+                            type="date"
+                            value={registrationDate}
+                            onChange={(e) => setRegistrationDate(e.target.value)}
+                            className="col-span-3 text-left"
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="insuranceEndDate" className="text-right whitespace-nowrap">
+                            תאריך תפוגת ביטוח
+                        </Label>
+                        <Input
+                            id="insuranceEndDate"
+                            type="date"
+                            value={insuranceEndDate}
+                            onChange={(e) => setInsuranceEndDate(e.target.value)}
+                            className="col-span-3 text-left"
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="lastServiceDate" className="text-right whitespace-nowrap">
+                            תאריך טיפול אחרון
+                        </Label>
+                        <Input
+                            id="lastServiceDate"
+                            type="date"
+                            value={lastServiceDate}
+                            onChange={(e) => setLastServiceDate(e.target.value)}
+                            className="col-span-3 text-left"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="lastServiceKm" className="text-right whitespace-nowrap">
+                            ק״מ בטיפול אחרון
+                        </Label>
+                        <Input
+                            id="lastServiceKm"
                             type="number"
-                            value={year}
-                            onChange={(e) => setYear(e.target.value)}
+                            value={lastServiceKm}
+                            onChange={(e) => setLastServiceKm(e.target.value)}
                             className="col-span-3"
-                            placeholder="2020"
+                            placeholder="למשל: 45000"
                         />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">

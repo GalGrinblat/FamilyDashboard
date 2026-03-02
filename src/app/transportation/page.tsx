@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Plus, Car as CarIcon, ShieldCheck } from "lucide-react"
+import { Plus, Car as CarIcon, ShieldCheck, Wrench } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { AddCarAssetDialog } from "@/components/household/AddCarAssetDialog"
 import { Database } from "@/types/database.types"
@@ -87,8 +87,8 @@ function CarsTable({ cars, reminders }: { cars: AssetRow[], reminders: ReminderR
                     <div className="grid gap-2 grid-cols-1 md:grid-cols-2">
                         {reminders.map(r => (
                             <div key={r.id} className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-900 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800">
-                                <div className={`p-2 rounded-full ${r.type === 'car_test' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
-                                    {r.type === 'car_test' ? <CarIcon className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                                <div className={`p-2 rounded-full ${r.type === 'car_test' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : r.type === 'insurance' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'}`}>
+                                    {r.type === 'car_test' ? <CarIcon className="w-4 h-4" /> : r.type === 'insurance' ? <ShieldCheck className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium">{r.title}</p>
@@ -118,7 +118,7 @@ export default async function TransportationPage() {
     const { data: remindersData } = await supabase
         .from('reminders')
         .select('*')
-        .in('type', ['car_test', 'insurance'])
+        .in('type', ['car_test', 'insurance', 'maintenance'])
         .eq('is_completed', false)
         .order('due_date', { ascending: true })
     const notifications = (remindersData as ReminderRow[]) || []

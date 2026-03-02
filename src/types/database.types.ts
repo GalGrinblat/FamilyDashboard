@@ -211,6 +211,7 @@ export interface Database {
                     due_date: string
                     type: string
                     is_completed: boolean | null
+                    asset_id: string | null
                     created_at: string | null
                     updated_at: string | null
                 }
@@ -220,6 +221,7 @@ export interface Database {
                     due_date: string
                     type: string
                     is_completed?: boolean | null
+                    asset_id?: string | null
                     created_at?: string | null
                     updated_at?: string | null
                 }
@@ -229,6 +231,7 @@ export interface Database {
                     due_date?: string
                     type?: string
                     is_completed?: boolean | null
+                    asset_id?: string | null
                     created_at?: string | null
                     updated_at?: string | null
                 }

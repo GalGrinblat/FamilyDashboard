@@ -134,6 +134,10 @@ export default async function FinancePage() {
     const housingExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.HOUSING)
     const transportationExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.TRANSPORTATION)
     const insuranceExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.INSURANCES)
+    const utilitiesExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.UTILITIES)
+    const supermarketExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.SUPERMARKET)
+    const hobbiesExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.HOBBIES)
+    const entertainmentExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.ENTERTAINMENT)
     const vacationExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.VACATION)
 
     return (
@@ -148,14 +152,14 @@ export default async function FinancePage() {
                 <TabsList className="flex flex-wrap h-auto w-full justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value="budget" className="bg-indigo-50/50 data-[state=active]:bg-indigo-100 dark:bg-indigo-900/20 dark:data-[state=active]:bg-indigo-900/40">תקציב ותזרים קבוע (Budget)</TabsTrigger>
                     <TabsTrigger value="income">הכנסות</TabsTrigger>
-                    <TabsTrigger value="assets">נכסים והשקעות</TabsTrigger>
                     <TabsTrigger value="housing">מגורים</TabsTrigger>
-                    <TabsTrigger value="health">בריאות</TabsTrigger>
-                    <TabsTrigger value="car">תחבורה ורכבים</TabsTrigger>
-                    <TabsTrigger value="sports">ספורט וחוגים</TabsTrigger>
+                    <TabsTrigger value="car">תחבורה</TabsTrigger>
+                    <TabsTrigger value="insurances">ביטוחים</TabsTrigger>
+                    <TabsTrigger value="utilities">חשבונות</TabsTrigger>
                     <TabsTrigger value="supermarket">סופרמרקט</TabsTrigger>
+                    <TabsTrigger value="hobbies">חוגים ופנאי</TabsTrigger>
+                    <TabsTrigger value="entertainment">בילויים</TabsTrigger>
                     <TabsTrigger value="vacation">חופשות</TabsTrigger>
-                    <TabsTrigger value="payments">ניהול תשלומים</TabsTrigger>
                     <TabsTrigger value="ai_engine" className="bg-zinc-200 dark:bg-zinc-700">מנוע הוצאות (AI)</TabsTrigger>
                 </TabsList>
 
@@ -185,36 +189,11 @@ export default async function FinancePage() {
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="assets" className="m-0">
+                    <TabsContent value="insurances" className="m-0">
                         <Card>
                             <CardHeader>
-                                <CardTitle>נכסים והשקעות</CardTitle>
-                                <CardDescription>תיק מניות, קריפטו, וסטטוס נדל״ן.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="h-64 flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                                מעקב שווי נקי ונכסים. משיכת API ממערכות סחר חיצוניות.
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-
-                    <TabsContent value="housing" className="m-0">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>מגורים</CardTitle>
-                                <CardDescription>שכירות/משכנתא, חשמל, מים, ארנונה, אינטרנט ותמי4.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                {/* Normally we would filter by 'housing' related category IDs here */}
-                                <TransactionsTable transactions={housingExpenses} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-
-                    <TabsContent value="health" className="m-0">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>בריאות</CardTitle>
-                                <CardDescription>ביטוחי בריאות, קופת חולים, וביטוחי חיים.</CardDescription>
+                                <CardTitle>ביטוחים</CardTitle>
+                                <CardDescription>ביטוחי בריאות, רכב, דירה וחיים.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
                                 <TransactionsTable transactions={insuranceExpenses} />
@@ -222,26 +201,14 @@ export default async function FinancePage() {
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="car" className="m-0">
+                    <TabsContent value="utilities" className="m-0">
                         <Card>
                             <CardHeader>
-                                <CardTitle>תחבורה ורכבים</CardTitle>
-                                <CardDescription>דלק, טסט לרכב, ביטוח, טיפולים וחניה, כמו גם תחבורה ציבורית.</CardDescription>
+                                <CardTitle>חשבונות (Utilities)</CardTitle>
+                                <CardDescription>תשלומי מים, חשמל, גז וארנונה.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={transportationExpenses} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-
-                    <TabsContent value="sports" className="m-0">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>ספורט וחוגים</CardTitle>
-                                <CardDescription>מעקב הוצאות באולינג, חוגי ילדים ופנאי.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={insuranceExpenses} />
+                                <TransactionsTable transactions={utilitiesExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -253,7 +220,31 @@ export default async function FinancePage() {
                                 <CardDescription>הוצאות מזון ומוצרי צריכה בסיסיים.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={insuranceExpenses} />
+                                <TransactionsTable transactions={supermarketExpenses} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="hobbies" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>חוגים ופנאי</CardTitle>
+                                <CardDescription>מעקב הוצאות ספורט וחוגי ילדים.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={hobbiesExpenses} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="entertainment" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>בילויים ומסעדות</CardTitle>
+                                <CardDescription>מעקב הוצאות בילויים, מסעדות וברים.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={entertainmentExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -270,17 +261,6 @@ export default async function FinancePage() {
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="payments" className="m-0">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>ניהול תשלומים</CardTitle>
-                                <CardDescription>פירוט תנועות מיפוי מולטי-בנק וכרטיסי אשראי.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={transactions} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
 
                     {/* AI Engine Tab with specific UI */}
                     <TabsContent value="ai_engine" className="m-0">
