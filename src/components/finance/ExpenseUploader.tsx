@@ -4,10 +4,26 @@ import { useState } from "react"
 import { StatementUploadEngine, ParsedTransactionRow } from "@/components/finance/StatementUploadEngine"
 import { ReviewTransactionsTable, ClassifiedTransactionRow } from "@/components/finance/ReviewTransactionsTable"
 
+import { useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
+
 export function ExpenseUploader({ categories }: { categories: { id: string, name_he: string }[] }) {
     const [isClassifying, setIsClassifying] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [classifiedRows, setClassifiedRows] = useState<ClassifiedTransactionRow[] | null>(null)
+    const [activeAssets, setActiveAssets] = useState<{ id: string, name: string }[]>([])
+    const supabase = createClient()
+
+    useEffect(() => {
+        const fetchAssets = async () => {
+            const { data } = await supabase
+                .from('assets')
+                .select('id, name')
+                .eq('status', 'active')
+            if (data) setActiveAssets(data)
+        }
+        fetchAssets()
+    }, [supabase])
 
     const handleUploadComplete = async (data: ParsedTransactionRow[]) => {
         setIsClassifying(true)
@@ -75,6 +91,7 @@ export function ExpenseUploader({ categories }: { categories: { id: string, name
                 <ReviewTransactionsTable
                     rows={classifiedRows}
                     categories={categories}
+                    activeAssets={activeAssets}
                     onConfirm={handleConfirm}
                     onCancel={handleReset}
                     isSubmitting={isSubmitting}

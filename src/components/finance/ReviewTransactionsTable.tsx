@@ -12,6 +12,7 @@ import { CATEGORY_TYPES, CategoryType } from "@/lib/constants"
 
 export interface ClassifiedTransactionRow extends ParsedTransactionRow {
     suggested_category_id: string | null
+    suggested_asset_id?: string | null
     is_ai_classified: boolean
     suggested_new_category?: { name_he: string; name_en: string; type: string } | null
 }
@@ -19,12 +20,13 @@ export interface ClassifiedTransactionRow extends ParsedTransactionRow {
 interface ReviewTransactionsTableProps {
     rows: ClassifiedTransactionRow[]
     categories: { id: string, name_he: string }[]
+    activeAssets?: { id: string, name: string }[]
     onConfirm: (finalRows: ClassifiedTransactionRow[]) => void
     onCancel: () => void
     isSubmitting: boolean
 }
 
-export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel, isSubmitting }: ReviewTransactionsTableProps) {
+export function ReviewTransactionsTable({ rows, categories, activeAssets = [], onConfirm, onCancel, isSubmitting }: ReviewTransactionsTableProps) {
     const [reviewedRows, setReviewedRows] = useState<ClassifiedTransactionRow[]>(rows)
 
     // Dialog State
@@ -49,6 +51,15 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
             is_ai_classified: false,
             // If they changed to an existing category, remove the new suggestion so it doesn't get created
             suggested_new_category: newCategoryId === "NEW" || newCategoryId.startsWith("CUSTOM_") ? updatedRows[index].suggested_new_category : null
+        }
+        setReviewedRows(updatedRows)
+    }
+
+    const handleAssetChange = (index: number, newAssetId: string) => {
+        const updatedRows = [...reviewedRows]
+        updatedRows[index] = {
+            ...updatedRows[index],
+            suggested_asset_id: newAssetId === "NONE" ? null : newAssetId
         }
         setReviewedRows(updatedRows)
     }
@@ -103,6 +114,7 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
                             <TableHead className="text-right w-[120px]">תאריך</TableHead>
                             <TableHead className="text-right">תיאור / בית עסק</TableHead>
                             <TableHead className="text-right w-[150px]">סכום</TableHead>
+                            <TableHead className="text-right w-[200px]">שיוך לנכס (אופציונלי)</TableHead>
                             <TableHead className="text-right w-[250px]">קטגוריה (סיווג חכם)</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -175,6 +187,21 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
                                                 ✓ סווג ע״י המשתמש או מערכת
                                             </span>
                                         )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <select
+                                            className="w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer text-zinc-700 dark:text-zinc-300"
+                                            value={row.suggested_asset_id || "NONE"}
+                                            onChange={(e) => handleAssetChange(idx, e.target.value)}
+                                            dir="rtl"
+                                        >
+                                            <option value="NONE">- ללא שיוך -</option>
+                                            {activeAssets.map(asset => (
+                                                <option key={asset.id} value={asset.id}>
+                                                    {asset.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </TableCell>
                                 </TableRow>
                             )

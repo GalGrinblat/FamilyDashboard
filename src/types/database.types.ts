@@ -44,6 +44,7 @@ export interface Database {
                     name: string
                     type: string
                     estimated_value: number | null
+                    status: string | null
                     metadata: Json | null
                     attachments: Json | null
                     created_at: string | null
@@ -54,6 +55,7 @@ export interface Database {
                     name: string
                     type: string
                     estimated_value?: number | null
+                    status?: string | null
                     metadata?: Json | null
                     attachments?: Json | null
                     created_at?: string | null
@@ -64,6 +66,7 @@ export interface Database {
                     name?: string
                     type?: string
                     estimated_value?: number | null
+                    status?: string | null
                     metadata?: Json | null
                     attachments?: Json | null
                     created_at?: string | null
@@ -251,6 +254,7 @@ export interface Database {
                     original_amount: number | null
                     installment_number: number | null
                     total_installments: number | null
+                    asset_id: string | null
                     created_at: string | null
                     updated_at: string | null
                 }
@@ -268,6 +272,7 @@ export interface Database {
                     original_amount?: number | null
                     installment_number?: number | null
                     total_installments?: number | null
+                    asset_id?: string | null
                     created_at?: string | null
                     updated_at?: string | null
                 }
@@ -285,6 +290,7 @@ export interface Database {
                     original_amount?: number | null
                     installment_number?: number | null
                     total_installments?: number | null
+                    asset_id?: string | null
                     created_at?: string | null
                     updated_at?: string | null
                 }

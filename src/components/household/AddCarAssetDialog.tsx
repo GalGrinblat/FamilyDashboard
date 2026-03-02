@@ -17,20 +17,33 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
 
-export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
+import { Database } from "@/types/database.types"
+
+type AssetRow = Database['public']['Tables']['assets']['Row']
+
+interface AddCarAssetDialogProps {
+    triggerButton?: React.ReactNode
+    assetToEdit?: AssetRow
+}
+
+export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialogProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
     // Form State
-    const [name, setName] = useState("")
-    const [estimatedValue, setEstimatedValue] = useState("")
-    const [licensePlate, setLicensePlate] = useState("")
-    const [registrationDate, setRegistrationDate] = useState("")
-    const [insuranceEndDate, setInsuranceEndDate] = useState("")
-    const [lastServiceDate, setLastServiceDate] = useState("")
-    const [lastServiceKm, setLastServiceKm] = useState("")
+    // Form State (seeded if editing)
+    const isEditing = !!assetToEdit
+    const metadata = (assetToEdit?.metadata || {}) as Record<string, any>
+
+    const [name, setName] = useState(assetToEdit?.name || "")
+    const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
+    const [licensePlate, setLicensePlate] = useState(metadata.license_plate || "")
+    const [registrationDate, setRegistrationDate] = useState(metadata.registration_date || "")
+    const [insuranceEndDate, setInsuranceEndDate] = useState(metadata.insurance_end_date || "")
+    const [lastServiceDate, setLastServiceDate] = useState(metadata.last_service_date || "")
+    const [lastServiceKm, setLastServiceKm] = useState(metadata.last_service_km?.toString() || "")
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -53,14 +66,33 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
             }
         }
 
-        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
-        const { data: insertedAsset, error: assetError } = await supabase.from("assets").insert(payload).select().single()
+        let insertedAsset
 
-        if (assetError || !insertedAsset) {
-            console.error("Error inserting car asset:", assetError)
-            alert("שגיאה בהוספת הרכב")
-            setLoading(false)
-            return
+        if (isEditing) {
+            // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+            const { data, error: assetError } = await supabase.from("assets").update(payload).eq('id', assetToEdit.id).select().single()
+            if (assetError || !data) {
+                console.error("Error updating car asset:", assetError)
+                alert("שגיאה בעדכון הרכב")
+                setLoading(false)
+                return
+            }
+            insertedAsset = data
+
+            // In an editing scenario, to prevent duplicate reminders, we would ideally wipe the old uncompleted ones or UPSERT them.
+            // For simplicity in this version, we'll clear out pending auto-generated reminders for this asset and recreate them.
+            await supabase.from("reminders").delete().eq('asset_id', assetToEdit.id).eq('is_completed', false).in('type', ['car_test', 'insurance', 'maintenance'])
+
+        } else {
+            // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+            const { data, error: assetError } = await supabase.from("assets").insert(payload).select().single()
+            if (assetError || !data) {
+                console.error("Error inserting car asset:", assetError)
+                alert("שגיאה בהוספת הרכב")
+                setLoading(false)
+                return
+            }
+            insertedAsset = data
         }
 
         const assetId = (insertedAsset as any).id
@@ -133,6 +165,26 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
         router.refresh()
     }
 
+    const handleMarkAsSold = async () => {
+        if (!isEditing || !assetToEdit) return
+        if (!confirm(`האם אתה בטוח שברצונך לסמן את הרכב "${assetToEdit.name}" כנמכר? פעולה זו תעביר אותו לארכיון.`)) return
+
+        setLoading(true)
+        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+        const { error } = await supabase.from("assets").update({ status: 'sold' }).eq('id', assetToEdit.id)
+
+        if (error) {
+            console.error("Error archiving car:", error)
+            alert("שגיאה בארכוב הרכב")
+            setLoading(false)
+            return
+        }
+
+        setLoading(false)
+        setOpen(false)
+        router.refresh()
+    }
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -143,11 +195,11 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]" dir="rtl">
+            <DialogContent className="sm:max-w-[500px]" dir="rtl">
                 <DialogHeader>
-                    <DialogTitle>הוספת רכב חדש (נכס)</DialogTitle>
+                    <DialogTitle>{isEditing ? 'עריכת פרטי רכב' : 'הוספת רכב חדש (נכס)'}</DialogTitle>
                     <DialogDescription>
-                        הזן את פרטי הרכב. רכבים מנוהלים כנכסים שמשפיעים על השווי הנקי (Net Worth) של המשפחה.
+                        {isEditing ? 'עדכן את פרטי הרכב, ביטוחים וטיפולים, או סמן אותו כנמכר כדי להסירו מהתצוגה.' : 'הזן את פרטי הרכב. רכבים מנוהלים כנכסים שמשפיעים על השווי הנקי (Net Worth) של המשפחה.'}
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -240,9 +292,22 @@ export function AddCarAssetDialog({ triggerButton }: { triggerButton?: React.Rea
                             placeholder="₪"
                         />
                     </div>
-                    <DialogFooter>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "שומר..." : "הוסף רכב כנכס"}
+                    <DialogFooter className="flex items-center justify-between sm:justify-between pt-2">
+                        {isEditing ? (
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40"
+                                onClick={handleMarkAsSold}
+                                disabled={loading}
+                            >
+                                סמן רכב כנמכר
+                            </Button>
+                        ) : (
+                            <div /> // Spacer
+                        )}
+                        <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700">
+                            {loading ? "שומר..." : isEditing ? "עדכן את פרטי הרכב" : "הוסף רכב כנכס"}
                         </Button>
                     </DialogFooter>
                 </form>

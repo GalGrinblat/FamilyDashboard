@@ -51,6 +51,7 @@ CREATE TABLE transactions (
   original_amount numeric(12,2),
   installment_number integer DEFAULT 1,
   total_installments integer DEFAULT 1,
+  asset_id uuid REFERENCES assets(id) ON DELETE SET NULL,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );
@@ -61,6 +62,7 @@ CREATE TABLE assets (
   name text NOT NULL,
   type text NOT NULL, -- 'real_estate', 'vehicle', 'stock'
   estimated_value numeric(12,2),
+  status text DEFAULT 'active',
   metadata jsonb, -- Stores specific info like license plates, stock tickers, etc.
   attachments jsonb, -- Array of Supabase Storage file paths (receipts, docs)
   created_at timestamp with time zone DEFAULT now(),
