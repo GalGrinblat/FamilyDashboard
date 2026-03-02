@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Database } from "@/types/database.types"
+import { CATEGORY_TYPES } from "@/lib/constants"
 
 type TransactionRow = Database['public']['Tables']['transactions']['Row']
 type CategoryRow = Database['public']['Tables']['categories']['Row']
@@ -39,8 +40,8 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
                                     <TableCell>{t.date ? new Date(t.date).toLocaleDateString("he-IL") : '-'}</TableCell>
                                     <TableCell className="font-medium">{t.description || t.merchant || '-'}</TableCell>
                                     <TableCell>{catName || '-'}</TableCell>
-                                    <TableCell className={catType === 'expense' ? 'text-red-500 font-medium' : 'text-emerald-500 font-medium'}>
-                                        {catType === 'expense' ? '-' : '+'}{`₪${(t.amount || 0).toLocaleString()}`}
+                                    <TableCell className={catType === CATEGORY_TYPES.EXPENSE ? 'text-red-500 font-medium' : 'text-emerald-500 font-medium'}>
+                                        {catType === CATEGORY_TYPES.EXPENSE ? '-' : '+'}{`₪${(t.amount || 0).toLocaleString()}`}
                                     </TableCell>
                                 </TableRow>
                             )
@@ -64,8 +65,8 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
                                     <span>{t.date ? new Date(t.date).toLocaleDateString("he-IL") : '-'}</span>
                                 </div>
                             </div>
-                            <div className={`font-bold ${catType === 'expense' ? 'text-red-500' : 'text-emerald-500'}`}>
-                                {catType === 'expense' ? '-' : '+'}{`₪${(t.amount || 0).toLocaleString()}`}
+                            <div className={`font-bold ${catType === CATEGORY_TYPES.EXPENSE ? 'text-red-500' : 'text-emerald-500'}`}>
+                                {catType === CATEGORY_TYPES.EXPENSE ? '-' : '+'}{`₪${(t.amount || 0).toLocaleString()}`}
                             </div>
                         </div>
                     )

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Database } from "@/types/database.types"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CategoryType, CategoryDomain, CATEGORY_TYPE_LABELS, CATEGORY_DOMAIN_SHORT_LABELS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -45,22 +46,22 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
     // Form state
     const [nameHe, setNameHe] = useState("")
     const [nameEn, setNameEn] = useState("")
-    const [type, setType] = useState("expense")
-    const [domain, setDomain] = useState("general")
+    const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.EXPENSE)
+    const [domain, setDomain] = useState<CategoryDomain>(CATEGORY_DOMAINS.GENERAL)
 
     const handleOpenDialog = (category?: CategoryRow) => {
         if (category) {
             setEditingCategory(category)
             setNameHe(category.name_he)
             setNameEn(category.name_en)
-            setType(category.type)
-            setDomain(category.domain || "general")
+            setType(category.type as CategoryType)
+            setDomain((category.domain || CATEGORY_DOMAINS.GENERAL) as CategoryDomain)
         } else {
             setEditingCategory(null)
             setNameHe("")
             setNameEn("")
-            setType("expense")
-            setDomain("general")
+            setType(CATEGORY_TYPES.EXPENSE)
+            setDomain(CATEGORY_DOMAINS.GENERAL)
         }
         setOpen(true)
     }
@@ -168,12 +169,12 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                                     <TableCell className="font-medium">{category.name_he}</TableCell>
                                     <TableCell className="text-muted-foreground">{category.name_en}</TableCell>
                                     <TableCell>
-                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${category.type === 'expense' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
-                                            {category.type === 'expense' ? 'הוצאה' : 'הכנסה'}
+                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${category.type === CATEGORY_TYPES.EXPENSE ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
+                                            {category.type === CATEGORY_TYPES.EXPENSE ? 'הוצאה' : 'הכנסה'}
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">
-                                        {category.domain === 'housing' ? 'מגורים' : category.domain === 'vehicles' ? 'רכבים' : category.domain === 'insurances' ? 'ביטוחים' : 'כללי'}
+                                        {CATEGORY_DOMAIN_SHORT_LABELS[category.domain as CategoryDomain] || CATEGORY_DOMAIN_SHORT_LABELS[CATEGORY_DOMAINS.GENERAL]}
                                     </TableCell>
                                     <TableCell className="text-left">
                                         <div className="flex justify-end gap-2">
@@ -227,27 +228,27 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="type" className="text-right">סוג</Label>
-                            <Select value={type} onValueChange={setType}>
+                            <Select value={type} onValueChange={(val) => setType(val as CategoryType)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="בחר סוג" />
                                 </SelectTrigger>
                                 <SelectContent dir="rtl">
-                                    <SelectItem value="expense">הוצאה (-)</SelectItem>
-                                    <SelectItem value="income">הכנסה (+)</SelectItem>
+                                    <SelectItem value={CATEGORY_TYPES.EXPENSE}>{CATEGORY_TYPE_LABELS[CATEGORY_TYPES.EXPENSE]}</SelectItem>
+                                    <SelectItem value={CATEGORY_TYPES.INCOME}>{CATEGORY_TYPE_LABELS[CATEGORY_TYPES.INCOME]}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="domain" className="text-right">שיוך אזור</Label>
-                            <Select value={domain} onValueChange={setDomain}>
+                            <Select value={domain} onValueChange={(val) => setDomain(val as CategoryDomain)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="בחר אזור באפליקציה" />
                                 </SelectTrigger>
                                 <SelectContent dir="rtl">
-                                    <SelectItem value="general">כללי (מופיע רק בעו״ש)</SelectItem>
-                                    <SelectItem value="housing">מגורים ומשק בית</SelectItem>
-                                    <SelectItem value="vehicles">רכבים ותחבורה</SelectItem>
-                                    <SelectItem value="insurances">ביטוחים</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.GENERAL}>כללי (מופיע רק בעו״ש)</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.HOUSING}>מגורים ומשק בית</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.VEHICLES}>רכבים ותחבורה</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.INSURANCES}>ביטוחים</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

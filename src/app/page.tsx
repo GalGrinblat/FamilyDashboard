@@ -8,6 +8,7 @@ import {
 import { AlertCircle, ArrowDownRight, ArrowUpRight, CarFront, ShieldCheck, Wallet, Wrench } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { Database } from "@/types/database.types"
+import { CATEGORY_TYPES } from "@/lib/constants"
 
 type AccountRef = Pick<Database['public']['Tables']['accounts']['Row'], 'current_balance'>
 type AssetRef = Pick<Database['public']['Tables']['assets']['Row'], 'estimated_value'>
@@ -21,7 +22,6 @@ const formatILS = (amount: number) => {
   return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(amount)
 }
 
-// Map reminder type to icon
 const getTypeIcon = (type: string) => {
   switch (type) {
     case 'car_test': return <CarFront className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -63,7 +63,7 @@ export default async function Home() {
   const monthlyBurnRate = transactions?.reduce((acc, curr) => {
     const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
 
-    if (catType === 'expense') {
+    if (catType === CATEGORY_TYPES.EXPENSE) {
       return acc + (curr.amount || 0)
     }
     return acc

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { AddCarAssetDialog } from "@/components/household/AddCarAssetDialog"
 import { Database } from "@/types/database.types"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
+import { CATEGORY_DOMAINS } from "@/lib/constants"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
@@ -166,7 +167,7 @@ export default async function VehiclesPage() {
                 </TabsContent>
 
                 <DomainTransactionsTab
-                    domain="vehicles"
+                    domain={CATEGORY_DOMAINS.VEHICLES}
                     title="תנועות והוצאות רכבים"
                     description="ריכוז הוצאות והכנסות תחת קטגוריות המשויכות לחניה, דלק, טיפולים וביטוחים רכובים."
                 />

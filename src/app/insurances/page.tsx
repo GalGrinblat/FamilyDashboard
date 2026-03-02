@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, HeartPulse, Home, Car as CarIcon } from "lucide-react"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
+import { CATEGORY_DOMAINS } from "@/lib/constants"
 
 export default function InsurancesPage() {
     return (
@@ -71,7 +72,7 @@ export default function InsurancesPage() {
                 </TabsContent>
 
                 <DomainTransactionsTab
-                    domain="insurances"
+                    domain={CATEGORY_DOMAINS.INSURANCES}
                     title="תנועות והוצאות ביטוחים"
                     description="ריכוז הוצאות והפרשות לפוליסות ביטוח במגוון תחומים."
                 />

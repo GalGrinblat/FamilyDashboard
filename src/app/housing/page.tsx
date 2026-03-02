@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
 import { Database } from "@/types/database.types"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
+import { CATEGORY_DOMAINS } from "@/lib/constants"
 
 type HouseholdItemRow = Database['public']['Tables']['household_items']['Row']
 
@@ -160,7 +161,7 @@ export default async function HousingPage() {
                 </TabsContent>
 
                 <DomainTransactionsTab
-                    domain="housing"
+                    domain={CATEGORY_DOMAINS.HOUSING}
                     title="תנועות בחשבון"
                     description="ריכוז הוצאות והכנסות תחת קטגוריות המשויכות למגורים (שכירות, ארנונה, חשמל וכו׳)."
                 />

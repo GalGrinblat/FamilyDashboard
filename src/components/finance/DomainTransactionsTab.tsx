@@ -2,9 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TabsContent } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable, TransactionWithCategory } from "@/components/finance/TransactionsTable"
+import { CategoryDomain } from "@/lib/constants"
 
 interface DomainTransactionsTabProps {
-    domain: string
+    domain: CategoryDomain
     tabValue?: string
     title: string
     description: string

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { ParsedTransactionRow } from "./StatementUploadEngine"
 import { CheckCircle2, Loader2, PlusCircle } from "lucide-react"
+import { CATEGORY_TYPES, CategoryType } from "@/lib/constants"
 
 export interface ClassifiedTransactionRow extends ParsedTransactionRow {
     suggested_category_id: string | null
@@ -29,13 +30,13 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
     // Dialog State
     const [customCategoryDialogIndex, setCustomCategoryDialogIndex] = useState<number | null>(null)
     const [newCategoryName, setNewCategoryName] = useState("")
-    const [newCategoryType, setNewCategoryType] = useState<"expense" | "income">("expense")
+    const [newCategoryType, setNewCategoryType] = useState<CategoryType>(CATEGORY_TYPES.EXPENSE)
 
     const handleCategoryChange = (index: number, newCategoryId: string) => {
         if (newCategoryId === "CREATE_CUSTOM") {
             setCustomCategoryDialogIndex(index)
             setNewCategoryName("")
-            setNewCategoryType(reviewedRows[index].amount < 0 ? "expense" : "income")
+            setNewCategoryType(reviewedRows[index].amount < 0 ? CATEGORY_TYPES.EXPENSE : CATEGORY_TYPES.INCOME)
             return
         }
 
@@ -209,17 +210,17 @@ export function ReviewTransactionsTable({ rows, categories, onConfirm, onCancel,
                             <div className="grid grid-cols-2 gap-2">
                                 <Button
                                     type="button"
-                                    variant={newCategoryType === "expense" ? "default" : "outline"}
-                                    className={newCategoryType === "expense" ? "bg-red-500 hover:bg-red-600 border-transparent shadow-none" : "border-red-200 text-red-600 hover:bg-red-50"}
-                                    onClick={() => setNewCategoryType("expense")}
+                                    variant={newCategoryType === CATEGORY_TYPES.EXPENSE ? "default" : "outline"}
+                                    className={newCategoryType === CATEGORY_TYPES.EXPENSE ? "bg-red-500 hover:bg-red-600 border-transparent shadow-none" : "border-red-200 text-red-600 hover:bg-red-50"}
+                                    onClick={() => setNewCategoryType(CATEGORY_TYPES.EXPENSE)}
                                 >
                                     הוצאה
                                 </Button>
                                 <Button
                                     type="button"
-                                    variant={newCategoryType === "income" ? "default" : "outline"}
-                                    className={newCategoryType === "income" ? "bg-emerald-500 hover:bg-emerald-600 border-transparent shadow-none" : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"}
-                                    onClick={() => setNewCategoryType("income")}
+                                    variant={newCategoryType === CATEGORY_TYPES.INCOME ? "default" : "outline"}
+                                    className={newCategoryType === CATEGORY_TYPES.INCOME ? "bg-emerald-500 hover:bg-emerald-600 border-transparent shadow-none" : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"}
+                                    onClick={() => setNewCategoryType(CATEGORY_TYPES.INCOME)}
                                 >
                                     הכנסה
                                 </Button>

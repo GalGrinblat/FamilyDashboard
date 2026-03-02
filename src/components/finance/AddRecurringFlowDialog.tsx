@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/types/database.types";
+import { CATEGORY_TYPES, CategoryType } from "@/lib/constants";
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 type RecurringFlowInsert = Database['public']['Tables']['recurring_flows']['Insert'];
@@ -46,7 +47,7 @@ export function AddRecurringFlowDialog({
   // Form State
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
-  const [type, setType] = useState("income");
+  const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.INCOME);
   const [frequency, setFrequency] = useState("monthly");
   const [nextDate, setNextDate] = useState("");
 
@@ -55,14 +56,14 @@ export function AddRecurringFlowDialog({
     if (open && isEditing) {
       setName(flowToEdit.name || "");
       setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : "");
-      setType(flowToEdit.type || "income");
+      setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
       setFrequency(flowToEdit.frequency || "monthly");
       setNextDate(flowToEdit.next_date || "");
     } else if (!open && !isEditing) {
       // Reset form on close if not editing
       setName("");
       setAmount("");
-      setType("income");
+      setType(CATEGORY_TYPES.INCOME);
       setFrequency("monthly");
       setNextDate("");
     }
@@ -158,13 +159,13 @@ export function AddRecurringFlowDialog({
             <Label htmlFor="type" className="text-right">
               סוג
             </Label>
-            <Select value={type} onValueChange={setType}>
+            <Select value={type} onValueChange={(val) => setType(val as CategoryType)}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="בחר סוג" />
               </SelectTrigger>
               <SelectContent dir="rtl">
-                <SelectItem value="income">הכנסה קבועה (+)</SelectItem>
-                <SelectItem value="expense">הוצאה קבועה (-)</SelectItem>
+                <SelectItem value={CATEGORY_TYPES.INCOME}>הכנסה קבועה (+)</SelectItem>
+                <SelectItem value={CATEGORY_TYPES.EXPENSE}>הוצאה קבועה (-)</SelectItem>
               </SelectContent>
             </Select>
           </div>

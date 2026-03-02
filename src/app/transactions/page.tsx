@@ -7,10 +7,9 @@ import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/finance/TransactionsTable"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDialog"
-
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
-
+import { CATEGORY_TYPES, CATEGORY_DOMAINS } from "@/lib/constants"
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row']
 
 function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
@@ -48,7 +47,7 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                             <TableRow key={flow.id}>
                                 <TableCell className="font-medium">{flow.name}</TableCell>
                                 <TableCell>
-                                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${flow.type === 'income' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'
+                                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${flow.type === CATEGORY_TYPES.INCOME ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'
                                         }`}>
                                         {flow.type === 'income' ? 'הכנסה' : 'הוצאה'}
                                     </span>
@@ -57,8 +56,8 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                                     {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}
                                 </TableCell>
                                 <TableCell>{flow.next_date ? new Date(flow.next_date).toLocaleDateString("he-IL") : '-'}</TableCell>
-                                <TableCell className={`font-semibold ${flow.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
-                                    {flow.type === 'expense' ? '-' : '+'}₪{flow.amount.toLocaleString()}
+                                <TableCell className={`font-semibold ${flow.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
+                                    {flow.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{flow.amount.toLocaleString()}
                                 </TableCell>
                                 <TableCell>
                                     <AddRecurringFlowDialog flowToEdit={flow} />
@@ -78,13 +77,13 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                         </div>
                         <div className="flex justify-between items-start pt-2">
                             <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">{flow.name}</span>
-                            <span className={`font-semibold ${flow.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                                {flow.type === 'expense' ? '-' : '+'}₪{flow.amount.toLocaleString()}
+                            <span className={`font-semibold ${flow.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                {flow.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{flow.amount.toLocaleString()}
                             </span>
                         </div>
                         <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${flow.type === 'income' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'}`}>
-                                {flow.type === 'income' ? 'הכנסה' : 'הוצאה'}
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${flow.type === CATEGORY_TYPES.INCOME ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'}`}>
+                                {flow.type === CATEGORY_TYPES.INCOME ? 'הכנסה' : 'הוצאה'}
                             </span>
                             <span>•</span>
                             <span>{flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}</span>
@@ -129,12 +128,12 @@ export default async function FinancePage() {
 
     // Map categories to Tabs visually. For a real app, we would map `categories.parent_id` to these buckets.
     // Here we'll do a simple mock filter based on existence of data to feed the tables.
-    const incomes = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === 'income')
-    const generalExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === 'expense')
+    const incomes = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === CATEGORY_TYPES.INCOME)
+    const generalExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === CATEGORY_TYPES.EXPENSE)
 
-    const housingExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === 'housing')
-    const vehicleExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === 'vehicles')
-    const insuranceExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === 'insurances')
+    const housingExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.HOUSING)
+    const vehicleExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.VEHICLES)
+    const insuranceExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.INSURANCES)
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
