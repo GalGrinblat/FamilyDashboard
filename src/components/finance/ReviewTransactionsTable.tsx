@@ -19,8 +19,8 @@ export interface ClassifiedTransactionRow extends ParsedTransactionRow {
 
 interface ReviewTransactionsTableProps {
     rows: ClassifiedTransactionRow[]
-    categories: { id: string, name_he: string }[]
-    activeAssets?: { id: string, name: string }[]
+    categories: { id: string, name_he: string, domain?: string }[]
+    activeAssets?: { id: string, name: string, domain?: string }[]
     onConfirm: (finalRows: ClassifiedTransactionRow[]) => void
     onCancel: () => void
     isSubmitting: boolean
@@ -196,11 +196,29 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
                                             dir="rtl"
                                         >
                                             <option value="NONE">- ללא שיוך -</option>
-                                            {activeAssets.map(asset => (
-                                                <option key={asset.id} value={asset.id}>
-                                                    {asset.name}
-                                                </option>
-                                            ))}
+                                            {(() => {
+                                                // Find the domain of the selected category
+                                                let domain = null;
+                                                if (row.suggested_category_id) {
+                                                    const cat = categories.find(c => c.id === row.suggested_category_id);
+                                                    if (cat) domain = cat.domain;
+                                                }
+
+                                                // Filter active assets
+                                                const filteredAssets = domain
+                                                    ? activeAssets.filter(a => a.domain === domain)
+                                                    : activeAssets;
+
+                                                if (activeAssets.length > 0 && filteredAssets.length === 0) {
+                                                    return <option disabled value="NONE_AVAIL">- אין נכסים תואמים לסיווג -</option>;
+                                                }
+
+                                                return filteredAssets.map(asset => (
+                                                    <option key={asset.id} value={asset.id}>
+                                                        {asset.name}
+                                                    </option>
+                                                ));
+                                            })()}
                                         </select>
                                     </TableCell>
                                 </TableRow>

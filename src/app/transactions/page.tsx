@@ -113,10 +113,18 @@ export default async function FinancePage() {
     // Fetch all categories to feed the Uploader drop-down map
     const { data: rawCategories } = await supabase
         .from('categories')
-        .select('id, name_he')
+        .select('id, name_he, domain')
         .order('name_he', { ascending: true })
 
     const dbCategories = rawCategories || []
+
+    // Fetch accounts to feed the ExpenseUploader
+    const { data: rawAccounts } = await supabase
+        .from('accounts')
+        .select('id, name')
+        .order('name', { ascending: true })
+
+    const dbAccounts = rawAccounts || []
 
     // Fetch recurring flows
     const { data: recurringFlows } = await supabase
@@ -264,7 +272,7 @@ export default async function FinancePage() {
 
                     {/* AI Engine Tab with specific UI */}
                     <TabsContent value="ai_engine" className="m-0">
-                        <ExpenseUploader categories={dbCategories} />
+                        <ExpenseUploader categories={dbCategories} accounts={dbAccounts} />
                     </TabsContent>
 
                 </div>

@@ -52,6 +52,7 @@ export async function upsertMonthlyOverride(recurring_flow_id: string, month_yea
 
     const { error } = await supabase
         .from("monthly_overrides")
+        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete descriptors
         .upsert({
             month_year,
             recurring_flow_id,
