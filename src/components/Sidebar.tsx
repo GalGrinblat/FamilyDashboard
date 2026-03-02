@@ -23,7 +23,7 @@ const navItems = [
     { href: "/transactions", label: "תנועות / עו״ש", icon: ArrowRightLeft },
     { href: "/finance", label: "פיננסים ונכסים", icon: PieChart },
     { href: "/housing", label: "מגורים ומשק בית", icon: Sofa },
-    { href: "/vehicles", label: "רכבים", icon: Car },
+    { href: "/transportation", label: "תחבורה", icon: Car },
     { href: "/insurances", label: "ביטוחים", icon: Shield },
     { href: "/planning", label: "תכנון", icon: CalendarDays },
     { href: "/settings", label: "הגדרות", icon: Settings },

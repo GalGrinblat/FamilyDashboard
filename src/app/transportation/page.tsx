@@ -103,7 +103,7 @@ function CarsTable({ cars, reminders }: { cars: AssetRow[], reminders: ReminderR
     )
 }
 
-export default async function VehiclesPage() {
+export default async function TransportationPage() {
     const supabase = await createClient()
 
     // 1. Fetch Car Assets
@@ -128,7 +128,7 @@ export default async function VehiclesPage() {
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
                     <CarIcon className="h-8 w-8 text-zinc-400" />
-                    ניהול צי רכבים
+                    תחבורה וניהול צי רכבים
                 </h2>
                 <div className="flex gap-2">
                     <AddCarAssetDialog />
@@ -167,9 +167,9 @@ export default async function VehiclesPage() {
                 </TabsContent>
 
                 <DomainTransactionsTab
-                    domain={CATEGORY_DOMAINS.VEHICLES}
-                    title="תנועות והוצאות רכבים"
-                    description="ריכוז הוצאות והכנסות תחת קטגוריות המשויכות לחניה, דלק, טיפולים וביטוחים רכובים."
+                    domain={CATEGORY_DOMAINS.TRANSPORTATION}
+                    title="תנועות והוצאות תחבורה ורכבים"
+                    description="ריכוז הוצאות והכנסות תחת קטגוריות המשויכות לחניה, דלק, תחבורה ציבורית, טיפולים וביטוחים רכובים."
                 />
             </Tabs>
         </div>

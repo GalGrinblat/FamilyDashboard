@@ -247,8 +247,13 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                                 <SelectContent dir="rtl">
                                     <SelectItem value={CATEGORY_DOMAINS.GENERAL}>כללי (מופיע רק בעו״ש)</SelectItem>
                                     <SelectItem value={CATEGORY_DOMAINS.HOUSING}>מגורים ומשק בית</SelectItem>
-                                    <SelectItem value={CATEGORY_DOMAINS.VEHICLES}>רכבים ותחבורה</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.TRANSPORTATION}>תחבורה ורכבים</SelectItem>
                                     <SelectItem value={CATEGORY_DOMAINS.INSURANCES}>ביטוחים</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.UTILITIES}>חשבונות (מים, חשמל, גז)</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.SUPERMARKET}>סופרמרקט ומכולת</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.HOBBIES}>חוגים ופנאי</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.ENTERTAINMENT}>בילויים ומסעדות</SelectItem>
+                                    <SelectItem value={CATEGORY_DOMAINS.VACATION}>חופשות וטיולים</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

@@ -132,8 +132,9 @@ export default async function FinancePage() {
     const generalExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === CATEGORY_TYPES.EXPENSE)
 
     const housingExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.HOUSING)
-    const vehicleExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.VEHICLES)
+    const transportationExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.TRANSPORTATION)
     const insuranceExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.INSURANCES)
+    const vacationExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.VACATION)
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
@@ -150,7 +151,7 @@ export default async function FinancePage() {
                     <TabsTrigger value="assets">נכסים והשקעות</TabsTrigger>
                     <TabsTrigger value="housing">מגורים</TabsTrigger>
                     <TabsTrigger value="health">בריאות</TabsTrigger>
-                    <TabsTrigger value="car">רכב</TabsTrigger>
+                    <TabsTrigger value="car">תחבורה ורכבים</TabsTrigger>
                     <TabsTrigger value="sports">ספורט וחוגים</TabsTrigger>
                     <TabsTrigger value="supermarket">סופרמרקט</TabsTrigger>
                     <TabsTrigger value="vacation">חופשות</TabsTrigger>
@@ -224,11 +225,11 @@ export default async function FinancePage() {
                     <TabsContent value="car" className="m-0">
                         <Card>
                             <CardHeader>
-                                <CardTitle>רכב</CardTitle>
-                                <CardDescription>דלק, טסט לרכב, ביטוח, טיפולים וחניה.</CardDescription>
+                                <CardTitle>תחבורה ורכבים</CardTitle>
+                                <CardDescription>דלק, טסט לרכב, ביטוח, טיפולים וחניה, כמו גם תחבורה ציבורית.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={vehicleExpenses} />
+                                <TransactionsTable transactions={transportationExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -264,7 +265,7 @@ export default async function FinancePage() {
                                 <CardDescription>סיווג הוצאות לטיולים ומעקב מול התקציב שהוגדר ב׳תכנון׳.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <TransactionsTable transactions={[]} />
+                                <TransactionsTable transactions={vacationExpenses} />
                             </CardContent>
                         </Card>
                     </TabsContent>
