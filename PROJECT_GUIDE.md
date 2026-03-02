@@ -40,7 +40,11 @@ A comprehensive family management system for tracking finances, assets, insuranc
 ### 1. Overview (ראשי)
 - High-level KPIs: Monthly burn rate, net worth summary, and urgent upcoming alerts.
 
-### 2. Transactions & Cash Flow (תנועות / עו״ש)
+### 2. Monthly Balance (מאזן חודשי)
+- **Specific Month (חודש ספציפי):** View expected and actual income vs expenses (including CC bills) chronologically with local overrides.
+- **General Month (חודש כללי):** View conceptual baseline recurring income and budgeting expenses per domain.
+
+### 3. Transactions & Cash Flow (תנועות / עו״ש)
 - **Current Month (החודש השוטף):** General spending (Supermarket, Vacations, Hobbies) and tracking the execution of monthly payments.
 - **Payment Management (ניהול תשלומים):** Mapping expenses to Bank/Credit Card sources.
 - **Expense Engine (מנוע הוצאות):** CSV upload area for automated AI classification.

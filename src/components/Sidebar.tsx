@@ -12,7 +12,8 @@ import {
     ArrowRightLeft,
     PieChart,
     Car,
-    Shield
+    Shield,
+    Scale
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const navItems = [
     { href: "/", label: "ראשי", icon: Home },
+    { href: "/monthly-balance", label: "מאזן חודשי", icon: Scale },
     { href: "/transactions", label: "תנועות / עו״ש", icon: ArrowRightLeft },
     { href: "/finance", label: "פיננסים ונכסים", icon: PieChart },
     { href: "/housing", label: "מגורים ומשק בית", icon: Sofa },

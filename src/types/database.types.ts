@@ -16,6 +16,7 @@ export interface Database {
                     type: string
                     currency: string | null
                     current_balance: number | null
+                    metadata: Json | null
                     created_at: string | null
                     updated_at: string | null
                 }
@@ -25,6 +26,7 @@ export interface Database {
                     type: string
                     currency?: string | null
                     current_balance?: number | null
+                    metadata?: Json | null
                     created_at?: string | null
                     updated_at?: string | null
                 }
@@ -34,6 +36,7 @@ export interface Database {
                     type?: string
                     currency?: string | null
                     current_balance?: number | null
+                    metadata?: Json | null
                     created_at?: string | null
                     updated_at?: string | null
                 }
@@ -165,6 +168,32 @@ export interface Database {
                     id?: string
                     raw_merchant_string?: string
                     mapped_category_id?: string | null
+                    created_at?: string | null
+                    updated_at?: string | null
+                }
+            }
+            monthly_overrides: {
+                Row: {
+                    id: string
+                    month_year: string
+                    recurring_flow_id: string | null
+                    override_amount: number
+                    created_at: string | null
+                    updated_at: string | null
+                }
+                Insert: {
+                    id?: string
+                    month_year: string
+                    recurring_flow_id?: string | null
+                    override_amount: number
+                    created_at?: string | null
+                    updated_at?: string | null
+                }
+                Update: {
+                    id?: string
+                    month_year?: string
+                    recurring_flow_id?: string | null
+                    override_amount?: number
                     created_at?: string | null
                     updated_at?: string | null
                 }
