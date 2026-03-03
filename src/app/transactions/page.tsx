@@ -7,12 +7,13 @@ import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/finance/TransactionsTable"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDialog"
+import { ChangePaymentMethodDialog } from "@/components/finance/ChangePaymentMethodDialog"
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
 import { CATEGORY_TYPES, CATEGORY_DOMAINS } from "@/lib/constants"
-type FlowRow = Database['public']['Tables']['recurring_flows']['Row']
+type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & { accounts?: { name: string } | null }
 
-function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
+function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: { id: string, name: string }[] }) {
     if (!flows || flows.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
@@ -22,7 +23,7 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                         <Plus className="ml-2 h-4 w-4" />
                         הוסף תזרים קבוע
                     </Button>
-                } />
+                } accounts={accounts} />
             </div>
         )
     }
@@ -35,6 +36,7 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                     <TableHeader>
                         <TableRow>
                             <TableHead className="text-right">שם התזרים</TableHead>
+                            <TableHead className="text-right">אמצעי תשלום</TableHead>
                             <TableHead className="text-right">סוג</TableHead>
                             <TableHead className="text-right">תדירות</TableHead>
                             <TableHead className="text-right">תאריך קרוב</TableHead>
@@ -46,6 +48,7 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                         {flows.map(flow => (
                             <TableRow key={flow.id}>
                                 <TableCell className="font-medium">{flow.name}</TableCell>
+                                <TableCell className="text-zinc-500">{flow.accounts?.name || '-'}</TableCell>
                                 <TableCell>
                                     <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${flow.type === CATEGORY_TYPES.INCOME ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'
                                         }`}>
@@ -60,7 +63,10 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                                     {flow.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{flow.amount.toLocaleString()}
                                 </TableCell>
                                 <TableCell>
-                                    <AddRecurringFlowDialog flowToEdit={flow} />
+                                    <div className="flex items-center gap-2">
+                                        <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
+                                        <AddRecurringFlowDialog flowToEdit={flow} accounts={accounts} />
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -72,8 +78,9 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
             <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
                 {flows.map(flow => (
                     <div key={flow.id} className="flex flex-col space-y-3 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative">
-                        <div className="absolute top-2 right-2">
-                            <AddRecurringFlowDialog flowToEdit={flow} />
+                        <div className="absolute top-2 right-2 flex items-center gap-2">
+                            <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
+                            <AddRecurringFlowDialog flowToEdit={flow} accounts={accounts} />
                         </div>
                         <div className="flex justify-between items-start pt-2">
                             <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">{flow.name}</span>
@@ -85,6 +92,12 @@ function RecurringFlowsTable({ flows }: { flows: FlowRow[] }) {
                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${flow.type === CATEGORY_TYPES.INCOME ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'}`}>
                                 {flow.type === CATEGORY_TYPES.INCOME ? 'הכנסה' : 'הוצאה'}
                             </span>
+                            {flow.accounts?.name && (
+                                <>
+                                    <span>•</span>
+                                    <span>{flow.accounts.name}</span>
+                                </>
+                            )}
                             <span>•</span>
                             <span>{flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}</span>
                             <span>•</span>
@@ -129,9 +142,9 @@ export default async function FinancePage() {
     // Fetch recurring flows
     const { data: recurringFlows } = await supabase
         .from('recurring_flows')
-        .select('*')
+        .select('*, accounts(name)')
         .order('created_at', { ascending: false })
-    const flows = recurringFlows || []
+    const flows = recurringFlows as FlowRow[] || []
 
 
     // Map categories to Tabs visually. For a real app, we would map `categories.parent_id` to these buckets.
@@ -152,7 +165,7 @@ export default async function FinancePage() {
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">פיננסים</h2>
-                <AddRecurringFlowDialog />
+                <AddRecurringFlowDialog accounts={dbAccounts} />
             </div>
 
             <Tabs defaultValue="budget" className="w-full mt-4" dir="rtl">
@@ -180,7 +193,7 @@ export default async function FinancePage() {
                                 <CardDescription>מעקב אחר משכורות יציבות, תשלומי שכירות, ארנונה והוצאות קשיחות. אלגוריתם ה-AI מחבר תנועות עו״ש ישירות לכאן.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0 sm:p-0 pt-0 sm:pt-0">
-                                <RecurringFlowsTable flows={flows} />
+                                <RecurringFlowsTable flows={flows} accounts={dbAccounts} />
                             </CardContent>
                         </Card>
                     </TabsContent>

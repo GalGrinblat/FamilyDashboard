@@ -33,9 +33,11 @@ import { Plus, Pencil } from "lucide-react";
 export function AddRecurringFlowDialog({
   triggerButton,
   flowToEdit,
+  accounts,
 }: {
   triggerButton?: React.ReactNode;
   flowToEdit?: RecurringFlowRow;
+  accounts?: { id: string; name: string }[];
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,6 +52,7 @@ export function AddRecurringFlowDialog({
   const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.INCOME);
   const [frequency, setFrequency] = useState("monthly");
   const [nextDate, setNextDate] = useState("");
+  const [accountId, setAccountId] = useState("");
 
   // Pre-fill form if editing
   useEffect(() => {
@@ -59,6 +62,7 @@ export function AddRecurringFlowDialog({
       setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
       setFrequency(flowToEdit.frequency || "monthly");
       setNextDate(flowToEdit.next_date || "");
+      setAccountId(flowToEdit.account_id || "");
     } else if (!open && !isEditing) {
       // Reset form on close if not editing
       setName("");
@@ -66,6 +70,7 @@ export function AddRecurringFlowDialog({
       setType(CATEGORY_TYPES.INCOME);
       setFrequency("monthly");
       setNextDate("");
+      setAccountId("");
     }
   }, [open, isEditing, flowToEdit]);
 
@@ -79,6 +84,7 @@ export function AddRecurringFlowDialog({
       type,
       frequency,
       next_date: nextDate || null,
+      account_id: accountId === "none" ? null : accountId || null,
       is_active: true,
     };
 
@@ -209,6 +215,24 @@ export function AddRecurringFlowDialog({
               onChange={(e) => setNextDate(e.target.value)}
               className="col-span-3"
             />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="account" className="text-right">
+              אמצעי תשלום
+            </Label>
+            <Select value={accountId} onValueChange={setAccountId}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="בחר חשבון (אופציונלי)" />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="none">ללא אמצעי תשלום</SelectItem>
+                {accounts?.map((acc) => (
+                  <SelectItem key={acc.id} value={acc.id}>
+                    {acc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading}>

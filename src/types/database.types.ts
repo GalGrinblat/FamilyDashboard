@@ -205,6 +205,7 @@ export interface Database {
                     amount: number
                     type: string
                     category_id: string | null
+                    account_id: string | null
                     frequency: string
                     next_date: string | null
                     is_active: boolean | null
@@ -217,6 +218,7 @@ export interface Database {
                     amount: number
                     type: string
                     category_id?: string | null
+                    account_id?: string | null
                     frequency: string
                     next_date?: string | null
                     is_active?: boolean | null
@@ -229,6 +231,7 @@ export interface Database {
                     amount?: number
                     type?: string
                     category_id?: string | null
+                    account_id?: string | null
                     frequency?: string
                     next_date?: string | null
                     is_active?: boolean | null
