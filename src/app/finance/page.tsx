@@ -1,8 +1,23 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PieChart, Landmark, TrendingUp } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
+import { ManageAccountsTab } from "@/components/finance/ManageAccountsTab"
+import { Database } from "@/types/database.types"
 
-export default function FinancePage() {
+type AccountRow = Database["public"]["Tables"]["accounts"]["Row"]
+
+export default async function FinancePage() {
+    const supabase = await createClient()
+
+    // Fetch all accounts to display in the new manager
+    const { data: rawAccounts } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('name', { ascending: true })
+
+    const accounts = rawAccounts as AccountRow[] || []
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -12,9 +27,9 @@ export default function FinancePage() {
                 </h2>
             </div>
 
-            <p className="text-muted-foreground mt-2 mb-6">
-                ריכוז נכסים פיננסיים, הכנסות, קופות גמל והשקעות לטווח ארוך.
-            </p>
+            <ManageAccountsTab accounts={accounts} />
+
+            <div className="pt-8 w-full border-t border-zinc-100 dark:border-zinc-800 mt-8"></div>
 
             <Tabs defaultValue="income" className="w-full mt-4" dir="rtl">
                 <TabsList className="mb-4">
