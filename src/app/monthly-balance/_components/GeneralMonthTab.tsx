@@ -25,7 +25,12 @@ export function GeneralMonthTab() {
         getMonthlyBalanceData(monthStart, monthEnd)
             .then((res) => {
                 if (isMounted) {
-                    setRecurringFlows(res.recurringFlows as any)
+                    const activeFlowsForMonth = (res.recurringFlows as RecurringFlow[]).filter(flow => {
+                        if (flow.start_date && new Date(flow.start_date) > monthEnd) return false;
+                        if (flow.end_date && new Date(flow.end_date) < monthStart) return false;
+                        return true;
+                    });
+                    setRecurringFlows(activeFlowsForMonth)
                     setIsLoading(false)
                 }
             })
@@ -57,7 +62,14 @@ export function GeneralMonthTab() {
                             <div className="space-y-4">
                                 {incomes.map(inc => (
                                     <div key={inc.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
-                                        <span>{inc.name}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span>{inc.name}</span>
+                                            {inc.domain && inc.domain !== 'general' && (
+                                                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
+                                                    {inc.domain}
+                                                </span>
+                                            )}
+                                        </div>
                                         <span className="font-bold text-emerald-600">₪{Number(inc.amount).toLocaleString()}</span>
                                     </div>
                                 ))}
@@ -84,7 +96,14 @@ export function GeneralMonthTab() {
                             <div className="space-y-4">
                                 {expenses.map(exp => (
                                     <div key={exp.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
-                                        <span>{exp.name} {exp.frequency !== 'monthly' ? `(${exp.frequency})` : ''}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span>{exp.name} {exp.frequency !== 'monthly' ? `(${exp.frequency})` : ''}</span>
+                                            {exp.domain && exp.domain !== 'general' && (
+                                                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
+                                                    {exp.domain}
+                                                </span>
+                                            )}
+                                        </div>
                                         <span className="font-bold text-red-600">₪{Number(exp.amount).toLocaleString()}</span>
                                     </div>
                                 ))}

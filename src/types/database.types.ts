@@ -207,7 +207,9 @@ export interface Database {
                     category_id: string | null
                     account_id: string | null
                     frequency: string
-                    next_date: string | null
+                    start_date: string | null
+                    end_date: string | null
+                    domain: string | null
                     is_active: boolean | null
                     created_at: string | null
                     updated_at: string | null
@@ -220,7 +222,9 @@ export interface Database {
                     category_id?: string | null
                     account_id?: string | null
                     frequency: string
-                    next_date?: string | null
+                    start_date?: string | null
+                    end_date?: string | null
+                    domain?: string | null
                     is_active?: boolean | null
                     created_at?: string | null
                     updated_at?: string | null
@@ -233,7 +237,9 @@ export interface Database {
                     category_id?: string | null
                     account_id?: string | null
                     frequency?: string
-                    next_date?: string | null
+                    start_date?: string | null
+                    end_date?: string | null
+                    domain?: string | null
                     is_active?: boolean | null
                     created_at?: string | null
                     updated_at?: string | null

@@ -1,3 +1,12 @@
+-- ==========================================
+-- THIS FILE IS AUTO-GENERATED - DO NOT EDIT
+-- ==========================================
+-- It concatenates all migrations into a single file for easy reading and initialization.
+
+-- ==========================================
+-- Migration: 20260222000000_init_schema.sql
+-- ==========================================
+
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -7,7 +16,6 @@ CREATE TABLE categories (
   name_he text NOT NULL, -- Hebrew name of category
   name_en text NOT NULL, -- English name/id
   type text NOT NULL, -- 'income', 'expense', 'investment'
-  domain text DEFAULT 'general',
   parent_id uuid REFERENCES categories(id), -- for sub-categories
   sort_order integer DEFAULT 0, -- Allows manual ordering of categories
   created_at timestamp with time zone DEFAULT now(),
@@ -21,7 +29,6 @@ CREATE TABLE accounts (
   type text NOT NULL, -- 'checking', 'credit_card', 'investment', etc
   currency text DEFAULT 'ILS',
   current_balance numeric(12,2) DEFAULT 0,
-  metadata JSONB,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );
@@ -33,19 +40,6 @@ CREATE TABLE trips (
   start_date date,
   end_date date,
   budget numeric(12,2),
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now()
-);
-
--- assets Table: Real estate, Cars, and other tracked investments
-CREATE TABLE assets (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL,
-  type text NOT NULL, -- 'real_estate', 'vehicle', 'stock'
-  estimated_value numeric(12,2),
-  status text DEFAULT 'active',
-  metadata jsonb, -- Stores specific info like license plates, stock tickers, etc.
-  attachments jsonb, -- Array of Supabase Storage file paths (receipts, docs)
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );
@@ -67,6 +61,19 @@ CREATE TABLE transactions (
   installment_number integer DEFAULT 1,
   total_installments integer DEFAULT 1,
   asset_id uuid REFERENCES assets(id) ON DELETE SET NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- assets Table: Real estate, Cars, and other tracked investments
+CREATE TABLE assets (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  type text NOT NULL, -- 'real_estate', 'vehicle', 'stock'
+  estimated_value numeric(12,2),
+  status text DEFAULT 'active',
+  metadata jsonb, -- Stores specific info like license plates, stock tickers, etc.
+  attachments jsonb, -- Array of Supabase Storage file paths (receipts, docs)
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );
@@ -107,14 +114,60 @@ CREATE TABLE recurring_flows (
   frequency text NOT NULL, -- 'monthly', 'yearly', 'weekly'
   next_date date, -- Date of next expected occurrence
   is_active boolean DEFAULT true,
-  account_id UUID REFERENCES accounts(id) ON DELETE SET NULL,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );
 
--- monthly_overrides table to store local month-specific overrides for recurring flows
+-- merchant_mappings Table: Local cache for AI Engine to auto-classify recurring transactions
+CREATE TABLE merchant_mappings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  raw_merchant_string text NOT NULL,
+  mapped_category_id uuid REFERENCES categories(id),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- ==========================================
+-- Migration: 20260301074023_add_category_domain.sql
+-- ==========================================
+
+-- Schema Update: Add 'domain' to categories
+ALTER TABLE categories ADD COLUMN IF NOT EXISTS domain text DEFAULT 'general';
+
+-- Optional: Update any existing null domains to 'general' just in case
+UPDATE categories SET domain = 'general' WHERE domain IS NULL;
+
+-- ==========================================
+-- Migration: 20260302162500_link_reminders_to_assets.sql
+-- ==========================================
+
+ALTER TABLE reminders
+ADD COLUMN asset_id uuid REFERENCES assets(id) ON DELETE CASCADE;
+
+-- ==========================================
+-- Migration: 20260302165000_asset_transaction_linking.sql
+-- ==========================================
+
+-- Add asset_id to transactions table to link expenses directly to tracked assets (e.g., cars, properties)
+ALTER TABLE transactions
+ADD COLUMN asset_id uuid REFERENCES assets(id) ON DELETE SET NULL;
+
+-- Add a status lifecycle flag to assets to manage archival without outright delete traces.
+-- Options: 'active', 'sold', 'archived'
+ALTER TABLE assets
+ADD COLUMN status text DEFAULT 'active';
+
+-- ==========================================
+-- Migration: 20260302210000_monthly_balance_schema.sql
+-- ==========================================
+
+-- Add metadata column to accounts to store things like billingDate, creditLimit, etc.
+ALTER TABLE accounts
+ADD COLUMN IF NOT EXISTS metadata JSONB;
+
+-- Create monthly_overrides table to store local month-specific overrides for recurring flows
 CREATE TABLE IF NOT EXISTS monthly_overrides (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     month_year VARCHAR(7) NOT NULL, -- Format: YYYY-MM
     recurring_flow_id UUID REFERENCES recurring_flows(id) ON DELETE CASCADE,
     override_amount NUMERIC NOT NULL,
@@ -132,11 +185,26 @@ ALTER TABLE monthly_overrides ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Enable all actions for anonymous users during dev" 
 ON monthly_overrides FOR ALL USING (true) WITH CHECK (true);
 
--- merchant_mappings Table: Local cache for AI Engine to auto-classify recurring transactions
-CREATE TABLE merchant_mappings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  raw_merchant_string text NOT NULL,
-  mapped_category_id uuid REFERENCES categories(id),
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now()
-);
+-- ==========================================
+-- Migration: 20260302220000_add_account_to_recurring_flows.sql
+-- ==========================================
+
+ALTER TABLE recurring_flows
+ADD COLUMN account_id UUID REFERENCES accounts(id) ON DELETE SET NULL;
+
+-- ==========================================
+-- Migration: 20260305224100_recurring_flows_enhancements.sql
+-- ==========================================
+
+ALTER TABLE recurring_flows
+ADD COLUMN start_date date,
+ADD COLUMN end_date date,
+ADD COLUMN domain text DEFAULT 'general';
+
+-- ==========================================
+-- Migration: 20260305224900_drop_next_date.sql
+-- ==========================================
+
+ALTER TABLE recurring_flows
+DROP COLUMN next_date;
+

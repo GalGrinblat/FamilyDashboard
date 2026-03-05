@@ -51,8 +51,10 @@ export function AddRecurringFlowDialog({
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.INCOME);
   const [frequency, setFrequency] = useState("monthly");
-  const [nextDate, setNextDate] = useState("");
   const [accountId, setAccountId] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [domain, setDomain] = useState("general");
 
   // Pre-fill form if editing
   useEffect(() => {
@@ -61,16 +63,20 @@ export function AddRecurringFlowDialog({
       setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : "");
       setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
       setFrequency(flowToEdit.frequency || "monthly");
-      setNextDate(flowToEdit.next_date || "");
       setAccountId(flowToEdit.account_id || "");
+      setStartDate(flowToEdit.start_date || "");
+      setEndDate(flowToEdit.end_date || "");
+      setDomain(flowToEdit.domain || "general");
     } else if (!open && !isEditing) {
       // Reset form on close if not editing
       setName("");
       setAmount("");
       setType(CATEGORY_TYPES.INCOME);
       setFrequency("monthly");
-      setNextDate("");
       setAccountId("");
+      setStartDate("");
+      setEndDate("");
+      setDomain("general");
     }
   }, [open, isEditing, flowToEdit]);
 
@@ -83,8 +89,10 @@ export function AddRecurringFlowDialog({
       amount: parseFloat(amount),
       type,
       frequency,
-      next_date: nextDate || null,
       account_id: accountId === "none" ? null : accountId || null,
+      start_date: startDate || null,
+      end_date: endDate || null,
+      domain: domain || 'general',
       is_active: true,
     };
 
@@ -205,14 +213,42 @@ export function AddRecurringFlowDialog({
             </Select>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="next_date" className="text-right">
-              תאריך חיוב קרוב
+            <Label htmlFor="domain" className="text-right">
+              תחום
+            </Label>
+            <Select value={domain} onValueChange={setDomain}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="בחר תחום" />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="general">כללי</SelectItem>
+                <SelectItem value="housing">דיור</SelectItem>
+                <SelectItem value="vehicles">רכבים</SelectItem>
+                <SelectItem value="insurances">ביטוחים</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="start_date" className="text-right">
+              תחימת התחלה
             </Label>
             <Input
-              id="next_date"
+              id="start_date"
               type="date"
-              value={nextDate}
-              onChange={(e) => setNextDate(e.target.value)}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="end_date" className="text-right">
+              תחימת סיום
+            </Label>
+            <Input
+              id="end_date"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
               className="col-span-3"
             />
           </div>

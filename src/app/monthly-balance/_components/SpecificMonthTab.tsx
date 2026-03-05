@@ -83,19 +83,25 @@ export function SpecificMonthTab() {
         type: 'income' | 'expense';
         isActual: boolean; // boolean if it happened or if it's expected
         originalRecurringId?: string; // used for inline override
+        domain?: string | null;
     }
 
     const timeline: TimelineItem[] = []
 
     if (data) {
         // A. Recurring Flows (Expected Income/Expenses)
-        data.recurringFlows.forEach(flow => {
+        (data.recurringFlows as RecurringFlow[]).forEach(flow => {
+            // Check start and end dates
+            if (flow.start_date && new Date(flow.start_date) > monthEnd) return;
+            if (flow.end_date && new Date(flow.end_date) < monthStart) return;
+
             // Find if there is an override for this month
             const override = data.overrides.find(o => o.recurring_flow_id === flow.id)
             const finalAmount = override ? Number(override.override_amount) : Number(flow.amount)
 
-            // For now, let's just place them on the 1st if no date is specified, or try to parse `next_date`
-            const flowDate = flow.next_date ? new Date(flow.next_date) : new Date(monthStart)
+            // Determine the day of the month this flow should occur
+            // Fallback to the 1st of the month if no start date is provided.
+            const flowDate = flow.start_date ? new Date(flow.start_date) : new Date(monthStart)
             const dayOfMonth = flowDate.getDate()
 
             timeline.push({
@@ -105,7 +111,8 @@ export function SpecificMonthTab() {
                 amount: finalAmount,
                 type: flow.type as 'income' | 'expense',
                 isActual: false,
-                originalRecurringId: flow.id
+                originalRecurringId: flow.id,
+                domain: flow.domain
             })
         })
 
@@ -227,9 +234,14 @@ export function SpecificMonthTab() {
                                     <div className="w-12 text-sm text-muted-foreground font-medium border-l pl-2 ml-2">
                                         {item.date} בחודש
                                     </div>
-                                    <div className="flex-1 font-medium text-sm">
+                                    <div className="flex-1 font-medium text-sm flex items-center gap-2">
                                         {item.title}
                                         {item.isActual && <span className="mr-2 text-xs bg-muted px-1 rounded">בוצע</span>}
+                                        {!item.isActual && item.domain && item.domain !== 'general' && (
+                                            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
+                                                {item.domain}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className={`text-sm font-bold ${item.type === 'income' ? 'text-emerald-600' : ''}`}>
                                         {item.type === 'expense' ? '-' : '+'}₪{item.amount.toLocaleString()}

@@ -39,7 +39,6 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                             <TableHead className="text-right">אמצעי תשלום</TableHead>
                             <TableHead className="text-right">סוג</TableHead>
                             <TableHead className="text-right">תדירות</TableHead>
-                            <TableHead className="text-right">תאריך קרוב</TableHead>
                             <TableHead className="text-right">סכום צפוי</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
@@ -58,7 +57,6 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                                 <TableCell>
                                     {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}
                                 </TableCell>
-                                <TableCell>{flow.next_date ? new Date(flow.next_date).toLocaleDateString("he-IL") : '-'}</TableCell>
                                 <TableCell className={`font-semibold ${flow.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>
                                     {flow.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{flow.amount.toLocaleString()}
                                 </TableCell>
@@ -100,8 +98,6 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                             )}
                             <span>•</span>
                             <span>{flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}</span>
-                            <span>•</span>
-                            <span>{flow.next_date ? new Date(flow.next_date).toLocaleDateString("he-IL") : '-'}</span>
                         </div>
                     </div>
                 ))}
