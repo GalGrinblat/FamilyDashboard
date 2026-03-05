@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"npm run db:watch\" \"next dev\"",
+    "db:combine": "node scripts/combine-migrations.mjs",
+    "db:watch": "chokidar \"supabase/migrations/*.sql\" -c \"npm run db:combine\" --initial",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -35,6 +37,8 @@
     "@types/node": "^20.19.33",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.1.6",
     "shadcn": "^3.8.5",
