@@ -10,7 +10,7 @@ import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDia
 import { ChangePaymentMethodDialog } from "@/components/finance/ChangePaymentMethodDialog"
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
-import { CATEGORY_TYPES, CATEGORY_DOMAINS } from "@/lib/constants"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain } from "@/lib/constants"
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & { accounts?: { name: string } | null }
 
 function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: { id: string, name: string }[] }) {
@@ -66,9 +66,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                                     {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}
                                 </TableCell>
                                 <TableCell className="text-zinc-500">
-                                    {flow.domain === CATEGORY_DOMAINS.HOUSING ? 'מגורים ומשק בית' :
-                                        flow.domain === CATEGORY_DOMAINS.TRANSPORTATION ? 'תחבורה' :
-                                            flow.domain === CATEGORY_DOMAINS.INSURANCES ? 'ביטוחים' : 'כללי'}
+                                    {flow.domain ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי' : 'כללי'}
                                 </TableCell>
                                 <TableCell className="text-zinc-500">{flow.start_date ? new Date(flow.start_date).toLocaleDateString("he-IL") : '-'}</TableCell>
                                 <TableCell className="text-zinc-500">{flow.end_date ? new Date(flow.end_date).toLocaleDateString("he-IL") : '-'}</TableCell>
@@ -114,7 +112,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                             )}
                             <span>{flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}</span>
                             <span className="text-zinc-300 dark:text-zinc-600">•</span>
-                            <span>{flow.domain === CATEGORY_DOMAINS.HOUSING ? 'מגורים ומשק בית' : flow.domain === CATEGORY_DOMAINS.TRANSPORTATION ? 'תחבורה' : flow.domain === CATEGORY_DOMAINS.INSURANCES ? 'ביטוחים' : 'כללי'}</span>
+                            <span>{flow.domain ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי' : 'כללי'}</span>
                         </div>
 
                         {(flow.start_date || flow.end_date) && (

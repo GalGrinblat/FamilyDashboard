@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Pencil } from "lucide-react"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryType, CategoryDomain } from "@/lib/constants"
 
 type Account = Database["public"]["Tables"]["accounts"]["Row"]
 type Transaction = Database["public"]["Tables"]["transactions"]["Row"]
@@ -80,7 +81,7 @@ export function SpecificMonthTab() {
         date: number; // day of month 1-31
         title: string;
         amount: number;
-        type: 'income' | 'expense';
+        type: CategoryType;
         isActual: boolean; // boolean if it happened or if it's expected
         originalRecurringId?: string; // used for inline override
         domain?: string | null;
@@ -109,7 +110,7 @@ export function SpecificMonthTab() {
                 date: dayOfMonth,
                 title: flow.name,
                 amount: finalAmount,
-                type: flow.type as 'income' | 'expense',
+                type: flow.type as CategoryType,
                 isActual: false,
                 originalRecurringId: flow.id,
                 domain: flow.domain
@@ -133,7 +134,7 @@ export function SpecificMonthTab() {
                     date: billingDay,
                     title: `חיוב אשראי - ${cc.name}`,
                     amount: billAmount,
-                    type: 'expense',
+                    type: CATEGORY_TYPES.EXPENSE,
                     isActual: false
                 })
             }
@@ -148,7 +149,7 @@ export function SpecificMonthTab() {
     // Calculate End Balance (Start + Income - Expenses)
     let endBalance = startBalance
     timeline.forEach(item => {
-        if (item.type === 'income') endBalance += item.amount
+        if (item.type === CATEGORY_TYPES.INCOME) endBalance += item.amount
         else endBalance -= item.amount
     })
 
@@ -237,14 +238,14 @@ export function SpecificMonthTab() {
                                     <div className="flex-1 font-medium text-sm flex items-center gap-2">
                                         {item.title}
                                         {item.isActual && <span className="mr-2 text-xs bg-muted px-1 rounded">בוצע</span>}
-                                        {!item.isActual && item.domain && item.domain !== 'general' && (
+                                        {!item.isActual && item.domain && item.domain !== CATEGORY_DOMAINS.GENERAL && (
                                             <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
-                                                {item.domain}
+                                                {CATEGORY_DOMAIN_SHORT_LABELS[item.domain as CategoryDomain] || item.domain}
                                             </span>
                                         )}
                                     </div>
-                                    <div className={`text-sm font-bold ${item.type === 'income' ? 'text-emerald-600' : ''}`}>
-                                        {item.type === 'expense' ? '-' : '+'}₪{item.amount.toLocaleString()}
+                                    <div className={`text-sm font-bold ${item.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600' : ''}`}>
+                                        {item.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{item.amount.toLocaleString()}
                                     </div>
                                     <div className="mr-2">
                                         {item.originalRecurringId && !item.isActual && (

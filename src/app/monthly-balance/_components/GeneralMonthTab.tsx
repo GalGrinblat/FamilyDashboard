@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getMonthlyBalanceData } from "../actions"
 import { Database } from "@/types/database.types"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain } from "@/lib/constants"
 
 type RecurringFlow = Database["public"]["Tables"]["recurring_flows"]["Row"]
 
@@ -39,8 +40,8 @@ export function GeneralMonthTab() {
         return () => { isMounted = false }
     }, [])
 
-    const incomes = recurringFlows.filter(f => f.type === 'income')
-    const expenses = recurringFlows.filter(f => f.type === 'expense')
+    const incomes = recurringFlows.filter(f => f.type === CATEGORY_TYPES.INCOME)
+    const expenses = recurringFlows.filter(f => f.type === CATEGORY_TYPES.EXPENSE)
 
     const totalIncome = incomes.reduce((sum, item) => sum + Number(item.amount), 0)
     const totalExpense = expenses.reduce((sum, item) => sum + Number(item.amount), 0)
@@ -64,9 +65,9 @@ export function GeneralMonthTab() {
                                     <div key={inc.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
                                         <div className="flex items-center gap-2">
                                             <span>{inc.name}</span>
-                                            {inc.domain && inc.domain !== 'general' && (
+                                            {inc.domain && inc.domain !== CATEGORY_DOMAINS.GENERAL && (
                                                 <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
-                                                    {inc.domain}
+                                                    {CATEGORY_DOMAIN_SHORT_LABELS[inc.domain as CategoryDomain] || inc.domain}
                                                 </span>
                                             )}
                                         </div>
@@ -98,9 +99,9 @@ export function GeneralMonthTab() {
                                     <div key={exp.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
                                         <div className="flex items-center gap-2">
                                             <span>{exp.name} {exp.frequency !== 'monthly' ? `(${exp.frequency})` : ''}</span>
-                                            {exp.domain && exp.domain !== 'general' && (
+                                            {exp.domain && exp.domain !== CATEGORY_DOMAINS.GENERAL && (
                                                 <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
-                                                    {exp.domain}
+                                                    {CATEGORY_DOMAIN_SHORT_LABELS[exp.domain as CategoryDomain] || exp.domain}
                                                 </span>
                                             )}
                                         </div>

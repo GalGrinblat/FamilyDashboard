@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/types/database.types";
-import { CATEGORY_TYPES, CategoryType } from "@/lib/constants";
+import { CategoryType, CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_LABELS, CategoryDomain } from "@/lib/constants";
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 type RecurringFlowInsert = Database['public']['Tables']['recurring_flows']['Insert'];
@@ -221,10 +221,11 @@ export function AddRecurringFlowDialog({
                 <SelectValue placeholder="בחר תחום" />
               </SelectTrigger>
               <SelectContent dir="rtl">
-                <SelectItem value="general">כללי</SelectItem>
-                <SelectItem value="housing">דיור</SelectItem>
-                <SelectItem value="vehicles">רכבים</SelectItem>
-                <SelectItem value="insurances">ביטוחים</SelectItem>
+                {Object.entries(CATEGORY_DOMAIN_LABELS).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
