@@ -230,6 +230,30 @@ export default async function TransactionsPage() {
                         </Card>
                     </TabsContent>
 
+                    <TabsContent value="housing" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>מגורים ומשק בית</CardTitle>
+                                <CardDescription>הוצאות עבור מגורים, תחזוקה, רכישת ריהוט ומכשירי חשמל.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={housingExpenses} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="car" className="m-0">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>תחבורה ורכבים</CardTitle>
+                                <CardDescription>מעקב אחר הוצאות דלק, טיפולים, ותחבורה ציבורית.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                                <TransactionsTable transactions={transportationExpenses} />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
                     <TabsContent value="insurances" className="m-0">
                         <Card>
                             <CardHeader>

@@ -30,40 +30,78 @@ Transactions and categories are classified by their cash flow direction:
 The application uses a Sidebar/Bottom-Navigation structure with tabs categorized by financial domains. The terminology conceptually maps to the structural pages.
 
 ### 1. Overview (ראשי)
+* **Route:** `/`
 * High-level KPIs, monthly burn rate, and urgent alerts.
+* **Components:** 
+  * Main Dashboard (Net Worth & Burn Rate Cards)
+  * Urgent Reminders Grid
 
 ### 2. Monthly Balance (מאזן חודשי)
-* **Specific Month (חודש ספציפי):** View expected and actual income vs expenses chronologically.
-* **General Month (חודש כללי):** View baseline recurring income and budgeting expenses grouped per **Domain**.
+* **Route:** `/monthly-balance`
+* **Tabs:**
+  * **Specific Month (חודש ספציפי):** View expected and actual income vs expenses chronologically.
+    * **Components:** `SpecificMonthTab` (displays `timeline` of historical and expected transactions/overrides).
+  * **General Month (חודש כללי):** View baseline recurring income and budgeting expenses grouped per **Domain**.
+    * **Components:** `GeneralMonthTab` (Currently un-implemented / placeholder).
 
 ### 3. Transactions & Cash Flow (תנועות / עו״ש)
-* **Current Month (החודש השוטף):** General spending (Domains like `SUPERMARKET`, `HOBBIES`, `ENTERTAINMENT`).
-* **Payment Management (ניהול תשלומים):** Mapping expenses to Bank/Credit Card sources.
-* **Expense Engine (מנוע הוצאות):** Upload area for CSV statements to be auto-classified using AI into Categories and **Domains**.
+* **Route:** `/transactions`
+* **Tabs:**
+  * **Budget & Recurring (תקציב ותזרים קבוע):** `RecurringFlowsTable`
+  * **Incomes (הכנסות):** `TransactionsTable` (filtered by `INCOME`)
+  * **Housing (מגורים):** `TransactionsTable` (filtered by `HOUSING`)
+  * **Transportation (תחבורה):** `TransactionsTable` (filtered by `TRANSPORTATION`)
+  * **Insurances (ביטוחים):** `TransactionsTable` (filtered by `INSURANCES`)
+  * **Utilities (חשבונות):** `TransactionsTable` (filtered by `UTILITIES`)
+  * **Supermarket (סופרמרקט):** `TransactionsTable` (filtered by `SUPERMARKET`)
+  * **Hobbies (חוגים ופנאי):** `TransactionsTable` (filtered by `HOBBIES`)
+  * **Entertainment (בילויים):** `TransactionsTable` (filtered by `ENTERTAINMENT`)
+  * **Vacation (חופשות):** `TransactionsTable` (filtered by `VACATION`)
+  * **AI Expense Engine (מנוע הוצאות):** `ExpenseUploader` (CSV Upload)
 
 ### 4. Finance & Wealth (פיננסים ונכסים)
-* **Income Sources (מקורות הכנסה):** Salaries, rent income, etc. (Maps to `INCOME` types).
-* **Assets & Investments (השקעות):** Stock portfolios, real estate capital.
+* **Route:** `/finance`
+* **Sub-components:** `ManageAccountsTab` (Global account management at the top)
+* **Tabs:**
+  * **Income Sources (מקורות הכנסה):** *Unimplemented placeholder*
+  * **Assets & Investments (השקעות):** *Unimplemented placeholder*
+  * **Pension & Savings (פנסיה וגמל):** *Unimplemented placeholder*
 
 ### 5. Housing & Household (מגורים ומשק בית)
-This area directly corresponds to the **`HOUSING`** and **`UTILITIES`** domains.
-* **Contracts & Utilities (חוזים ושירותים):** Track providers for Internet, Electricity, Water.
-* **Inventory (תכולה):** Tracking appliances, furniture, and electronics.
+* **Route:** `/housing`
+* This area directly corresponds to the **`HOUSING`** and **`UTILITIES`** domains.
+* **Tabs:**
+  * **Contracts & Utilities (חוזים ושירותים):** *Unimplemented placeholder*
+  * **Appliances (מכשירי חשמל):** `ItemsTable` (filtered by category='appliance')
+  * **Furniture (ריהוט):** `ItemsTable` (filtered by category='furniture')
+  * **Electronics (אלקטרוניקה):** `ItemsTable` (filtered by category='electronics')
+  * **Transactions (תנועות והוצאות):** `DomainTransactionsTab` (filtered by `HOUSING`)
 
 ### 6. Transportation (תחבורה)
-This area corresponds to the **`TRANSPORTATION`** domain (route: `/transportation`).
-* **Fleet Overview (צי רכבים):** Vehicle values and details.
-* **Maintenance & Licensing (טיפולים ורישוי):** Tracking annual tests, garage visits, and mileage.
+* **Route:** `/transportation`
+* This area corresponds to the **`TRANSPORTATION`** domain.
+* **Tabs:**
+  * **Active Cars (רכבים פעילים):** `CarsTable` (also displays reminders and `AddCarAssetDialog`)
+  * **Maintenance (טיפולים ותחזוקה):** *Unimplemented placeholder*
+  * **Transactions (תנועות והוצאות):** `DomainTransactionsTab` (filtered by `TRANSPORTATION`)
 
 ### 7. Insurances (ביטוחים)
-This area corresponds to the **`INSURANCES`** domain.
-* **Health & Life (בריאות וחיים):** Private medical, HMO, life insurance.
-* **Property Insurance (ביטוחי מבנה ותכולה):** Home insurances.
-* **Vehicle Insurance (ביטוחי רכב):** Mandatory and Comprehensive tracking.
+* **Route:** `/insurances`
+* This area corresponds to the **`INSURANCES`** domain.
+* **Tabs:**
+  * **Health & Life (בריאות וחיים):** Grid of `PolicyCard` components
+  * **Property (מבנה ותכולה):** Grid of `PolicyCard` components
+  * **Vehicle (רכב):** Grid of `PolicyCard` components
+  * **Transactions (תנועות והוצאות):** `DomainTransactionsTab` (filtered by `INSURANCES`)
 
 ### 8. Planning (תכנון)
-* **Periodic Planning (תכנון עיתי):** Visual timeline for renewals (car tests, insurances).
-* **Vacation Planning (תכנון חופשות):** Future trips and budgeting (Maps to **`VACATION`** domain).
+* **Route:** `/planning`
+* **Tabs:**
+  * **Periodic Planning (תכנון עיתי):** `RemindersTable`
+  * **Vacation Planning (תכנון חופשות):** `TripsTable` (Maps to **`VACATION`** domain conceptually)
 
 ### 9. Settings (הגדרות)
-* **Category Manager:** Management of categories, assigning each to a specific **Type** (Expense/Income) and **Domain** to drive the dashboard's statistics and data grouping.
+* **Route:** `/settings`
+* **Tabs:**
+  * **Categories (קטגוריות):** `CategoryManager` component
+  * **System Settings (הגדרות מערכת):** *Unimplemented placeholder / disabled tab*
