@@ -1,10 +1,38 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, HeartPulse, Home, Car as CarIcon } from "lucide-react"
+import { Shield, HeartPulse, Home, Car as CarIcon, Plus } from "lucide-react"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
 import { CATEGORY_DOMAINS } from "@/lib/constants"
+import { createClient } from "@/lib/supabase/server"
+import { Database } from "@/types/database.types"
+import { AddEditPolicyDialog } from "@/components/insurances/AddEditPolicyDialog"
+import { PolicyCard } from "@/components/insurances/PolicyCard"
+import { Button } from "@/components/ui/button"
 
-export default function InsurancesPage() {
+type PolicyRow = Database['public']['Tables']['policies']['Row']
+type PolicyWithAsset = PolicyRow & {
+    assets?: {
+        name: string;
+        type: string;
+        metadata: any;
+    } | null
+}
+
+export default async function InsurancesPage() {
+    const supabase = await createClient()
+
+    // Fetch all policies
+    const { data: policiesData } = await supabase
+        .from('policies')
+        .select('*, assets(name, type, metadata)')
+        .order('created_at', { ascending: false })
+
+    const policies = (policiesData || []) as PolicyWithAsset[]
+
+    const healthPolicies = policies.filter(p => p.type === 'health' || p.type === 'life')
+    const propertyPolicies = policies.filter(p => p.type === 'property')
+    const vehiclePolicies = policies.filter(p => p.type === 'vehicle')
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -12,6 +40,14 @@ export default function InsurancesPage() {
                     <Shield className="h-8 w-8 text-zinc-400" />
                     תיק ביטוחים
                 </h2>
+                <div className="flex items-center gap-2">
+                    <AddEditPolicyDialog defaultType="health" triggerButton={
+                        <Button>
+                            <Plus className="ml-2 w-4 h-4" />
+                            הוסף פוליסה
+                        </Button>
+                    } />
+                </div>
             </div>
 
             <p className="text-muted-foreground mt-2 mb-6">
@@ -35,8 +71,21 @@ export default function InsurancesPage() {
                             </CardTitle>
                             <CardDescription>ביטוחי בריאות פרטיים, קופות חולים וביטוחי חיים/משכנתא.</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            מעקב פוליסות בריאות יפותח כאן.
+                        <CardContent className="pt-0 p-6">
+                            {healthPolicies.length === 0 ? (
+                                <div className="h-[200px] flex flex-col items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
+                                    <p>אין ביטוחי בריאות וחיים קיימים לנתח.</p>
+                                    <AddEditPolicyDialog defaultType="health" triggerButton={
+                                        <Button variant="outline" className="mt-4">הוסף כיסוי חדש</Button>
+                                    } />
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                    {healthPolicies.map(p => (
+                                        <PolicyCard key={p.id} policy={p} />
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -50,8 +99,21 @@ export default function InsurancesPage() {
                             </CardTitle>
                             <CardDescription>כיסוי נכסים ומשק הבית.</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            פוליסות ופרטי חברות ביטוח המבנה.
+                        <CardContent className="pt-0 p-6">
+                            {propertyPolicies.length === 0 ? (
+                                <div className="h-[200px] flex flex-col items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
+                                    <p>אין ביטוחי מבנה ותכולה מתועדים במערכת.</p>
+                                    <AddEditPolicyDialog defaultType="property" triggerButton={
+                                        <Button variant="outline" className="mt-4">הוסף כיסוי חדש</Button>
+                                    } />
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                    {propertyPolicies.map(p => (
+                                        <PolicyCard key={p.id} policy={p} />
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -65,8 +127,21 @@ export default function InsurancesPage() {
                             </CardTitle>
                             <CardDescription>תאריכי חידוש ומעקב הוצאות ביטוח לרכבים.</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            ניהול ביטוחי צד ג' ומקיף לרכבי המשפחה.
+                        <CardContent className="pt-0 p-6">
+                            {vehiclePolicies.length === 0 ? (
+                                <div className="h-[200px] flex flex-col items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
+                                    <p>אין ביטוחי רכב פעילים המשויכים לרכבי המשפחה.</p>
+                                    <AddEditPolicyDialog defaultType="vehicle" triggerButton={
+                                        <Button variant="outline" className="mt-4">הוסף כיסוי חדש</Button>
+                                    } />
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                    {vehiclePolicies.map(p => (
+                                        <PolicyCard key={p.id} policy={p} />
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>

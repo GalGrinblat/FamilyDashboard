@@ -198,6 +198,50 @@ export interface Database {
                     updated_at?: string | null
                 }
             }
+            policies: {
+                Row: {
+                    id: string
+                    created_at: string
+                    name: string
+                    policy_number: string | null
+                    type: "health" | "life" | "property" | "vehicle"
+                    provider: string
+                    premium_amount: number
+                    premium_frequency: "monthly" | "yearly"
+                    renewal_date: string | null
+                    covered_individuals: string[] | null
+                    asset_id: string | null
+                    document_url: string | null
+                }
+                Insert: {
+                    id?: string
+                    created_at?: string
+                    name: string
+                    policy_number?: string | null
+                    type: "health" | "life" | "property" | "vehicle"
+                    provider: string
+                    premium_amount: number
+                    premium_frequency?: "monthly" | "yearly"
+                    renewal_date?: string | null
+                    covered_individuals?: string[] | null
+                    asset_id?: string | null
+                    document_url?: string | null
+                }
+                Update: {
+                    id?: string
+                    created_at?: string
+                    name?: string
+                    policy_number?: string | null
+                    type?: "health" | "life" | "property" | "vehicle"
+                    provider?: string
+                    premium_amount?: number
+                    premium_frequency?: "monthly" | "yearly"
+                    renewal_date?: string | null
+                    covered_individuals?: string[] | null
+                    asset_id?: string | null
+                    document_url?: string | null
+                }
+            }
             recurring_flows: {
                 Row: {
                     id: string
@@ -370,7 +414,8 @@ export interface Database {
             [_ in never]: never
         }
         Enums: {
-            [_ in never]: never
+            policy_type: "health" | "life" | "property" | "vehicle"
+            policy_frequency: "monthly" | "yearly"
         }
         CompositeTypes: {
             [_ in never]: never
