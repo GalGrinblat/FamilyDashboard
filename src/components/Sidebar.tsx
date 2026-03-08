@@ -13,11 +13,13 @@ import {
     PieChart,
     Car,
     Shield,
-    Scale
+    Scale,
+    LogOut
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { logout } from "@/app/login/actions"
 
 const navItems = [
     { href: "/", label: "ראשי", icon: Home },
@@ -60,6 +62,17 @@ export function Sidebar() {
                     ניהול משק בית
                 </div>
                 <NavLinks />
+                <div className="pt-4 border-t">
+                    <form action={logout}>
+                        <button
+                            type="submit"
+                            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                        >
+                            <LogOut className="h-5 w-5" />
+                            התנתקות
+                        </button>
+                    </form>
+                </div>
             </div>
         </>
     )
