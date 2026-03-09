@@ -6,6 +6,7 @@ import { Plus, Sofa } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
 import { Database } from "@/types/database.types"
+import { ContractsTab } from "@/components/housing/ContractsTab"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
 import { CATEGORY_DOMAINS } from "@/lib/constants"
 
@@ -91,6 +92,16 @@ export default async function HousingPage() {
     const furniture = items.filter(i => i.category === 'furniture')
     const electronics = items.filter(i => i.category === 'electronics')
 
+    // 2. Fetch contracts
+    const { data: rawContracts } = await supabase
+        .from('recurring_flows')
+        .select('*')
+        .in('domain', ['housing', 'utilities'])
+        .eq('type', 'expense')
+        .order('name', { ascending: true })
+
+    const contracts = (rawContracts as any[]) || []
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -113,15 +124,7 @@ export default async function HousingPage() {
                 </TabsList>
 
                 <TabsContent value="utilities" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>חוזים ושירותים למגורים</CardTitle>
-                            <CardDescription>תשלומים חודשיים עבור חשמל, מים, ארנונה, שכר דירה/משכנתא, ואינטרנט.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            ממשק ניהול ספקים ושירותים יפותח בחלק המיועד למעקב חוזים מתמשכים.
-                        </CardContent>
-                    </Card>
+                    <ContractsTab contracts={contracts} />
                 </TabsContent>
 
                 <TabsContent value="appliances" className="m-0">

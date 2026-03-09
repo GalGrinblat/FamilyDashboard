@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Database } from "@/types/database.types"
 import { Settings as SettingsIcon } from "lucide-react"
 import { CategoryManager } from "./CategoryManager"
+import { SystemSettingsTab } from "@/components/settings/SystemSettingsTab"
 
 type CategoryRow = Database['public']['Tables']['categories']['Row']
 
@@ -29,13 +30,16 @@ export default async function SettingsPage() {
             <Tabs defaultValue="categories" className="w-full mt-6" dir="rtl">
                 <TabsList className="mb-4">
                     <TabsTrigger value="categories">קטגוריות</TabsTrigger>
-                    <TabsTrigger value="general" disabled>הגדרות מערכת</TabsTrigger>
+                    <TabsTrigger value="general">הגדרות מערכת</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="categories" className="space-y-4">
                     <CategoryManager initialCategories={categories} />
                 </TabsContent>
-                {/* Placeholder for future general settings */}
+
+                <TabsContent value="general" className="space-y-4">
+                    <SystemSettingsTab />
+                </TabsContent>
             </Tabs>
         </div>
     )

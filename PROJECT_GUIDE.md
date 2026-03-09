@@ -49,28 +49,28 @@ A comprehensive family management system for tracking finances, assets, insuranc
 - **Payment Management (ניהול תשלומים):** Mapping expenses to Bank/Credit Card sources.
 - **Expense Engine (מנוע הוצאות):** CSV upload area for automated AI classification.
 
-### 3. Finance & Wealth (פיננסים ונכסים)
+### 4. Finance & Wealth (פיננסים ונכסים)
 - **Income Sources (מקורות הכנסה):** Salaries, rent income, child benefits.
 - **Assets & Investments (השקעות):** Stock portfolios, crypto, real estate capital.
 
-### 4. Housing & Household (מגורים ומשק בית)
+### 5. Housing & Household (מגורים ומשק בית)
 - **Contracts & Utilities (חוזים ושירותים):** Mortgage/Rent tracking, Internet, Electricity, Water providers.
 - **Inventory (תכולה):** Appliances, Furniture, Electronics tracking.
 
-### 5. Vehicles (רכבים)
+### 6. Vehicles (רכבים)
 - **Fleet Overview (צי רכבים):** Vehicle values and details.
 - **Maintenance & Licensing (טיפולים ורישוי):** Tracking annual tests (טסט), garage visits, and mileage.
 
-### 6. Insurances (ביטוחים)
+### 7. Insurances (ביטוחים)
 - **Health & Life (בריאות וחיים):** HMO, private medical, life insurance.
 - **Property Insurance (ביטוחי מבנה ותכולה):** Home insurances.
 - **Vehicle Insurance (ביטוחי רכב):** Mandatory (חובה) and Comprehensive (מקיף) tracking.
 
-### 7. Planning (תכנון)
+### 8. Planning (תכנון)
 - **Periodic Planning (תכנון עיתי):** Visual timeline for insurance renewals, car tests, and home maintenance.
 - **Vacation Planning (תכנון חופשות):** Budgeting and itinerary planning for future trips.
 
-### 8. Settings (הגדרות)
+### 9. Settings (הגדרות)
 - **Category Manager:** Customizing transaction classification and AI rules.
 
 ## 💾 Database Schema (Supabase)

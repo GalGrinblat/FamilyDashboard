@@ -3,9 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PieChart, Landmark, TrendingUp } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { ManageAccountsTab } from "@/components/finance/ManageAccountsTab"
+import { IncomeSourcesTab } from "@/components/finance/IncomeSourcesTab"
+import { AssetsTable } from "@/components/finance/AssetsTable"
+import { PensionTable } from "@/components/finance/PensionTable"
 import { Database } from "@/types/database.types"
 
 type AccountRow = Database["public"]["Tables"]["accounts"]["Row"]
+type RecurringFlowRow = Database["public"]["Tables"]["recurring_flows"]["Row"]
+type AssetRow = Database["public"]["Tables"]["assets"]["Row"]
 
 export default async function FinancePage() {
     const supabase = await createClient()
@@ -17,6 +22,33 @@ export default async function FinancePage() {
         .order('name', { ascending: true })
 
     const accounts = rawAccounts as AccountRow[] || []
+
+    // Fetch Income flows
+    const { data: rawIncomeFlows } = await supabase
+        .from('recurring_flows')
+        .select('*')
+        .eq('type', 'income')
+        .order('name', { ascending: true })
+
+    const incomeFlows = rawIncomeFlows as RecurringFlowRow[] || []
+
+    // Fetch investment assets (excluding vehicles and pensions)
+    const { data: rawAssets } = await supabase
+        .from('assets')
+        .select('*')
+        .not('type', 'in', '("vehicle","pension")')
+        .order('name', { ascending: true })
+
+    const investmentAssets = rawAssets as AssetRow[] || []
+
+    // Fetch Pension assets
+    const { data: rawPensions } = await supabase
+        .from('assets')
+        .select('*')
+        .eq('type', 'pension')
+        .order('name', { ascending: true })
+
+    const pensionAssets = rawPensions as AssetRow[] || []
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
@@ -39,45 +71,15 @@ export default async function FinancePage() {
                 </TabsList>
 
                 <TabsContent value="income" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Landmark className="h-5 w-5 text-emerald-500" />
-                                מקורות הכנסה
-                            </CardTitle>
-                            <CardDescription>מעקב אחר משכורות, קצבאות, והכנסות פסיביות.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            מודול הכנסות שוטפות ומרכז שליטה בשכר.
-                        </CardContent>
-                    </Card>
+                    <IncomeSourcesTab incomeFlows={incomeFlows} accounts={accounts} />
                 </TabsContent>
 
                 <TabsContent value="investments" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-blue-500" />
-                                תיק השקעות ונכסים
-                            </CardTitle>
-                            <CardDescription>מניות, קריפטו, ונדל״ן.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            ממשק ניטור אפיקי השקעה.
-                        </CardContent>
-                    </Card>
+                    <AssetsTable assets={investmentAssets} />
                 </TabsContent>
 
                 <TabsContent value="pension" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>פנסיה וגמל</CardTitle>
-                            <CardDescription>קרנות פנסיה, השתלמות וחיסכון לטווח ארוך.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            ריכוז חסכונות פנסיוניים.
-                        </CardContent>
-                    </Card>
+                    <PensionTable pensions={pensionAssets} />
                 </TabsContent>
             </Tabs>
         </div>

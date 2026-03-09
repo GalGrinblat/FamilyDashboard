@@ -9,6 +9,8 @@ import { AlertCircle, ArrowDownRight, ArrowUpRight, CarFront, ShieldCheck, Walle
 import { createClient } from "@/lib/supabase/server"
 import { Database } from "@/types/database.types"
 import { CATEGORY_TYPES } from "@/lib/constants"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 type AccountRef = Pick<Database['public']['Tables']['accounts']['Row'], 'current_balance'>
 type AssetRef = Pick<Database['public']['Tables']['assets']['Row'], 'estimated_value'>
@@ -69,6 +71,17 @@ export default async function Home() {
     return acc
   }, 0) || 0
 
+  const monthlyIncome = transactions?.reduce((acc, curr) => {
+    const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
+
+    if (catType === CATEGORY_TYPES.INCOME) {
+      return acc + (curr.amount || 0)
+    }
+    return acc
+  }, 0) || 0
+
+  const cashFlow = monthlyIncome - monthlyBurnRate
+
   // 3. Fetch Urgent Reminders (Due within next 30 days)
   const in30Days = new Date()
   in30Days.setDate(in30Days.getDate() + 30)
@@ -108,18 +121,52 @@ export default async function Home() {
           </CardContent>
         </Card>
 
+        {/* Income */}
+        <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              הכנסות החודש
+            </CardTitle>
+            <ArrowUpRight className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">{formatILS(monthlyIncome)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              מתחילת החודש ({startOfMonth.toLocaleDateString("he-IL", { month: 'long' })})
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Burn Rate */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              הוצאות החודש (Burn Rate)
+              הוצאות החודש
             </CardTitle>
-            <ArrowDownRight className="h-4 w-4 text-muted-foreground" />
+            <ArrowDownRight className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatILS(monthlyBurnRate)}</div>
+            <div className="text-2xl font-bold text-rose-600 dark:text-rose-500">{formatILS(monthlyBurnRate)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               מתחילת החודש ({startOfMonth.toLocaleDateString("he-IL", { month: 'long' })})
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Cash Flow */}
+        <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              תזרים חודשי (Cash Flow)
+            </CardTitle>
+            <Wallet className="h-4 w-4 text-indigo-500" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${cashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'}`}>
+              <span dir="ltr">{formatILS(cashFlow)}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              הכנסות מול הוצאות בפועל
             </p>
           </CardContent>
         </Card>
@@ -134,7 +181,7 @@ export default async function Home() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-amber-500" />
-              התראות דחופות
+              התראות ומשימות דחופות
             </CardTitle>
             <CardDescription>
               {reminders && reminders.length > 0
@@ -165,12 +212,46 @@ export default async function Home() {
                   </div>
                 )
               }) : (
-                <div className="text-center p-4 text-muted-foreground">
+                <div className="text-center p-6 text-muted-foreground bg-zinc-50 dark:bg-zinc-900/50 rounded-lg">
                   הכל תקין, אין משימות דחופות כרגע!
                 </div>
               )}
 
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card className="col-span-3 shadow-sm border-zinc-200 dark:border-zinc-800">
+          <CardHeader>
+            <CardTitle>פעולות מהירות</CardTitle>
+            <CardDescription>גישה מהירה לפעולות נפוצות</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Link href="/transactions/uncategorized" className="block">
+              <Button variant="outline" className="w-full justify-start h-12">
+                <AlertCircle className="mr-2 ml-4 h-5 w-5 text-amber-500" />
+                תנועות ללא סיווג
+              </Button>
+            </Link>
+            <Link href="/finance" className="block">
+              <Button variant="outline" className="w-full justify-start h-12">
+                <Wallet className="mr-2 ml-4 h-5 w-5 text-indigo-500" />
+                ניהול חשבונות ונכסים
+              </Button>
+            </Link>
+            <Link href="/monthly-balance" className="block">
+              <Button variant="outline" className="w-full justify-start h-12">
+                <ArrowDownRight className="mr-2 ml-4 h-5 w-5 text-rose-500" />
+                מאזן חודשי ותקציב
+              </Button>
+            </Link>
+            <Link href="/settings" className="block">
+              <Button variant="outline" className="w-full justify-start h-12">
+                <Wrench className="mr-2 ml-4 h-5 w-5 text-zinc-500" />
+                הגדרות מתקדמות
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 

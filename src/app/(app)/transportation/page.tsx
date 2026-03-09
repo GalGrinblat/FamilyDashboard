@@ -6,6 +6,7 @@ import { Plus, Car as CarIcon, ShieldCheck, Wrench } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { AddCarAssetDialog } from "@/components/household/AddCarAssetDialog"
 import { Database } from "@/types/database.types"
+import { MaintenanceLog } from "@/components/transportation/MaintenanceLog"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
 import { CATEGORY_DOMAINS } from "@/lib/constants"
 
@@ -190,15 +191,7 @@ export default async function TransportationPage() {
                 </TabsContent>
 
                 <TabsContent value="maintenance" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>יומן תחזוקה וטיפולים</CardTitle>
-                            <CardDescription>מעקב אחרי זמני טיפול, החלפת מצבר, וצמיגים מיועד להיבנות כאן.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-[200px] flex items-center justify-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-                            רכיב היסטוריית טיפולים יפותח בהמשך.
-                        </CardContent>
-                    </Card>
+                    <MaintenanceLog cars={cars} />
                 </TabsContent>
 
                 <DomainTransactionsTab
