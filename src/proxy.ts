@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
         .select('email')
         .eq('email', email)
         .single();
-        
+
       if (error || !authRecord) {
         // User is authenticated but NOT in the authorized_users table
         // We log them out and redirect to unauthorized or login
