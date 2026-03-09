@@ -69,13 +69,37 @@ export async function proxy(request: NextRequest) {
   if (user) {
     const email = user.email;
     if (email) {
-      const { data: authRecord, error } = await supabase
-        .from('authorized_users')
-        .select('email')
-        .eq('email', email)
-        .single();
+      // Use the SERVICE ROLE key to bypass RLS and verify the email exists in the system
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-      if (error || !authRecord) {
+      let isAuthorized = false;
+
+      if (serviceRoleKey) {
+        const supabaseAdmin = createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          serviceRoleKey,
+          { cookies: { get() { return '' }, set() { }, remove() { } } }
+        );
+
+        const { data: authRecord } = await supabaseAdmin
+          .from('authorized_users')
+          .select('email')
+          .eq('email', email)
+          .single();
+
+        if (authRecord) isAuthorized = true;
+      } else {
+        // Fallback to anon key if service role is missing (relies on public read policy)
+        const { data: authRecord } = await supabase
+          .from('authorized_users')
+          .select('email')
+          .eq('email', email)
+          .single();
+
+        if (authRecord) isAuthorized = true;
+      }
+
+      if (!isAuthorized) {
         // User is authenticated but NOT in the authorized_users table
         // We log them out and redirect to unauthorized or login
         await supabase.auth.signOut();
