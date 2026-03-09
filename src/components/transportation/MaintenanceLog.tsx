@@ -28,9 +28,9 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
             metadata: {
                 ...metadata,
                 maintenance_log: newLogs
-            }
+            } as any // Bypass strict TS checks on Supabase jsonb
         }
-
+        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete json columns
         const { error } = await supabase.from('assets').update(payload).eq('id', carId)
         if (error) {
             console.error(error)

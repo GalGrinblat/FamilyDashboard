@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase/server"
 export async function getMonthlyBalanceData(monthStart: Date, monthEnd: Date) {
     const supabase = await createClient()
 
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error("Unauthorized")
+
     // 1. Fetch Accounts (to get base balance and CC metadata)
     const { data: accounts, error: accountsError } = await supabase
         .from("accounts")
@@ -49,6 +52,9 @@ export async function getMonthlyBalanceData(monthStart: Date, monthEnd: Date) {
 // Server Action to save an inline override amount
 export async function upsertMonthlyOverride(recurring_flow_id: string, month_year: string, amount: number) {
     const supabase = await createClient()
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) throw new Error("Unauthorized")
 
     const { error } = await supabase
         .from("monthly_overrides")
