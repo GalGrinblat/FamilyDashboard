@@ -38,7 +38,7 @@ export default async function Home() {
 
   // 1. Calculate Net Worth (Accounts balances + Assets estimated values)
   const { data: accountsRaw } = await supabase.from('accounts').select('current_balance')
-  const { data: assetsRaw } = await supabase.from('assets').select('estimated_value')
+  const { data: assetsRaw } = await supabase.from('assets').select('estimated_value').eq('status', 'active')
 
   const accounts = accountsRaw as AccountRef[] | null
   const assets = assetsRaw as AssetRef[] | null

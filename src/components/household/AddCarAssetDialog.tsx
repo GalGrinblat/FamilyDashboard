@@ -55,6 +55,7 @@ export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDia
         const payload = {
             name,
             type: 'vehicle',
+            status: 'active',
             estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
             metadata: {
                 license_plate: licensePlate,

@@ -36,6 +36,7 @@ export default async function FinancePage() {
         .from('assets')
         .select('*')
         .not('type', 'in', '("vehicle","pension")')
+        .eq('status', 'active')
         .order('name', { ascending: true })
 
     const investmentAssets = rawAssets as AssetRow[] || []
@@ -45,6 +46,7 @@ export default async function FinancePage() {
         .from('assets')
         .select('*')
         .eq('type', 'pension')
+        .eq('status', 'active')
         .order('name', { ascending: true })
 
     const pensionAssets = rawPensions as AssetRow[] || []
