@@ -48,7 +48,7 @@ export function AddEditAccountDialog({
 
     // Credit Card specific metadata
     const originalMetadata = (accountToEdit?.metadata as Record<string, unknown>) || {};
-    const [billingDay, setBillingDay] = useState((originalMetadata as any).billingDay?.toString() || ""); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const [billingDay, setBillingDay] = useState((originalMetadata as { billingDay?: number }).billingDay?.toString() || "");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

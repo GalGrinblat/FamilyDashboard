@@ -4,6 +4,11 @@ import { useMemo } from "react"
 import { Pie, PieChart, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain } from "@/lib/constants"
+import { Database } from "@/types/database.types"
+
+type TransactionWithCategory = Database['public']['Tables']['transactions']['Row'] & {
+    categories?: { type?: string; domain?: string } | { type?: string; domain?: string }[] | null
+}
 
 // Define colors for domains
 const DOMAIN_COLORS: Record<string, string> = {
@@ -18,7 +23,7 @@ const DOMAIN_COLORS: Record<string, string> = {
     [CATEGORY_DOMAINS.GENERAL]: "#64748b", // slate
 }
 
-export function DomainSpendingChart({ transactions }: { transactions: any[] }) { // eslint-disable-line @typescript-eslint/no-explicit-any
+export function DomainSpendingChart({ transactions }: { transactions: TransactionWithCategory[] }) {
     const data = useMemo(() => {
         // Filter only current month expenses
         const now = new Date()

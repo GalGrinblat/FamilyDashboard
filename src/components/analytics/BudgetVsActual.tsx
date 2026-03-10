@@ -4,8 +4,15 @@ import { useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain } from "@/lib/constants"
 import { Progress } from "@/components/ui/progress"
+import { Database } from "@/types/database.types"
 
-export function BudgetVsActual({ transactions, recurringFlows }: { transactions: any[], recurringFlows: any[] }) { // eslint-disable-line @typescript-eslint/no-explicit-any
+type TransactionWithDetails = Database['public']['Tables']['transactions']['Row'] & {
+    categories?: { type?: string; domain?: string } | { type?: string; domain?: string }[] | null,
+    merchant_mappings?: { category_domains?: { name?: string } } | null
+}
+type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row']
+
+export function BudgetVsActual({ transactions, recurringFlows }: { transactions: TransactionWithDetails[], recurringFlows: RecurringFlow[] }) {
     const data = useMemo(() => {
         const now = new Date()
         const currentMonthTransactions = transactions.filter(t => {
@@ -27,8 +34,8 @@ export function BudgetVsActual({ transactions, recurringFlows }: { transactions:
             const actual = expenses
                 .filter(t => {
                     // Attempt to use merchant_mappings if available, otherwise fallback to categories
-                    const merchantDomain = (t.merchant_mappings as any)?.category_domains?.name as string | undefined // eslint-disable-line @typescript-eslint/no-explicit-any
-                    const categoryDomain = Array.isArray(t.categories) ? (t.categories as any[])[0]?.domain : (t.categories as any)?.domain // eslint-disable-line @typescript-eslint/no-explicit-any
+                    const merchantDomain = t.merchant_mappings?.category_domains?.name as string | undefined
+                    const categoryDomain = Array.isArray(t.categories) ? t.categories[0]?.domain : (t.categories && !Array.isArray(t.categories) ? t.categories.domain : undefined)
                     const d = merchantDomain || categoryDomain
 
                     return d === domain || (!d && domain === CATEGORY_DOMAINS.GENERAL)

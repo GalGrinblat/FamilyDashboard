@@ -43,8 +43,8 @@ export async function getAnalyticsData() {
     const { data: accounts } = await supabase.from('accounts').select('current_balance')
     const { data: assets } = await supabase.from('assets').select('estimated_value').eq('status', 'active')
 
-    const accountsArr = (accounts as any[]) || [] // eslint-disable-line @typescript-eslint/no-explicit-any
-    const assetsArr = (assets as any[]) || [] // eslint-disable-line @typescript-eslint/no-explicit-any
+    const accountsArr = (accounts as { current_balance: number | null }[]) || []
+    const assetsArr = (assets as { estimated_value: number | null }[]) || []
 
     const totalCash = accountsArr.reduce((acc, curr) => acc + (curr.current_balance || 0), 0)
     const totalAssets = assetsArr.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0)

@@ -107,8 +107,8 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                 alert("שגיאה בעדכון הקטגוריה")
                 console.error(error)
             } else if (data) {
-                const updatedCategory = data as any // eslint-disable-line @typescript-eslint/no-explicit-any
-                setCategories(categories.map(c => c.id === updatedCategory.id ? updatedCategory as CategoryRow : c))
+                const updatedCategory = data as CategoryRow
+                setCategories(categories.map(c => c.id === updatedCategory.id ? updatedCategory : c))
             }
         } else {
             const { data, error } = await supabase

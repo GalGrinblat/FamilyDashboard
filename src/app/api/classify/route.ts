@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         const mappingsDict = new Map(mappings.map(m => [m.raw_merchant_string, m.mapped_category_id]))
 
         // 1.5 Fetch recent transactions for deduplication if accountId is provided
-        let recentTransactions: any[] = [] // eslint-disable-line @typescript-eslint/no-explicit-any
+        let recentTransactions: { id: string; amount: number; date: string }[] = []
         if (accountId && rows.length > 0) {
             // Get dates from payload to scope the query
             const dates = rows.map(r => new Date(r.date).getTime()).filter(t => !isNaN(t))
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
                     const aiResults = JSON.parse(response.text)
                     // Map results back to classifiedRows
                     unmappedRows.forEach((unmapped, mappedIdx) => {
-                        const aiMatch = aiResults.find((res: any) => res.index === mappedIdx) // eslint-disable-line @typescript-eslint/no-explicit-any
+                        const aiMatch = aiResults.find((res: { index: number; suggested_category_id?: string | null; suggested_new_category?: { name_he: string; name_en: string; type: string } | null }) => res.index === mappedIdx)
                         if (aiMatch) {
                             const mainRow = classifiedRows.find(r => r.original_index === unmapped.original_index)
                             if (mainRow) {

@@ -42,7 +42,7 @@ export function SpecificMonthTab() {
         getMonthlyBalanceData(monthStart, monthEnd)
             .then((res) => {
                 if (isMounted) {
-                    setData(res as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+                    setData(res as NonNullable<typeof data>)
                     setIsLoading(false)
                 }
             })
@@ -169,7 +169,7 @@ export function SpecificMonthTab() {
 
             // Refresh data
             const res = await getMonthlyBalanceData(monthStart, monthEnd)
-            setData(res as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+            setData(res as NonNullable<typeof data>)
             setIsEditOpen(false)
         } catch (error) {
             console.error(error)

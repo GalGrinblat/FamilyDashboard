@@ -12,7 +12,8 @@ import {
     Car,
     Shield,
     Scale,
-    LineChart
+    LineChart,
+    LucideIcon
 } from "lucide-react"
 
 
@@ -30,8 +31,7 @@ const navItems = [
     { href: "/settings", label: "הגדרות", icon: Settings },
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const NavLinks = ({ pathname, navItems }: { pathname: string, navItems: { href: string, label: string, icon: any }[] }) => (
+const NavLinks = ({ pathname, navItems }: { pathname: string, navItems: { href: string, label: string, icon: LucideIcon }[] }) => (
     <nav className="space-y-2 flex-1 pt-6">
         {navItems.map((item) => {
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`) && item.href !== "/"

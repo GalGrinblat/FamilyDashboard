@@ -100,7 +100,7 @@ export default async function HousingPage() {
         .eq('type', 'expense')
         .order('name', { ascending: true })
 
-    const contracts = (rawContracts as any[]) || [] // eslint-disable-line @typescript-eslint/no-explicit-any
+    const contracts = (rawContracts as Database['public']['Tables']['recurring_flows']['Row'][]) || []
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">

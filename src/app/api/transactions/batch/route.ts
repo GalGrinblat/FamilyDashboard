@@ -48,7 +48,7 @@ export async function POST(req: Request) {
                     if (catError) {
                         console.error("Failed to create suggested new AI category:", catError)
                     } else if (newCat) {
-                        const createdCat = newCat as any // eslint-disable-line @typescript-eslint/no-explicit-any
+                        const createdCat = newCat as { id: string }
                         newCategoryMap.set(mapKey, createdCat.id)
                     }
                 }
