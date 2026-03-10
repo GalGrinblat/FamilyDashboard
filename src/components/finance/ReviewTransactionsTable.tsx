@@ -15,6 +15,8 @@ export interface ClassifiedTransactionRow extends ParsedTransactionRow {
     suggested_asset_id?: string | null
     is_ai_classified: boolean
     suggested_new_category?: { name_he: string; name_en: string; type: string } | null
+    is_duplicate?: boolean
+    is_skipped?: boolean
 }
 
 interface ReviewTransactionsTableProps {
@@ -27,7 +29,10 @@ interface ReviewTransactionsTableProps {
 }
 
 export function ReviewTransactionsTable({ rows, categories, activeAssets = [], onConfirm, onCancel, isSubmitting }: ReviewTransactionsTableProps) {
-    const [reviewedRows, setReviewedRows] = useState<ClassifiedTransactionRow[]>(rows)
+    // Initialize rows with skipped state if they are duplicates
+    const [reviewedRows, setReviewedRows] = useState<ClassifiedTransactionRow[]>(
+        rows.map(r => ({ ...r, is_skipped: r.is_duplicate }))
+    )
 
     // Dialog State
     const [customCategoryDialogIndex, setCustomCategoryDialogIndex] = useState<number | null>(null)
@@ -64,6 +69,15 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
         setReviewedRows(updatedRows)
     }
 
+    const toggleSkipRow = (index: number) => {
+        const updatedRows = [...reviewedRows]
+        updatedRows[index] = {
+            ...updatedRows[index],
+            is_skipped: !updatedRows[index].is_skipped
+        }
+        setReviewedRows(updatedRows)
+    }
+
     const handleCreateCustomCategory = () => {
         if (customCategoryDialogIndex === null || !newCategoryName.trim()) return
 
@@ -85,7 +99,12 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
 
 
     const handleConfirmAll = () => {
-        onConfirm(reviewedRows)
+        const rowsToSave = reviewedRows.filter(r => !r.is_skipped)
+        if (rowsToSave.length === 0) {
+            alert("לא נבחרו תנועות לשמירה.")
+            return
+        }
+        onConfirm(rowsToSave)
     }
 
     return (
@@ -103,7 +122,7 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
                     </Button>
                     <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleConfirmAll} disabled={isSubmitting}>
                         {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
-                        שמור {rows.length} תנועות למסד הנתונים
+                        שמור {reviewedRows.filter(r => !r.is_skipped).length} תנועות למסד הנתונים
                     </Button>
                 </div>
             </CardHeader>
@@ -111,6 +130,7 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
                 <Table>
                     <TableHeader className="bg-zinc-50 dark:bg-zinc-900/50">
                         <TableRow>
+                            <TableHead className="text-right w-[60px]">ייבוא</TableHead>
                             <TableHead className="text-right w-[120px]">תאריך</TableHead>
                             <TableHead className="text-right">תיאור / בית עסק</TableHead>
                             <TableHead className="text-right w-[150px]">סכום</TableHead>
@@ -131,15 +151,30 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
                             }
 
                             return (
-                                <TableRow key={idx}>
+                                <TableRow key={idx} className={row.is_skipped ? "opacity-50 bg-zinc-50/50 dark:bg-zinc-900/20" : ""}>
+                                    <TableCell>
+                                        <input
+                                            type="checkbox"
+                                            checked={!row.is_skipped}
+                                            onChange={() => toggleSkipRow(idx)}
+                                            className="w-4 h-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+                                        />
+                                    </TableCell>
                                     <TableCell className="whitespace-nowrap">
                                         {row.date ? new Date(row.date).toLocaleDateString('he-IL') : '-'}
                                     </TableCell>
                                     <TableCell className="font-medium text-sm">
                                         {row.description}
+                                        {row.is_duplicate && (
+                                            <span className="inline-flex ml-2 items-center rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20">
+                                                כבר קיים במערכת
+                                            </span>
+                                        )}
                                     </TableCell>
                                     <TableCell className="font-bold text-sm">
-                                        <span style={{ direction: 'ltr', display: 'inline-block' }}>₪{row.amount.toLocaleString()}</span>
+                                        <span style={{ direction: 'ltr', display: 'inline-block' }} className={row.amount < 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}>
+                                            {row.amount > 0 ? '+' : ''}₪{row.amount.toLocaleString()}
+                                        </span>
                                     </TableCell>
                                     <TableCell>
                                         <select

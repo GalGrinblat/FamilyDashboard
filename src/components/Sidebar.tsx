@@ -4,20 +4,18 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
     Home,
-    Wallet,
     Settings,
     Sofa,
     CalendarDays,
-    Menu,
     ArrowRightLeft,
     PieChart,
     Car,
     Shield,
-    Scale
+    Scale,
+    LineChart
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+
 
 const navItems = [
     { href: "/", label: "ראשי", icon: Home },
@@ -28,30 +26,37 @@ const navItems = [
     { href: "/transportation", label: "תחבורה", icon: Car },
     { href: "/insurances", label: "ביטוחים", icon: Shield },
     { href: "/planning", label: "תכנון", icon: CalendarDays },
+    { href: "/analytics", label: "דוחות ואנליטיקה", icon: LineChart },
     { href: "/settings", label: "הגדרות", icon: Settings },
 ]
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const NavLinks = ({ pathname, navItems }: { pathname: string, navItems: { href: string, label: string, icon: any }[] }) => (
+    <nav className="space-y-2 flex-1 pt-6">
+        {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`) && item.href !== "/"
+            return (
+                <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group ${isActive
+                        ? "bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400"
+                        : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-200"
+                        }`}
+                >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                    {isActive && (
+                        <div className="mr-auto w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse" />
+                    )}
+                </Link>
+            )
+        })}
+    </nav>
+)
+
 export function Sidebar() {
     const pathname = usePathname()
-
-    const NavLinks = () => (
-        <nav className="space-y-2 flex-1 pt-6">
-            {navItems.map((item) => {
-                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`) && item.href !== "/"
-                return (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${isActive ? "bg-zinc-100 dark:bg-zinc-800 font-medium" : "text-zinc-500 dark:text-zinc-400"
-                            }`}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </Link>
-                )
-            })}
-        </nav>
-    )
 
     return (
         <>
@@ -59,7 +64,7 @@ export function Sidebar() {
                 <div className="flex h-14 items-center border-b px-4 font-semibold text-lg">
                     ניהול משק בית
                 </div>
-                <NavLinks />
+                <NavLinks pathname={pathname} navItems={navItems} />
             </div>
         </>
     )

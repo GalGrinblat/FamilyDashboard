@@ -168,7 +168,6 @@ export default async function TransactionsPage() {
     // Map categories to Tabs visually. For a real app, we would map `categories.parent_id` to these buckets.
     // Here we'll do a simple mock filter based on existence of data to feed the tables.
     const incomes = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === CATEGORY_TYPES.INCOME)
-    const generalExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.type : t.categories?.type) === CATEGORY_TYPES.EXPENSE)
 
     const housingExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.HOUSING)
     const transportationExpenses = transactions.filter(t => (Array.isArray(t.categories) ? t.categories[0]?.domain : t.categories?.domain) === CATEGORY_DOMAINS.TRANSPORTATION)

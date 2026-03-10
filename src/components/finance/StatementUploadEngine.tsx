@@ -92,7 +92,7 @@ export function StatementUploadEngine({ onUploadComplete }: { onUploadComplete: 
 
         rawRows.forEach(row => {
             // Primitive guessing logic for Heuristic mapping
-            const rowStr = JSON.stringify(row).toLowerCase()
+
 
             // Try to find amount (Isracard Hebrew uses "סכום חיוב")
             let amountStr = "0"

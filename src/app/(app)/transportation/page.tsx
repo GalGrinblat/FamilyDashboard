@@ -142,8 +142,8 @@ export default async function TransportationPage() {
         .order('created_at', { ascending: false })
 
     // Process accumulated transactions
-    const cars: CarAssetWithCost[] = (assetsData || []).map((car: any) => {
-        const total = (car.transactions || []).reduce((sum: number, tx: any) => sum + (Number(tx.amount) || 0), 0)
+    const cars: CarAssetWithCost[] = (assetsData || []).map((car: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const total = (car.transactions || []).reduce((sum: number, tx: any) => sum + (Number(tx.amount) || 0), 0) // eslint-disable-line @typescript-eslint/no-explicit-any
         return {
             ...car,
             total_spent: total

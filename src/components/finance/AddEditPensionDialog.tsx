@@ -28,6 +28,7 @@ import { Database } from "@/types/database.types"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 
+
 interface AddEditPensionDialogProps {
     triggerButton?: React.ReactNode
     assetToEdit?: AssetRow
@@ -35,15 +36,16 @@ interface AddEditPensionDialogProps {
 
 export function AddEditPensionDialog({ triggerButton, assetToEdit }: AddEditPensionDialogProps) {
     const [open, setOpen] = useState(false)
+
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
     const isEditing = !!assetToEdit
-    const metadata = (assetToEdit?.metadata as Record<string, any>) || {}
+    const metadata = (assetToEdit?.metadata as Record<string, unknown>) || {}
 
     const [name, setName] = useState(assetToEdit?.name || "")
-    const [pensionType, setPensionType] = useState(metadata.pension_type || "pension_fund")
+    const [pensionType, setPensionType] = useState((metadata as Record<string, unknown>).pension_type as string || "pension_fund")
     const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
     const [employerPercent, setEmployerPercent] = useState(metadata.employer_percent?.toString() || "")
     const [employeePercent, setEmployeePercent] = useState(metadata.employee_percent?.toString() || "")

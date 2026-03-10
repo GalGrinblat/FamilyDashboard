@@ -80,7 +80,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                         ) : (
                             <div className="space-y-4 mt-2">
                                 {creditAccounts.map(acc => {
-                                    const meta = acc.metadata as any;
+                                    const meta = acc.metadata as { billingDay?: string } | null;
                                     return (
                                         <div key={acc.id} className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group">
                                             <div className="flex flex-col">

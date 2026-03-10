@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PieChart, Landmark, TrendingUp } from "lucide-react"
+import { PiggyBank, WalletCards, Briefcase, PieChart } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { ManageAccountsTab } from "@/components/finance/ManageAccountsTab"
 import { IncomeSourcesTab } from "@/components/finance/IncomeSourcesTab"
@@ -65,9 +64,24 @@ export default async function FinancePage() {
 
             <Tabs defaultValue="income" className="w-full mt-4" dir="rtl">
                 <TabsList className="mb-4">
-                    <TabsTrigger value="income">מקורות הכנסה</TabsTrigger>
-                    <TabsTrigger value="investments">השקעות</TabsTrigger>
-                    <TabsTrigger value="pension">פנסיה וגמל</TabsTrigger>
+                    <TabsTrigger value="income">
+                        <div className="flex items-center gap-2">
+                            <PiggyBank className="w-4 h-4" />
+                            מקורות הכנסה
+                        </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="investments">
+                        <div className="flex items-center gap-2">
+                            <Briefcase className="w-4 h-4" />
+                            השקעות
+                        </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="pension">
+                        <div className="flex items-center gap-2">
+                            <WalletCards className="w-4 h-4" />
+                            פנסיה וגמל
+                        </div>
+                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="income" className="space-y-4">

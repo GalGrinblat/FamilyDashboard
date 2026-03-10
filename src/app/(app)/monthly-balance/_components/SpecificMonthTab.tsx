@@ -38,19 +38,18 @@ export function SpecificMonthTab() {
 
     useEffect(() => {
         let isMounted = true
-        setIsLoading(true)
 
         getMonthlyBalanceData(monthStart, monthEnd)
             .then((res) => {
                 if (isMounted) {
-                    setData(res as any)
+                    setData(res as any) // eslint-disable-line @typescript-eslint/no-explicit-any
                     setIsLoading(false)
                 }
             })
             .catch(console.error)
 
         return () => { isMounted = false }
-    }, [currentDate.toISOString()])
+    }, [currentDate.toISOString()]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handlePrevMonth = () => {
         setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
@@ -170,7 +169,7 @@ export function SpecificMonthTab() {
 
             // Refresh data
             const res = await getMonthlyBalanceData(monthStart, monthEnd)
-            setData(res as any)
+            setData(res as any) // eslint-disable-line @typescript-eslint/no-explicit-any
             setIsEditOpen(false)
         } catch (error) {
             console.error(error)

@@ -107,7 +107,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                 alert("שגיאה בעדכון הקטגוריה")
                 console.error(error)
             } else if (data) {
-                const updatedCategory = data as any
+                const updatedCategory = data as any // eslint-disable-line @typescript-eslint/no-explicit-any
                 setCategories(categories.map(c => c.id === updatedCategory.id ? updatedCategory as CategoryRow : c))
             }
         } else {

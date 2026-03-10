@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -38,12 +38,11 @@ export function AddReminderDialog({
     const router = useRouter()
     const supabase = createClient()
 
-    // Sync external open state
-    useEffect(() => {
-        if (forceOpen) {
-            setOpen(true)
-        }
-    }, [forceOpen])
+    const [prevForceOpen, setPrevForceOpen] = useState(forceOpen)
+    if (forceOpen !== prevForceOpen) {
+        setPrevForceOpen(forceOpen)
+        if (forceOpen) setOpen(true)
+    }
 
     const handleOpenChange = (newOpen: boolean) => {
         setOpen(newOpen)

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Plus, Receipt, Home, Calendar, Wallet } from "lucide-react"
+import { Plus, Home, Calendar, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,

@@ -29,16 +29,21 @@ export function ExpenseUploader({ categories, accounts }: { categories: { id: st
     const handleUploadComplete = async (data: ParsedTransactionRow[]) => {
         setIsClassifying(true)
         try {
+            const payload = {
+                rows: data,
+                accountId: selectedAccountId
+            }
+
             const res = await fetch("/api/classify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
+                body: JSON.stringify(payload)
             })
 
             if (!res.ok) throw new Error("Classification failed")
 
-            const payload = await res.json()
-            setClassifiedRows(payload.results || [])
+            const jsonResponse = await res.json()
+            setClassifiedRows(jsonResponse.results || [])
         } catch (err) {
             console.error(err)
             alert("אירעה שגיאה בשרת הסיווג (API Error).")

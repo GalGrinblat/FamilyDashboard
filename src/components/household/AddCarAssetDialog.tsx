@@ -35,22 +35,22 @@ export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDia
     // Form State
     // Form State (seeded if editing)
     const isEditing = !!assetToEdit
-    const metadata = (assetToEdit?.metadata || {}) as Record<string, any>
+    const [metadata] = useState<Record<string, unknown>>(assetToEdit?.metadata as Record<string, unknown> || {})
 
     const [name, setName] = useState(assetToEdit?.name || "")
     const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
-    const [licensePlate, setLicensePlate] = useState(metadata.license_plate || "")
-    const [registrationDate, setRegistrationDate] = useState(metadata.registration_date || "")
-    const [insuranceEndDate, setInsuranceEndDate] = useState(metadata.insurance_end_date || "")
-    const [lastServiceDate, setLastServiceDate] = useState(metadata.last_service_date || "")
-    const [lastServiceKm, setLastServiceKm] = useState(metadata.last_service_km?.toString() || "")
+    const [licensePlate, setLicensePlate] = useState((metadata as Record<string, unknown>).license_plate as string || "")
+    const [registrationDate, setRegistrationDate] = useState((metadata as Record<string, unknown>).registration_date as string || "")
+    const [insuranceEndDate, setInsuranceEndDate] = useState((metadata as Record<string, unknown>).insurance_end_date as string || "")
+    const [lastServiceDate, setLastServiceDate] = useState((metadata as Record<string, unknown>).last_service_date as string || "")
+    const [lastServiceKm, setLastServiceKm] = useState(((metadata as Record<string, unknown>).last_service_km as number | null)?.toString() || "")
 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
 
-        const productionYear = registrationDate ? new Date(registrationDate).getFullYear().toString() : "";
+        const productionYear = registrationDate ? new Date(registrationDate as string).getFullYear().toString() : "";
 
         const payload = {
             name,
@@ -95,15 +95,15 @@ export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDia
             insertedAsset = data
         }
 
-        const assetId = (insertedAsset as any).id
+        const assetId = (insertedAsset as AssetRow).id
 
         // Auto-generate reminders
         const remindersToInsert = []
 
         if (registrationDate) {
-            const regDate = new Date(registrationDate)
+            const regDate = new Date(registrationDate as string)
             const today = new Date()
-            let nextTest = new Date(today.getFullYear(), regDate.getMonth(), regDate.getDate())
+            const nextTest = new Date(today.getFullYear(), regDate.getMonth(), regDate.getDate())
             if (nextTest < today) {
                 nextTest.setFullYear(today.getFullYear() + 1)
             }
@@ -118,7 +118,7 @@ export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDia
         }
 
         if (insuranceEndDate) {
-            const insDate = new Date(insuranceEndDate)
+            const insDate = new Date(insuranceEndDate as string)
             // 1 month prior
             insDate.setMonth(insDate.getMonth() - 1)
             remindersToInsert.push({
@@ -129,7 +129,7 @@ export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDia
             })
         }
 
-        const baseServiceDate = lastServiceDate ? new Date(lastServiceDate) : (registrationDate ? new Date(registrationDate) : null)
+        const baseServiceDate = lastServiceDate ? new Date(lastServiceDate as string) : (registrationDate ? new Date(registrationDate as string) : null)
         if (baseServiceDate) {
             const nextService = new Date(baseServiceDate)
             nextService.setFullYear(nextService.getFullYear() + 1)

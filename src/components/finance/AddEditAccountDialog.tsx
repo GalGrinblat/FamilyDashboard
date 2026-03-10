@@ -47,8 +47,8 @@ export function AddEditAccountDialog({
     const [balance, setBalance] = useState(accountToEdit?.current_balance ? accountToEdit.current_balance.toString() : "0");
 
     // Credit Card specific metadata
-    const originalMetadata = (accountToEdit?.metadata as any) || {};
-    const [billingDay, setBillingDay] = useState(originalMetadata.billingDay?.toString() || "");
+    const originalMetadata = (accountToEdit?.metadata as Record<string, unknown>) || {};
+    const [billingDay, setBillingDay] = useState((originalMetadata as any).billingDay?.toString() || ""); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -175,9 +175,6 @@ export function AddEditAccountDialog({
                             </Label>
                             <Input
                                 id="billingDay"
-                                type="number"
-                                min="1"
-                                max="31"
                                 value={billingDay}
                                 onChange={(e) => setBillingDay(e.target.value)}
                                 className="col-span-3"

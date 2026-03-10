@@ -4,19 +4,10 @@ import { Shield, HeartPulse, Home, Car as CarIcon, Plus } from "lucide-react"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
 import { CATEGORY_DOMAINS } from "@/lib/constants"
 import { createClient } from "@/lib/supabase/server"
-import { Database } from "@/types/database.types"
+import { PolicyWithAsset } from "@/types/insurance"
 import { AddEditPolicyDialog } from "@/components/insurances/AddEditPolicyDialog"
 import { PolicyCard } from "@/components/insurances/PolicyCard"
 import { Button } from "@/components/ui/button"
-
-type PolicyRow = Database['public']['Tables']['policies']['Row']
-type PolicyWithAsset = PolicyRow & {
-    assets?: {
-        name: string;
-        type: string;
-        metadata: any;
-    } | null
-}
 
 export default async function InsurancesPage() {
     const supabase = await createClient()
@@ -24,7 +15,7 @@ export default async function InsurancesPage() {
     // Fetch all policies
     const { data: policiesData } = await supabase
         .from('policies')
-        .select('*, assets(name, type, metadata)')
+        .select('*, assets(*)')
         .order('created_at', { ascending: false })
 
     const policies = (policiesData || []) as PolicyWithAsset[]

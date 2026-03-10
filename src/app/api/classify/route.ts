@@ -42,7 +42,10 @@ const classificationSchema: Schema = {
 
 export async function POST(req: Request) {
     try {
-        const rows: ClassifyRequestRow[] = await req.json()
+        const payload = await req.json()
+        const rows: ClassifyRequestRow[] = payload.rows || payload
+        const accountId = payload.accountId
+
         const supabase = await createClient()
 
         if (!rows || !Array.isArray(rows) || rows.length === 0) {
@@ -58,7 +61,45 @@ export async function POST(req: Request) {
 
         const mappingsDict = new Map(mappings.map(m => [m.raw_merchant_string, m.mapped_category_id]))
 
-        // 2. Classify rows based on exact DB matches
+        // 1.5 Fetch recent transactions for deduplication if accountId is provided
+        let recentTransactions: any[] = [] // eslint-disable-line @typescript-eslint/no-explicit-any
+        if (accountId && rows.length > 0) {
+            // Get dates from payload to scope the query
+            const dates = rows.map(r => new Date(r.date).getTime()).filter(t => !isNaN(t))
+            if (dates.length > 0) {
+                const minDate = new Date(Math.min(...dates))
+                minDate.setDate(minDate.getDate() - 3) // Buffer 3 days before
+
+                const maxDate = new Date(Math.max(...dates))
+                maxDate.setDate(maxDate.getDate() + 3) // Buffer 3 days after
+
+                const { data: txData } = await supabase
+                    .from('transactions')
+                    .select('id, amount, date')
+                    .eq('account_id', accountId)
+                    .gte('date', minDate.toISOString())
+                    .lte('date', maxDate.toISOString())
+
+                if (txData) {
+                    recentTransactions = txData
+                }
+            }
+        }
+
+        const isDuplicate = (rowDate: string, rowAmount: number) => {
+            if (recentTransactions.length === 0) return false
+            const targetTime = new Date(rowDate).getTime()
+
+            return recentTransactions.some(tx => {
+                // Must have EXACT same amount
+                if (Math.abs(tx.amount) !== Math.abs(rowAmount)) return false
+                // And date must be within 2 days (48 hours)
+                const txTime = new Date(tx.date).getTime()
+                return Math.abs(txTime - targetTime) <= 48 * 60 * 60 * 1000
+            })
+        }
+
+        // 2. Classify rows based on exact DB matches and check deduplication
         const classifiedRows = rows.map((row, idx) => {
             const rawMerchant = row.description?.trim() || "Unknown"
             return {
@@ -66,7 +107,8 @@ export async function POST(req: Request) {
                 original_index: idx,
                 suggested_category_id: mappingsDict.get(rawMerchant) || null,
                 is_ai_classified: false,
-                suggested_new_category: null
+                suggested_new_category: null,
+                is_duplicate: isDuplicate(row.date, row.amount)
             }
         })
 
@@ -102,7 +144,7 @@ export async function POST(req: Request) {
                     const aiResults = JSON.parse(response.text)
                     // Map results back to classifiedRows
                     unmappedRows.forEach((unmapped, mappedIdx) => {
-                        const aiMatch = aiResults.find((res: any) => res.index === mappedIdx)
+                        const aiMatch = aiResults.find((res: any) => res.index === mappedIdx) // eslint-disable-line @typescript-eslint/no-explicit-any
                         if (aiMatch) {
                             const mainRow = classifiedRows.find(r => r.original_index === unmapped.original_index)
                             if (mainRow) {
@@ -128,7 +170,8 @@ export async function POST(req: Request) {
                 total: rows.length,
                 db_matched: finalResults.length - unmappedRows.length,
                 ai_matched: finalResults.filter(r => r.is_ai_classified).length,
-                unmapped: finalResults.filter(r => !r.suggested_category_id && !r.suggested_new_category).length
+                unmapped: finalResults.filter(r => !r.suggested_category_id && !r.suggested_new_category).length,
+                duplicates: finalResults.filter(r => r.is_duplicate).length
             }
         })
 

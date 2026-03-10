@@ -14,7 +14,7 @@ export function GeneralMonthTab() {
 
     useEffect(() => {
         let isMounted = true
-        setIsLoading(true)
+
 
         // We just need the active recurring flows for the 'General' view.
         // We pass the current month just to satisfy the function signature, 

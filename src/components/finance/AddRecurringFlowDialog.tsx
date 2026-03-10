@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/types/database.types";
-import { CategoryType, CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_LABELS, CategoryDomain } from "@/lib/constants";
+import { CategoryType, CATEGORY_TYPES, CATEGORY_DOMAIN_LABELS } from "@/lib/constants";
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
-type RecurringFlowInsert = Database['public']['Tables']['recurring_flows']['Insert'];
 
 import { Button } from "@/components/ui/button";
 import {
@@ -56,9 +55,14 @@ export function AddRecurringFlowDialog({
   const [endDate, setEndDate] = useState("");
   const [domain, setDomain] = useState("general");
 
-  // Pre-fill form if editing
-  useEffect(() => {
-    if (open && isEditing) {
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevFlowToEdit, setPrevFlowToEdit] = useState(flowToEdit);
+
+  if (open !== prevOpen || flowToEdit !== prevFlowToEdit) {
+    setPrevOpen(open);
+    setPrevFlowToEdit(flowToEdit);
+
+    if (open && isEditing && flowToEdit) {
       setName(flowToEdit.name || "");
       setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : "");
       setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
@@ -68,7 +72,6 @@ export function AddRecurringFlowDialog({
       setEndDate(flowToEdit.end_date || "");
       setDomain(flowToEdit.domain || "general");
     } else if (!open && !isEditing) {
-      // Reset form on close if not editing
       setName("");
       setAmount("");
       setType(CATEGORY_TYPES.INCOME);
@@ -78,7 +81,7 @@ export function AddRecurringFlowDialog({
       setEndDate("");
       setDomain("general");
     }
-  }, [open, isEditing, flowToEdit]);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

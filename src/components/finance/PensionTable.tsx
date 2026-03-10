@@ -63,8 +63,8 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
                 ) : (
                     <div className="space-y-4 mt-4">
                         {pensions.map(pension => {
-                            const meta = (pension.metadata as any) || {}
-                            const pType = meta.pension_type || 'pension_fund'
+                            const meta = (pension.metadata as Record<string, unknown> | null) || {}
+                            const pType = (meta.pension_type as string) || 'pension_fund'
                             return (
                                 <div key={pension.id} className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group">
                                     <div className="flex flex-col">
@@ -74,11 +74,11 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
                                         </span>
                                         <div className="text-xs text-muted-foreground flex gap-3 mt-1">
                                             <span>{typeLabels[pType]}</span>
-                                            {(meta.employee_percent || meta.employer_percent) && (
+                                            {((meta as any).employee_percent || (meta as any).employer_percent) && ( // eslint-disable-line @typescript-eslint/no-explicit-any
                                                 <span>
-                                                    הפרשות: {meta.employee_percent ? `עובד ${meta.employee_percent}%` : ''}
-                                                    {meta.employee_percent && meta.employer_percent ? ' | ' : ''}
-                                                    {meta.employer_percent ? `מעסיק ${meta.employer_percent}%` : ''}
+                                                    הפרשות: {(meta as Record<string, unknown>).employee_percent ? `עובד ${(meta as Record<string, unknown>).employee_percent}%` : ''}
+                                                    {(meta as Record<string, unknown>).employee_percent && (meta as Record<string, unknown>).employer_percent ? ' | ' : ''}
+                                                    {(meta as Record<string, unknown>).employer_percent ? `מעסיק ${(meta as Record<string, unknown>).employer_percent}%` : ''}
                                                 </span>
                                             )}
                                         </div>

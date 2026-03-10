@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { Database } from "@/types/database.types"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -22,7 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus, UploadCloud } from "lucide-react"
+import { Plus } from "lucide-react"
 
 export function AddEditPolicyDialog({
     triggerButton,
@@ -31,7 +32,7 @@ export function AddEditPolicyDialog({
 }: {
     triggerButton?: React.ReactNode,
     defaultType?: "health" | "life" | "property" | "vehicle",
-    policyToEdit?: any,
+    policyToEdit?: Database['public']['Tables']['policies']['Row'],
 }) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -48,16 +49,21 @@ export function AddEditPolicyDialog({
     const [policyNumber, setPolicyNumber] = useState(policyToEdit?.policy_number || "")
     const [assetId, setAssetId] = useState(policyToEdit?.asset_id || "none")
     const [file, setFile] = useState<File | null>(null)
-    const [assets, setAssets] = useState<any[]>([])
+    const [assets, setAssets] = useState<Database['public']['Tables']['assets']['Row'][]>([])
 
-    // Reset when opening edit dialog
-    useEffect(() => {
+    const [prevOpen, setPrevOpen] = useState(open)
+    const [prevPolicyToEdit, setPrevPolicyToEdit] = useState(policyToEdit)
+
+    if (open !== prevOpen || policyToEdit !== prevPolicyToEdit) {
+        setPrevOpen(open)
+        setPrevPolicyToEdit(policyToEdit)
+
         if (open && policyToEdit) {
             setName(policyToEdit.name)
             setProvider(policyToEdit.provider)
-            setType(policyToEdit.type)
+            setType(policyToEdit.type as "health" | "life" | "property" | "vehicle")
             setPremiumAmount(policyToEdit.premium_amount.toString())
-            setPremiumFrequency(policyToEdit.premium_frequency)
+            setPremiumFrequency(policyToEdit.premium_frequency as "monthly" | "yearly")
             setRenewalDate(policyToEdit.renewal_date || "")
             setPolicyNumber(policyToEdit.policy_number || "")
             setAssetId(policyToEdit.asset_id || "none")
@@ -72,7 +78,7 @@ export function AddEditPolicyDialog({
             setAssetId("none")
             setFile(null)
         }
-    }, [open, policyToEdit, defaultType])
+    }
 
     // Fetch assets when the dialog opens
     useEffect(() => {
@@ -85,7 +91,7 @@ export function AddEditPolicyDialog({
             }
             fetchAssets()
         }
-    }, [open])
+    }, [open, supabase])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -178,7 +184,7 @@ export function AddEditPolicyDialog({
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="type" className="text-right text-xs md:text-sm">סוג הפוליסה</Label>
-                        <Select value={type} onValueChange={(v: any) => setType(v)}>
+                        <Select value={type} onValueChange={(v: "health" | "life" | "property" | "vehicle") => setType(v)}>
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="בחר סוג" />
                             </SelectTrigger>
@@ -229,7 +235,7 @@ export function AddEditPolicyDialog({
 
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="premiumFrequency" className="text-right text-xs md:text-sm">תדירות תשלום</Label>
-                        <Select value={premiumFrequency} onValueChange={(v: any) => setPremiumFrequency(v)}>
+                        <Select value={premiumFrequency} onValueChange={(v: "monthly" | "yearly") => setPremiumFrequency(v)}>
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="בחר" />
                             </SelectTrigger>
@@ -265,7 +271,7 @@ export function AddEditPolicyDialog({
                     {(type === "vehicle" || type === "property") && (
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="asset" className="text-right text-xs md:text-sm">שיוך לנכס (אופציונלי)</Label>
-                            <Select value={assetId} onValueChange={(v: any) => setAssetId(v)}>
+                            <Select value={assetId} onValueChange={(v: string) => setAssetId(v)}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="ללא שיוך" />
                                 </SelectTrigger>
@@ -275,7 +281,7 @@ export function AddEditPolicyDialog({
                                         .filter(a => type === 'vehicle' ? a.type === 'vehicle' : (a.type === 'property' || a.type === 'real_estate'))
                                         .map(a => (
                                             <SelectItem key={a.id} value={a.id}>
-                                                {a.name} {a.type === 'vehicle' && a.metadata?.license_plate ? `(${a.metadata.license_plate})` : ''}
+                                                {(a.metadata as Record<string, unknown>)?.license_plate ? `(${(a.metadata as Record<string, unknown>).license_plate})` : ''}
                                             </SelectItem>
                                         ))}
                                 </SelectContent>

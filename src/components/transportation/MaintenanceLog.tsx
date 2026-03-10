@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Database } from "@/types/database.types"
 import { Wrench, CarIcon, ShieldCheck, ClipboardList, Trash2 } from "lucide-react"
 import { AddMaintenanceDialog } from "./AddMaintenanceDialog"
+import { MaintenanceLogEntry, AssetMetadata } from "@/types/maintenance"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -20,15 +21,15 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
         const car = cars.find(c => c.id === carId)
         if (!car) return
 
-        const metadata = (car.metadata as Record<string, any>) || {}
+        const metadata = (car.metadata as unknown as AssetMetadata) || {}
         const existingLogs = metadata.maintenance_log || []
-        const newLogs = existingLogs.filter((l: any) => l.id !== logId)
+        const newLogs = existingLogs.filter((l: MaintenanceLogEntry) => l.id !== logId)
 
         const payload = {
             metadata: {
                 ...metadata,
                 maintenance_log: newLogs
-            } as any // Bypass strict TS checks on Supabase jsonb
+            } as unknown as Database['public']['Tables']['assets']['Update']['metadata']
         }
         // @ts-expect-error: Supabase generic schema mapping forces never on incomplete json columns
         const { error } = await supabase.from('assets').update(payload).eq('id', carId)
@@ -58,8 +59,8 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
 
     // Extract and flatten logs
     const allLogs = cars.flatMap(car => {
-        const meta = (car.metadata as any) || {}
-        const logs = (meta.maintenance_log as any[]) || []
+        const meta = (car.metadata as unknown as AssetMetadata) || {}
+        const logs = meta.maintenance_log || []
         return logs.map(log => ({ ...log, carName: car.name, carId: car.id }))
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 

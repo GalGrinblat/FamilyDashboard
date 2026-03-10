@@ -25,6 +25,7 @@ import {
 import { Plus } from "lucide-react"
 
 import { Database } from "@/types/database.types"
+import { MaintenanceLogEntry, AssetMetadata } from "@/types/maintenance"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 
@@ -53,13 +54,13 @@ export function AddMaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
         const selectedCar = cars.find(c => c.id === carId)
         if (!selectedCar) return
 
-        const metadata = (selectedCar.metadata as Record<string, any>) || {}
+        const metadata = (selectedCar.metadata as unknown as AssetMetadata) || {}
         const existingLogs = metadata.maintenance_log || []
 
-        const newLogEntry = {
+        const newLogEntry: MaintenanceLogEntry = {
             id: crypto.randomUUID(),
             date,
-            type,
+            type: type as MaintenanceLogEntry['type'],
             description,
             cost: cost ? parseFloat(cost) : 0,
             mileage: mileage ? parseInt(mileage) : null

@@ -1,8 +1,11 @@
+import { PolicyWithAsset } from "@/types/insurance"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, FileText, Calendar, Edit2, Link } from "lucide-react"
 import { AddEditPolicyDialog } from "./AddEditPolicyDialog"
 
-export function PolicyCard({ policy }: { policy: any }) {
+
+
+export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
     return (
         <Card className="hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors relative overflow-hidden group">
             <div className={`absolute top-0 right-0 w-1.5 h-full ${policy.type === 'health' || policy.type === 'life' ? 'bg-rose-500' :
@@ -51,7 +54,7 @@ export function PolicyCard({ policy }: { policy: any }) {
                         <div className="flex items-center gap-1.5 col-span-2">
                             <Link className="w-4 h-4 text-zinc-400" />
                             <span>משויך ל: <span className="font-medium text-zinc-700 dark:text-zinc-300 ml-1">
-                                {policy.assets.name} {policy.assets.type === 'vehicle' && policy.assets.metadata?.license_plate ? `(${policy.assets.metadata.license_plate})` : ''}
+                                {policy.assets.name} {policy.assets.type === 'vehicle' && (policy.assets.metadata as Record<string, unknown>)?.license_plate ? `(${(policy.assets.metadata as Record<string, unknown>).license_plate})` : ''}
                             </span></span>
                         </div>
                     )}
