@@ -27,6 +27,8 @@ export function SystemSettingsTab() {
     const [currency, setCurrency] = useState("ILS")
     const [emailNotifs, setEmailNotifs] = useState(true)
     const [pushNotifs, setPushNotifs] = useState(false)
+    const [customTypes, setCustomTypes] = useState<string[]>([])
+    const [newType, setNewType] = useState("")
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -37,6 +39,7 @@ export function SystemSettingsTab() {
                 if (meta.default_currency) setCurrency(meta.default_currency)
                 if (meta.email_notifications !== undefined) setEmailNotifs(meta.email_notifications)
                 if (meta.push_notifications !== undefined) setPushNotifs(meta.push_notifications)
+                if (meta.custom_reminder_types) setCustomTypes(meta.custom_reminder_types)
             }
             setLoading(false)
         }
@@ -50,7 +53,8 @@ export function SystemSettingsTab() {
                 family_name: familyName,
                 default_currency: currency,
                 email_notifications: emailNotifs,
-                push_notifications: pushNotifs
+                push_notifications: pushNotifs,
+                custom_reminder_types: customTypes
             }
         })
 
@@ -103,6 +107,46 @@ export function SystemSettingsTab() {
                                     <SelectItem value="EUR">אירו (€)</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div className="space-y-2 mt-4">
+                            <Label>סוגי תזכורות מותאמים אישית</Label>
+                            <div className="flex gap-2">
+                                <Input 
+                                    placeholder="למשל: יום הולדת" 
+                                    value={newType} 
+                                    onChange={e => setNewType(e.target.value)}
+                                    // Make sure hitting enter doesn't submit a form if it was in one
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault()
+                                            if (newType && !customTypes.includes(newType)) {
+                                                setCustomTypes([...customTypes, newType])
+                                                setNewType("")
+                                            }
+                                        }
+                                    }}
+                                />
+                                <Button variant="secondary" type="button" onClick={() => {
+                                    if (newType && !customTypes.includes(newType)) {
+                                        setCustomTypes([...customTypes, newType])
+                                        setNewType("")
+                                    }
+                                }}>הוסף</Button>
+                            </div>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {customTypes.map(t => (
+                                    <div key={t} className="bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                        {t}
+                                        <button 
+                                            type="button"
+                                            onClick={() => setCustomTypes(customTypes.filter(x => x !== t))} 
+                                            className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

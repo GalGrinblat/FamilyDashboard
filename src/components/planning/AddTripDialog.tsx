@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import { addTripAction } from "@/app/(app)/planning/actions"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -20,8 +19,7 @@ import { Plus } from "lucide-react"
 export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
-    const supabase = createClient()
+    const [errorMsg, setErrorMsg] = useState("")
 
     // Form State
     const [name, setName] = useState("")
@@ -29,25 +27,23 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
     const [endDate, setEndDate] = useState("")
     const [budget, setBudget] = useState("")
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
+        setErrorMsg("")
 
-        const payload = {
-            name,
-            start_date: startDate || null,
-            end_date: endDate || null,
-            budget: budget ? parseFloat(budget) : null,
-        }
+        const formData = new FormData()
+        formData.append("name", name)
+        if (startDate) formData.append("start_date", startDate)
+        if (endDate) formData.append("end_date", endDate)
+        if (budget) formData.append("budget", budget)
 
-        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
-        const { error } = await supabase.from("trips").insert(payload)
+        const result = await addTripAction(formData)
 
         setLoading(false)
 
-        if (error) {
-            console.error("Error inserting trip:", error)
-            alert("שגיאה בהוספת החופשה")
+        if (result?.error) {
+            setErrorMsg(result.error)
         } else {
             setOpen(false)
             // Reset form
@@ -55,8 +51,7 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
             setStartDate("")
             setEndDate("")
             setBudget("")
-            // Refresh the page data
-            router.refresh()
+            setErrorMsg("")
         }
     }
 
@@ -84,10 +79,12 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
                         </Label>
                         <Input
                             id="trip_name"
+                            name="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="col-span-3"
                             placeholder="למשל: סקי 2026"
+                            autoComplete="off"
                             required
                         />
                     </div>
@@ -97,10 +94,12 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
                         </Label>
                         <Input
                             id="start_date"
+                            name="start_date"
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             className="col-span-3"
+                            autoComplete="off"
                         />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -109,10 +108,12 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
                         </Label>
                         <Input
                             id="end_date"
+                            name="end_date"
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             className="col-span-3"
+                            autoComplete="off"
                         />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -121,13 +122,21 @@ export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNo
                         </Label>
                         <Input
                             id="trip_budget"
+                            name="budget"
                             type="number"
+                            inputMode="decimal"
                             value={budget}
                             onChange={(e) => setBudget(e.target.value)}
                             className="col-span-3"
                             placeholder="₪"
+                            autoComplete="off"
                         />
                     </div>
+                    {errorMsg && (
+                        <div className="text-sm font-medium text-destructive mt-2 text-right">
+                            {errorMsg}
+                        </div>
+                    )}
                     <DialogFooter>
                         <Button type="submit" disabled={loading}>
                             {loading ? "פותח תיק מסע..." : "צור חופשה"}

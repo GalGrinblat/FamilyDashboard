@@ -4,19 +4,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { AddReminderDialog } from "@/components/planning/AddReminderDialog"
+import { ReminderDialog } from "@/components/planning/ReminderDialog"
 import { AddTripDialog } from "@/components/planning/AddTripDialog"
+import { ReminderRowActions } from "@/components/planning/ReminderRowActions"
 import { Database } from "@/types/database.types"
+import { SYSTEM_REMINDER_TYPES } from "@/lib/constants"
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
+type ReminderRowWithAsset = ReminderRow & { assets?: { name: string } | null }
 type TripRow = Database['public']['Tables']['trips']['Row']
 
-function RemindersTable({ items }: { items: ReminderRow[] }) {
+function RemindersTable({ items, customTypes }: { items: ReminderRowWithAsset[], customTypes: string[] }) {
     if (!items || items.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>אין תזכורות מתוכננות כרגע.</p>
-                <AddReminderDialog triggerButton={
+                <ReminderDialog customTypes={customTypes} triggerButton={
                     <Button variant="outline" className="mt-4">
                         <Plus className="ml-2 h-4 w-4" />
                         הוסף תזכורת
@@ -26,33 +29,62 @@ function RemindersTable({ items }: { items: ReminderRow[] }) {
         )
     }
 
+    const allTypes = [...SYSTEM_REMINDER_TYPES, ...customTypes.map(t => ({ value: t, label: t }))]
+    const getTypeLabel = (val: string) => allTypes.find(t => t.value === val)?.label || val
+
     return (
         <Table className="border-t border-zinc-100 dark:border-zinc-800">
             <TableHeader>
                 <TableRow>
-                    <TableHead className="text-right w-1/3">כותרת</TableHead>
-                    <TableHead className="text-right">תאריך יעד</TableHead>
-                    <TableHead className="text-right">סוג</TableHead>
+                    <TableHead className="text-right w-1/4">כותרת</TableHead>
+                    <TableHead className="text-right w-1/5">תאריך יעד</TableHead>
+                    <TableHead className="text-right w-1/6">נותרו (ימים)</TableHead>
+                    <TableHead className="text-right w-1/6">סוג</TableHead>
                     <TableHead className="text-right w-[100px]">סטטוס</TableHead>
+                    <TableHead className="text-left w-[80px]">פעולות</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {items.map(item => (
-                    <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.title}</TableCell>
-                        <TableCell>{item.due_date ? new Date(item.due_date).toLocaleDateString("he-IL") : '-'}</TableCell>
-                        <TableCell>
-                            {item.type === 'car_test' ? 'טסט לרכב' :
-                                item.type === 'insurance' ? 'ביטוח' :
-                                    item.type === 'maintenance' ? 'תחזוקה' : item.type}
-                        </TableCell>
-                        <TableCell>
-                            {item.is_completed ?
-                                <span className="text-emerald-600 dark:text-emerald-400 font-medium whitespace-nowrap">הושלם</span> :
-                                <span className="text-amber-600 dark:text-amber-400 font-medium whitespace-nowrap">ממתין</span>}
-                        </TableCell>
-                    </TableRow>
-                ))}
+                {items.map(item => {
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+                    const dueDate = new Date(item.due_date)
+                    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                    
+                    let daysColorClass = ""
+                    if (diffDays < 0) daysColorClass = "text-red-600 dark:text-red-400 font-bold"
+                    else if (diffDays <= 7) daysColorClass = "text-amber-600 dark:text-amber-400 font-medium"
+
+                    return (
+                        <TableRow key={item.id}>
+                            <TableCell className="font-medium">
+                                {item.title}
+                                {item.assets && item.assets.name && (
+                                    <span className="block border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-xs rounded px-1.5 py-0.5 mt-1 w-fit">
+                                        נכס: {item.assets.name}
+                                    </span>
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                {item.due_date ? new Intl.DateTimeFormat("he-IL").format(new Date(item.due_date)) : '-'}
+                            </TableCell>
+                            <TableCell className={daysColorClass} dir="ltr">
+                                {diffDays < 0 ? `עבר (${Math.abs(diffDays)})` : diffDays}
+                            </TableCell>
+                            <TableCell>
+                                {getTypeLabel(item.type)}
+                            </TableCell>
+                            <TableCell>
+                                {item.is_completed ?
+                                    <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs px-2 py-1 rounded-full whitespace-nowrap">הושלם</span> :
+                                    <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs px-2 py-1 rounded-full whitespace-nowrap">ממתין</span>}
+                            </TableCell>
+                            <TableCell className="text-left">
+                                <ReminderRowActions reminder={item} customTypes={customTypes} />
+                            </TableCell>
+                        </TableRow>
+                    )
+                })}
             </TableBody>
         </Table>
     )
@@ -87,9 +119,9 @@ function TripsTable({ items }: { items: TripRow[] }) {
                 {items.map(item => (
                     <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.start_date ? new Date(item.start_date).toLocaleDateString("he-IL") : '-'}</TableCell>
-                        <TableCell>{item.end_date ? new Date(item.end_date).toLocaleDateString("he-IL") : '-'}</TableCell>
-                        <TableCell>{item.budget ? `₪${item.budget.toLocaleString()}` : '-'}</TableCell>
+                        <TableCell>{item.start_date ? new Intl.DateTimeFormat("he-IL").format(new Date(item.start_date)) : '-'}</TableCell>
+                        <TableCell>{item.end_date ? new Intl.DateTimeFormat("he-IL").format(new Date(item.end_date)) : '-'}</TableCell>
+                        <TableCell>{item.budget ? `₪${new Intl.NumberFormat("he-IL").format(item.budget)}` : '-'}</TableCell>
                     </TableRow>
                 ))}
             </TableBody>
@@ -99,23 +131,27 @@ function TripsTable({ items }: { items: TripRow[] }) {
 
 export default async function PlanningPage() {
     const supabase = await createClient()
+    
+    // Fetch User metadata for custom types
+    const { data: { user } } = await supabase.auth.getUser()
+    const customTypes = user?.user_metadata?.custom_reminder_types || []
 
-    // Fetch Reminders
-    const { data: remindersData } = await supabase.from('reminders').select('*').order('due_date', { ascending: true })
-    const reminders = (remindersData as ReminderRow[]) || []
-
-    // Fetch Trips
-    const { data: tripsData } = await supabase.from('trips').select('*').order('start_date', { ascending: true })
+    // Fetch Reminders and Trips in parallel
+    const [
+        { data: remindersData },
+        { data: tripsData }
+    ] = await Promise.all([
+        supabase.from('reminders').select('*, assets(name)').order('due_date', { ascending: true }),
+        supabase.from('trips').select('*').order('start_date', { ascending: true })
+    ])
+    
+    const reminders = (remindersData as ReminderRowWithAsset[]) || []
     const trips = (tripsData as TripRow[]) || []
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">תכנון</h2>
-                <div className="flex gap-2">
-                    <AddTripDialog />
-                    <AddReminderDialog />
-                </div>
             </div>
 
             <Tabs defaultValue="periodic" className="w-full mt-4" dir="rtl">
@@ -128,21 +164,37 @@ export default async function PlanningPage() {
                 <div className="mt-4">
                     <TabsContent value="periodic" className="m-0">
                         <Card>
-                            <CardHeader>
-                                <CardTitle>תכנון עיתי</CardTitle>
-                                <CardDescription>לוח שנה למעקב אחר חידושי ביטוח, טסטים לרכב, ותחזוקת הבית.</CardDescription>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle>תכנון עיתי</CardTitle>
+                                    <CardDescription>לוח שנה למעקב אחר חידושי ביטוח, טסטים לרכב, ותחזוקת הבית.</CardDescription>
+                                </div>
+                                <ReminderDialog customTypes={customTypes} triggerButton={
+                                    <Button size="sm">
+                                        <Plus className="ml-2 h-4 w-4" />
+                                        תזכורת חדשה
+                                    </Button>
+                                } />
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
-                                <RemindersTable items={reminders} />
+                                <RemindersTable items={reminders} customTypes={customTypes} />
                             </CardContent>
                         </Card>
                     </TabsContent>
 
                     <TabsContent value="vacation" className="m-0">
                         <Card>
-                            <CardHeader>
-                                <CardTitle>תכנון חופשות</CardTitle>
-                                <CardDescription>תכנון תקציב ותוכניות מסלול לחופשות עתידיות (למשל קיצביל 2026).</CardDescription>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle>תכנון חופשות</CardTitle>
+                                    <CardDescription>תכנון תקציב ותוכניות מסלול לחופשות עתידיות (למשל קיצביל 2026).</CardDescription>
+                                </div>
+                                <AddTripDialog triggerButton={
+                                    <Button size="sm">
+                                        <Plus className="ml-2 h-4 w-4" />
+                                        חופשה חדשה
+                                    </Button>
+                                } />
                             </CardHeader>
                             <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
                                 <TripsTable items={trips} />

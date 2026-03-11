@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
 import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
-import { AddReminderDialog } from "@/components/planning/AddReminderDialog"
+import { ReminderDialog } from "@/components/planning/ReminderDialog"
 
 export function GlobalFAB({ categories, accounts }: { categories: { id: string, name_he: string, domain?: string }[], accounts: { id: string, name: string }[] }) {
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false)
@@ -73,10 +73,12 @@ export function GlobalFAB({ categories, accounts }: { categories: { id: string, 
             )}
 
             {isReminderOpen && (
-                <AddReminderDialog
+                <ReminderDialog
                     triggerButton={<span className="hidden"></span>}
-                    forceOpen={true}
-                    onForceClose={() => setIsReminderOpen(false)}
+                    open={true}
+                    onOpenChange={(open) => {
+                        if (!open) setIsReminderOpen(false)
+                    }}
                 />
             )}
         </>

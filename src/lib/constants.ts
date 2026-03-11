@@ -48,3 +48,9 @@ export const CATEGORY_DOMAIN_SHORT_LABELS: Record<CategoryDomain, string> = {
     [CATEGORY_DOMAINS.ENTERTAINMENT]: 'בילויים',
     [CATEGORY_DOMAINS.VACATION]: 'חופשות',
 };
+
+export const SYSTEM_REMINDER_TYPES = [
+    { value: 'maintenance', label: 'תחזוקה (Maintenance)' },
+    { value: 'car_test', label: 'טסט לרכב (Car Test)' },
+    { value: 'insurance', label: 'ביטוחים (Insurance)' },
+]

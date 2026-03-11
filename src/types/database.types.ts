@@ -294,6 +294,7 @@ export interface Database {
                     id: string
                     title: string
                     due_date: string
+                    start_date: string | null
                     type: string
                     is_completed: boolean | null
                     asset_id: string | null
@@ -304,6 +305,7 @@ export interface Database {
                     id?: string
                     title: string
                     due_date: string
+                    start_date?: string | null
                     type: string
                     is_completed?: boolean | null
                     asset_id?: string | null
@@ -314,6 +316,7 @@ export interface Database {
                     id?: string
                     title?: string
                     due_date?: string
+                    start_date?: string | null
                     type?: string
                     is_completed?: boolean | null
                     asset_id?: string | null
