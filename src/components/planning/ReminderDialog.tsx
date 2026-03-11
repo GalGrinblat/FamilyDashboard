@@ -62,7 +62,9 @@ export function ReminderDialog({
             setStartDate(reminder?.start_date || "")
             setErrorMsg("")
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, reminder])
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
