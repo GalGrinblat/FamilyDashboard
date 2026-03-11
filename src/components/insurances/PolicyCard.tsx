@@ -2,7 +2,7 @@ import { PolicyWithAsset } from "@/types/insurance"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, FileText, Calendar, Edit2, Link } from "lucide-react"
 import { PolicyDialog } from "./PolicyDialog"
-import { INSURANCE_SUBTYPES, INSURANCE_TYPES } from "@/lib/constants"
+import { INSURANCE_SUBTYPES, INSURANCE_TYPES, FREQUENCY_TYPES } from "@/lib/constants"
 import { differenceInDays, startOfDay } from "date-fns"
 
 
@@ -48,7 +48,7 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
                     <div className="flex flex-col items-end gap-2">
                         <span className="font-bold text-lg">
                             ₪{policy.premium_amount.toLocaleString()}
-                            <span className="text-xs text-zinc-500 font-normal mr-1">{policy.premium_frequency === 'yearly' ? '/ שנה' : '/ חד׳'}</span>
+                            <span className="text-xs text-zinc-500 font-normal mr-1">{policy.premium_frequency === FREQUENCY_TYPES.YEARLY ? '/ שנה' : '/ חד׳'}</span>
                         </span>
 
                         <PolicyDialog

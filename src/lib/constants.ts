@@ -55,6 +55,14 @@ export const SYSTEM_REMINDER_TYPES = [
     { value: 'insurance', label: 'ביטוחים (Insurance)' },
 ]
 
+export const FREQUENCY_TYPES = {
+    MONTHLY: 'monthly',
+    YEARLY: 'yearly',
+    WEEKLY: 'weekly', // Adding weekly as it appeared in some grep results
+} as const;
+
+export type FrequencyType = typeof FREQUENCY_TYPES[keyof typeof FREQUENCY_TYPES];
+
 export const INSURANCE_TYPES = {
     HEALTH: 'health',
     PROPERTY: 'property',

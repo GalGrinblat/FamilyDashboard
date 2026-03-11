@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Database } from "@/types/database.types";
 import { Landmark, Trash2 } from "lucide-react";
 import { AddRecurringFlowDialog } from "./AddRecurringFlowDialog";
+import { FREQUENCY_TYPES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,7 @@ export function IncomeSourcesTab({
                                     <div className="flex flex-col">
                                         <span className="font-medium">{flow.name}</span>
                                         <span className="text-xs text-muted-foreground">
-                                            {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : flow.frequency} 
+                                            {flow.frequency === FREQUENCY_TYPES.MONTHLY ? 'חודשי' : flow.frequency === FREQUENCY_TYPES.YEARLY ? 'שנתי' : flow.frequency} 
                                             {account ? ` • מופקד ל${account.name}` : ''}
                                         </span>
                                     </div>

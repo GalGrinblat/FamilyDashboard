@@ -23,7 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { addPolicyAction, updatePolicyAction } from "@/app/(app)/insurances/actions"
-import { INSURANCE_SUBTYPES, INSURANCE_TYPES, InsuranceType } from "@/lib/constants"
+import { INSURANCE_SUBTYPES, INSURANCE_TYPES, InsuranceType, FREQUENCY_TYPES, FrequencyType } from "@/lib/constants"
 
 type PolicyRow = Database['public']['Tables']['policies']['Row']
 
@@ -56,8 +56,8 @@ export function PolicyDialog({
     const [type, setType] = useState<InsuranceType>(policy?.type as InsuranceType || defaultType)
     const [subtype, setSubtype] = useState(policy?.subtype || "")
     const [premiumAmount, setPremiumAmount] = useState(policy?.premium_amount?.toString() || "")
-    const [premiumFrequency, setPremiumFrequency] = useState<"monthly" | "yearly">(
-        (policy?.premium_frequency as "monthly" | "yearly") || "monthly"
+    const [premiumFrequency, setPremiumFrequency] = useState<FrequencyType>(
+        (policy?.premium_frequency as FrequencyType) || FREQUENCY_TYPES.MONTHLY
     )
     const [renewalDate, setRenewalDate] = useState(policy?.renewal_date || "")
     const [policyNumber, setPolicyNumber] = useState(policy?.policy_number || "")
@@ -79,7 +79,7 @@ export function PolicyDialog({
             setSubtype(policy?.subtype || "")
 
             setPremiumAmount(policy?.premium_amount?.toString() || "")
-            setPremiumFrequency((policy?.premium_frequency as "monthly" | "yearly") || "monthly")
+            setPremiumFrequency((policy?.premium_frequency as FrequencyType) || FREQUENCY_TYPES.MONTHLY)
             setRenewalDate(policy?.renewal_date || "")
             setPolicyNumber(policy?.policy_number || "")
             setAssetId(policy?.asset_id || "none")
@@ -266,13 +266,13 @@ export function PolicyDialog({
 
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="premiumFrequency" className="text-right text-xs md:text-sm">תדירות תשלום</Label>
-                        <Select value={premiumFrequency} onValueChange={(v: "monthly" | "yearly") => setPremiumFrequency(v)}>
+                        <Select value={premiumFrequency} onValueChange={(v: FrequencyType) => setPremiumFrequency(v)}>
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="בחר" />
                             </SelectTrigger>
                             <SelectContent dir="rtl">
-                                <SelectItem value="monthly">חודשי</SelectItem>
-                                <SelectItem value="yearly">שנתי</SelectItem>
+                                <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי</SelectItem>
+                                <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/types/database.types";
-import { CategoryType, CATEGORY_TYPES, CATEGORY_DOMAIN_LABELS } from "@/lib/constants";
+import { CategoryType, CATEGORY_TYPES, CATEGORY_DOMAIN_LABELS, FREQUENCY_TYPES, FrequencyType } from "@/lib/constants";
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 
@@ -49,7 +49,7 @@ export function AddRecurringFlowDialog({
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.INCOME);
-  const [frequency, setFrequency] = useState("monthly");
+  const [frequency, setFrequency] = useState<FrequencyType>(FREQUENCY_TYPES.MONTHLY);
   const [accountId, setAccountId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -66,7 +66,7 @@ export function AddRecurringFlowDialog({
       setName(flowToEdit.name || "");
       setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : "");
       setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
-      setFrequency(flowToEdit.frequency || "monthly");
+      setFrequency((flowToEdit.frequency as FrequencyType) || FREQUENCY_TYPES.MONTHLY);
       setAccountId(flowToEdit.account_id || "");
       setStartDate(flowToEdit.start_date || "");
       setEndDate(flowToEdit.end_date || "");
@@ -75,7 +75,7 @@ export function AddRecurringFlowDialog({
       setName("");
       setAmount("");
       setType(CATEGORY_TYPES.INCOME);
-      setFrequency("monthly");
+      setFrequency(FREQUENCY_TYPES.MONTHLY);
       setAccountId("");
       setStartDate("");
       setEndDate("");
@@ -204,14 +204,14 @@ export function AddRecurringFlowDialog({
             <Label htmlFor="freq" className="text-right">
               תדירות
             </Label>
-            <Select value={frequency} onValueChange={setFrequency}>
+            <Select value={frequency} onValueChange={(v) => setFrequency(v as FrequencyType)}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="בחר תדירות" />
               </SelectTrigger>
               <SelectContent dir="rtl">
-                <SelectItem value="monthly">חודשי (Monthly)</SelectItem>
-                <SelectItem value="yearly">שנתי (Yearly)</SelectItem>
-                <SelectItem value="weekly">שבועי (Weekly)</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי (Monthly)</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי (Yearly)</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי (Weekly)</SelectItem>
               </SelectContent>
             </Select>
           </div>

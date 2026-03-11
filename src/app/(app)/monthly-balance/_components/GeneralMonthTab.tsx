@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getMonthlyBalanceData } from "../actions"
 import { Database } from "@/types/database.types"
-import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain } from "@/lib/constants"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain, FREQUENCY_TYPES } from "@/lib/constants"
 
 type RecurringFlow = Database["public"]["Tables"]["recurring_flows"]["Row"]
 
@@ -111,7 +111,7 @@ export function GeneralMonthTab() {
                                             <div className="space-y-1.5">
                                                 {domExpenses.map(exp => (
                                                     <div key={exp.id} className="flex justify-between items-center text-sm">
-                                                        <span className="text-zinc-600 dark:text-zinc-400">{exp.name} {exp.frequency !== 'monthly' ? <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1 rounded">({exp.frequency})</span> : ''}</span>
+                                                        <span className="text-zinc-600 dark:text-zinc-400">{exp.name} {exp.frequency !== FREQUENCY_TYPES.MONTHLY ? <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1 rounded">({exp.frequency})</span> : ''}</span>
                                                         <span className="text-rose-500 font-medium">₪{Number(exp.amount).toLocaleString()}</span>
                                                     </div>
                                                 ))}

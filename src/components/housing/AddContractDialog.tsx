@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Plus, Pencil } from "lucide-react"
 
 import { Database } from "@/types/database.types"
-import { CATEGORY_DOMAINS, CATEGORY_TYPES } from "@/lib/constants"
+import { CATEGORY_DOMAINS, CATEGORY_TYPES, FREQUENCY_TYPES } from "@/lib/constants"
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row']
 
@@ -47,7 +47,7 @@ export function AddContractDialog({ triggerButton, contractToEdit }: AddContract
             name,
             amount: parseFloat(amount),
             type: CATEGORY_TYPES.EXPENSE,
-            frequency: 'monthly',
+            frequency: FREQUENCY_TYPES.MONTHLY,
             domain: CATEGORY_DOMAINS.UTILITIES,
             end_date: endDate || null,
             is_active: true

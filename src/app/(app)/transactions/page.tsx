@@ -10,7 +10,7 @@ import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDia
 import { ChangePaymentMethodDialog } from "@/components/finance/ChangePaymentMethodDialog"
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
-import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain } from "@/lib/constants"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain, FREQUENCY_TYPES } from "@/lib/constants"
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & { accounts?: { name: string } | null }
 
 function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: { id: string, name: string }[] }) {
@@ -63,7 +63,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                                 <TableCell className="font-medium">{flow.name}</TableCell>
                                 <TableCell className="text-zinc-500">{flow.accounts?.name || '-'}</TableCell>
                                 <TableCell>
-                                    {flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}
+                                    {flow.frequency === FREQUENCY_TYPES.MONTHLY ? 'חודשי' : flow.frequency === FREQUENCY_TYPES.YEARLY ? 'שנתי' : 'שבועי'}
                                 </TableCell>
                                 <TableCell className="text-zinc-500">
                                     {flow.domain ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי' : 'כללי'}
@@ -110,7 +110,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                             {flow.accounts?.name && (
                                 <span className="bg-zinc-200/50 dark:bg-zinc-800 px-2 py-0.5 rounded text-zinc-800 dark:text-zinc-300 font-medium">{flow.accounts.name}</span>
                             )}
-                            <span>{flow.frequency === 'monthly' ? 'חודשי' : flow.frequency === 'yearly' ? 'שנתי' : 'שבועי'}</span>
+                             <span>{flow.frequency === FREQUENCY_TYPES.MONTHLY ? 'חודשי' : flow.frequency === FREQUENCY_TYPES.YEARLY ? 'שנתי' : 'שבועי'}</span>
                             <span className="text-zinc-300 dark:text-zinc-600">•</span>
                             <span>{flow.domain ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי' : 'כללי'}</span>
                         </div>

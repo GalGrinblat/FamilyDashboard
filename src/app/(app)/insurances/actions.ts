@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { InsuranceType } from "@/lib/constants"
+import { InsuranceType, FrequencyType } from "@/lib/constants"
 
 export async function addPolicyAction(formData: FormData) {
     const supabase = await createClient()
@@ -12,7 +12,7 @@ export async function addPolicyAction(formData: FormData) {
     const type = formData.get("type") as InsuranceType
     const subtype = formData.get("subtype") as string
     const premiumAmountStr = formData.get("premium_amount") as string
-    const premiumFrequency = formData.get("premium_frequency") as "monthly" | "yearly"
+    const premiumFrequency = formData.get("premium_frequency") as FrequencyType
     let renewalDate: string | null = formData.get("renewal_date") as string
     let policyNumber: string | null = formData.get("policy_number") as string
     let assetId: string | null = formData.get("asset_id") as string
@@ -60,7 +60,7 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     const type = formData.get("type") as InsuranceType
     const subtype = formData.get("subtype") as string
     const premiumAmountStr = formData.get("premium_amount") as string
-    const premiumFrequency = formData.get("premium_frequency") as "monthly" | "yearly"
+    const premiumFrequency = formData.get("premium_frequency") as FrequencyType
     let renewalDate: string | null = formData.get("renewal_date") as string
     let policyNumber: string | null = formData.get("policy_number") as string
     let assetId: string | null = formData.get("asset_id") as string
