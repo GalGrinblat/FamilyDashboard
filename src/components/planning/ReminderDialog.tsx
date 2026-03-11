@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { addReminderAction, updateReminderAction } from "@/app/(app)/planning/actions"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { SYSTEM_REMINDER_TYPES, REMINDER_TYPES, ReminderType } from "@/lib/constants"
+import { SYSTEM_REMINDER_TYPES, REMINDER_TYPES } from "@/lib/constants"
 import { Database } from "@/types/database.types"
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
@@ -39,12 +39,47 @@ export function ReminderDialog({
     reminder?: ReminderRow,
     customTypes?: string[]
 }) {
-    const isEditMode = !!reminder
-
     const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
     const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
     const setOpen = setControlledOpen || setUncontrolledOpen
 
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            {triggerButton && (
+                <DialogTrigger asChild>
+                    {triggerButton}
+                </DialogTrigger>
+            )}
+            <DialogContent className="sm:max-w-[425px]" dir="rtl">
+                <DialogHeader>
+                    <DialogTitle>{!!reminder ? "עריכת תזכורת" : "הוספת תזכורת עיתית"}</DialogTitle>
+                    <DialogDescription>
+                        {!!reminder ? "עדכן את פרטי התזכורת." : "הזן משימה עם תאריך יעד שיופיע בלוח השנה."}
+                    </DialogDescription>
+                </DialogHeader>
+                {open && (
+                    <ReminderForm
+                        key={reminder?.id || 'new'}
+                        reminder={reminder}
+                        customTypes={customTypes}
+                        onSuccess={() => setOpen(false)}
+                    />
+                )}
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+function ReminderForm({
+    reminder,
+    customTypes,
+    onSuccess
+}: {
+    reminder?: ReminderRow,
+    customTypes: string[],
+    onSuccess: () => void
+}) {
+    const isEditMode = !!reminder
     const [loading, setLoading] = useState(false)
     const [errorMsg, setErrorMsg] = useState("")
 
@@ -53,16 +88,6 @@ export function ReminderDialog({
     const [type, setType] = useState<string>(reminder?.type || REMINDER_TYPES.MAINTENANCE)
     const [dueDate, setDueDate] = useState(reminder?.due_date || "")
     const [startDate, setStartDate] = useState(reminder?.start_date || "")
-
-    useEffect(() => {
-        if (open) {
-            setTitle(reminder?.title || "")
-            setType(reminder?.type || REMINDER_TYPES.MAINTENANCE)
-            setDueDate(reminder?.due_date || "")
-            setStartDate(reminder?.start_date || "")
-        }
-    }, [open, reminder, setTitle, setType, setDueDate, setStartDate, setErrorMsg])
-
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -87,13 +112,7 @@ export function ReminderDialog({
         if (result?.error) {
             setErrorMsg(result.error)
         } else {
-            setOpen(false)
-            if (!isEditMode) {
-                // Reset form only if not controlled by edit mode
-                setTitle("")
-                setStartDate("")
-                setType(REMINDER_TYPES.MAINTENANCE)
-            }
+            onSuccess()
         }
     }
 
@@ -103,91 +122,76 @@ export function ReminderDialog({
     ]
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            {triggerButton && (
-                <DialogTrigger asChild>
-                    {triggerButton}
-                </DialogTrigger>
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="title" className="text-right">
+                    תיאור משימה
+                </Label>
+                <Input
+                    id="title"
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="col-span-3"
+                    placeholder="למשל: לחדש ביטוח רכב"
+                    autoComplete="off"
+                    required
+                />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="type" className="text-right">
+                    סוג
+                </Label>
+                <Select value={type} onValueChange={setType}>
+                    <SelectTrigger className="col-span-3" id="type" dir="rtl">
+                        <SelectValue placeholder="בחר סוג" />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl">
+                        {allTypes.map(t => (
+                            <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="start_date" className="text-right leading-tight">
+                    תאריך תזכורת (אופציונלי)
+                </Label>
+                <Input
+                    id="start_date"
+                    name="start_date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="col-span-3"
+                    autoComplete="off"
+                />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="due_date" className="text-right">
+                    תאריך יעד
+                </Label>
+                <Input
+                    id="due_date"
+                    name="due_date"
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="col-span-3"
+                    autoComplete="off"
+                    required
+                />
+            </div>
+            {errorMsg && (
+                <div className="text-sm font-medium text-destructive mt-2 text-right">
+                    {errorMsg}
+                </div>
             )}
-            <DialogContent className="sm:max-w-[425px]" dir="rtl">
-                <DialogHeader>
-                    <DialogTitle>{isEditMode ? "עריכת תזכורת" : "הוספת תזכורת עיתית"}</DialogTitle>
-                    <DialogDescription>
-                        {isEditMode ? "עדכן את פרטי התזכורת." : "הזן משימה עם תאריך יעד שיופיע בלוח השנה."}
-                    </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="title" className="text-right">
-                            תיאור משימה
-                        </Label>
-                        <Input
-                            id="title"
-                            name="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="col-span-3"
-                            placeholder="למשל: לחדש ביטוח רכב"
-                            autoComplete="off"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="type" className="text-right">
-                            סוג
-                        </Label>
-                        <Select value={type} onValueChange={setType}>
-                            <SelectTrigger className="col-span-3" id="type" dir="rtl">
-                                <SelectValue placeholder="בחר סוג" />
-                            </SelectTrigger>
-                            <SelectContent dir="rtl">
-                                {allTypes.map(t => (
-                                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="start_date" className="text-right leading-tight">
-                            תאריך תזכורת (אופציונלי)
-                        </Label>
-                        <Input
-                            id="start_date"
-                            name="start_date"
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="col-span-3"
-                            autoComplete="off"
-                        />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="due_date" className="text-right">
-                            תאריך יעד
-                        </Label>
-                        <Input
-                            id="due_date"
-                            name="due_date"
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => setDueDate(e.target.value)}
-                            className="col-span-3"
-                            autoComplete="off"
-                            required
-                        />
-                    </div>
-                    {errorMsg && (
-                        <div className="text-sm font-medium text-destructive mt-2 text-right">
-                            {errorMsg}
-                        </div>
-                    )}
-                    <DialogFooter>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "שומר..." : isEditMode ? "שמור שינויים" : "שמור תזכורת"}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+            <DialogFooter>
+                <Button type="submit" disabled={loading}>
+                    {loading ? "שומר..." : isEditMode ? "שמור שינויים" : "שמור תזכורת"}
+                </Button>
+            </DialogFooter>
+        </form>
     )
 }
