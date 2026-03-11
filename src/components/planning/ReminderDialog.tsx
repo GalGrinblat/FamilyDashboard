@@ -21,7 +21,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus } from "lucide-react"
 import { SYSTEM_REMINDER_TYPES } from "@/lib/constants"
 import { Database } from "@/types/database.types"
 
@@ -41,7 +40,7 @@ export function ReminderDialog({
     customTypes?: string[]
 }) {
     const isEditMode = !!reminder
-    
+
     const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
     const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
     const setOpen = setControlledOpen || setUncontrolledOpen
@@ -100,7 +99,7 @@ export function ReminderDialog({
     }
 
     const allTypes = [
-        ...SYSTEM_REMINDER_TYPES, 
+        ...SYSTEM_REMINDER_TYPES,
         ...customTypes.map(t => ({ value: t, label: t }))
     ]
 

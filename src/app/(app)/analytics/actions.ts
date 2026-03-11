@@ -1,7 +1,6 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { CategoryDomain, CategoryType } from "@/lib/constants"
 import { Database } from "@/types/database.types"
 
 type TransactionWithCategory = Database['public']['Tables']['transactions']['Row'] & {

@@ -22,7 +22,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus } from "lucide-react"
 import { addPolicyAction, updatePolicyAction } from "@/app/(app)/insurances/actions"
 import { INSURANCE_SUBTYPES, INSURANCE_TYPES, InsuranceType } from "@/lib/constants"
 
@@ -57,7 +56,9 @@ export function PolicyDialog({
     const [type, setType] = useState<InsuranceType>(policy?.type as any || defaultType)
     const [subtype, setSubtype] = useState(policy?.subtype || "")
     const [premiumAmount, setPremiumAmount] = useState(policy?.premium_amount?.toString() || "")
-    const [premiumFrequency, setPremiumFrequency] = useState<"monthly" | "yearly">(policy?.premium_frequency || "monthly")
+    const [premiumFrequency, setPremiumFrequency] = useState<"monthly" | "yearly">(
+        (policy?.premium_frequency as "monthly" | "yearly") || "monthly"
+    )
     const [renewalDate, setRenewalDate] = useState(policy?.renewal_date || "")
     const [policyNumber, setPolicyNumber] = useState(policy?.policy_number || "")
     const [assetId, setAssetId] = useState(policy?.asset_id || "none")
@@ -72,13 +73,13 @@ export function PolicyDialog({
             // If the database has 'life', fall back to 'health'
             const dbType = policy?.type === 'life' ? INSURANCE_TYPES.HEALTH : policy?.type;
             setType((dbType as InsuranceType) || defaultType)
-            
+
             // Subtype reset logic. If editing, keep the existing one.
             // If creating, we'll reset it, but only once we have the options.
             setSubtype(policy?.subtype || "")
-            
+
             setPremiumAmount(policy?.premium_amount?.toString() || "")
-            setPremiumFrequency(policy?.premium_frequency || "monthly")
+            setPremiumFrequency((policy?.premium_frequency as "monthly" | "yearly") || "monthly")
             setRenewalDate(policy?.renewal_date || "")
             setPolicyNumber(policy?.policy_number || "")
             setAssetId(policy?.asset_id || "none")
@@ -97,8 +98,8 @@ export function PolicyDialog({
                 setSubtype("")
             }
         }
-    // disabled because we only want to run this when `type` changes, specifically to clear the subtype.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // disabled because we only want to run this when `type` changes, specifically to clear the subtype.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [type])
 
     // Fetch assets when the dialog opens

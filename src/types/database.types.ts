@@ -204,10 +204,10 @@ export interface Database {
                     created_at: string
                     name: string
                     policy_number: string | null
-                    type: "health" | "life" | "property" | "vehicle"
+                    type: string
                     provider: string
                     premium_amount: number
-                    premium_frequency: "monthly" | "yearly"
+                    premium_frequency: string
                     renewal_date: string | null
                     covered_individuals: string[] | null
                     asset_id: string | null
@@ -219,10 +219,10 @@ export interface Database {
                     created_at?: string
                     name: string
                     policy_number?: string | null
-                    type: "health" | "life" | "property" | "vehicle"
+                    type: string
                     provider: string
                     premium_amount: number
-                    premium_frequency?: "monthly" | "yearly"
+                    premium_frequency?: string
                     renewal_date?: string | null
                     covered_individuals?: string[] | null
                     asset_id?: string | null
@@ -234,10 +234,10 @@ export interface Database {
                     created_at?: string
                     name?: string
                     policy_number?: string | null
-                    type?: "health" | "life" | "property" | "vehicle"
+                    type?: string
                     provider?: string
                     premium_amount?: number
-                    premium_frequency?: "monthly" | "yearly"
+                    premium_frequency?: string
                     renewal_date?: string | null
                     covered_individuals?: string[] | null
                     asset_id?: string | null
@@ -420,8 +420,7 @@ export interface Database {
             [_ in never]: never
         }
         Enums: {
-            policy_type: "health" | "life" | "property" | "vehicle"
-            policy_frequency: "monthly" | "yearly"
+            [_ in never]: never
         }
         CompositeTypes: {
             [_ in never]: never

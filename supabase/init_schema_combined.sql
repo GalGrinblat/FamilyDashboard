@@ -213,8 +213,6 @@ DROP COLUMN next_date;
 -- ==========================================
 
 -- Add Policies Table
-create type policy_type as enum ('health', 'life', 'property', 'vehicle');
-create type policy_frequency as enum ('monthly', 'yearly');
 
 create table public.policies (
     id uuid default gen_random_uuid() primary key,
@@ -222,11 +220,11 @@ create table public.policies (
     
     name text not null,
     policy_number text,
-    type policy_type not null,
+    type text not null,
     provider text not null,
     
     premium_amount numeric not null,
-    premium_frequency policy_frequency not null default 'monthly',
+    premium_frequency text not null default 'monthly',
     renewal_date date,
     
     covered_individuals text[],
