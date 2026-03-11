@@ -54,3 +54,29 @@ export const SYSTEM_REMINDER_TYPES = [
     { value: 'car_test', label: 'טסט לרכב (Car Test)' },
     { value: 'insurance', label: 'ביטוחים (Insurance)' },
 ]
+
+export const INSURANCE_TYPES = {
+    HEALTH: 'health',
+    PROPERTY: 'property',
+    VEHICLE: 'vehicle',
+} as const;
+
+export type InsuranceType = typeof INSURANCE_TYPES[keyof typeof INSURANCE_TYPES];
+
+export const INSURANCE_SUBTYPES = {
+    health: [
+        { value: 'shaban', label: 'שב"ן (קופת חולים)' },
+        { value: 'private', label: 'פרטי' },
+        { value: 'critical_illness', label: 'מחלות קשות' },
+        { value: 'life', label: 'חיים' },
+    ],
+    property: [
+        { value: 'structure', label: 'מבנה' },
+        { value: 'contents', label: 'תכולה' },
+    ],
+    vehicle: [
+        { value: 'comprehensive', label: 'מקיף' },
+        { value: 'mandatory', label: 'חובה' },
+        { value: 'third_party', label: 'צד ג\'' },
+    ]
+}

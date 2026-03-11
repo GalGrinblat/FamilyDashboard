@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Database } from "@/types/database.types"
 import { Button } from "@/components/ui/button"
@@ -24,61 +23,83 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
+import { addPolicyAction, updatePolicyAction } from "@/app/(app)/insurances/actions"
+import { INSURANCE_SUBTYPES, INSURANCE_TYPES, InsuranceType } from "@/lib/constants"
 
-export function AddEditPolicyDialog({
+type PolicyRow = Database['public']['Tables']['policies']['Row']
+
+export function PolicyDialog({
     triggerButton,
     defaultType = "health",
-    policyToEdit,
+    policy,
+    open: controlledOpen,
+    onOpenChange: setControlledOpen,
 }: {
     triggerButton?: React.ReactNode,
-    defaultType?: "health" | "life" | "property" | "vehicle",
-    policyToEdit?: Database['public']['Tables']['policies']['Row'],
+    defaultType?: InsuranceType,
+    policy?: PolicyRow,
+    open?: boolean,
+    onOpenChange?: (open: boolean) => void,
 }) {
-    const [open, setOpen] = useState(false)
+    const isEditMode = !!policy
+
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+    const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
+    const setOpen = setControlledOpen || setUncontrolledOpen
+
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
+    const [errorMsg, setErrorMsg] = useState("")
     const supabase = createClient()
 
     // Form State
-    const [name, setName] = useState(policyToEdit?.name || "")
-    const [provider, setProvider] = useState(policyToEdit?.provider || "")
-    const [type, setType] = useState<"health" | "life" | "property" | "vehicle">(policyToEdit?.type || defaultType)
-    const [premiumAmount, setPremiumAmount] = useState(policyToEdit?.premium_amount?.toString() || "")
-    const [premiumFrequency, setPremiumFrequency] = useState<"monthly" | "yearly">(policyToEdit?.premium_frequency || "monthly")
-    const [renewalDate, setRenewalDate] = useState(policyToEdit?.renewal_date || "")
-    const [policyNumber, setPolicyNumber] = useState(policyToEdit?.policy_number || "")
-    const [assetId, setAssetId] = useState(policyToEdit?.asset_id || "none")
+    const [name, setName] = useState(policy?.name || "")
+    const [provider, setProvider] = useState(policy?.provider || "")
+    const [type, setType] = useState<InsuranceType>(policy?.type as any || defaultType)
+    const [subtype, setSubtype] = useState(policy?.subtype || "")
+    const [premiumAmount, setPremiumAmount] = useState(policy?.premium_amount?.toString() || "")
+    const [premiumFrequency, setPremiumFrequency] = useState<"monthly" | "yearly">(policy?.premium_frequency || "monthly")
+    const [renewalDate, setRenewalDate] = useState(policy?.renewal_date || "")
+    const [policyNumber, setPolicyNumber] = useState(policy?.policy_number || "")
+    const [assetId, setAssetId] = useState(policy?.asset_id || "none")
     const [file, setFile] = useState<File | null>(null)
     const [assets, setAssets] = useState<Database['public']['Tables']['assets']['Row'][]>([])
 
-    const [prevOpen, setPrevOpen] = useState(open)
-    const [prevPolicyToEdit, setPrevPolicyToEdit] = useState(policyToEdit)
-
-    if (open !== prevOpen || policyToEdit !== prevPolicyToEdit) {
-        setPrevOpen(open)
-        setPrevPolicyToEdit(policyToEdit)
-
-        if (open && policyToEdit) {
-            setName(policyToEdit.name)
-            setProvider(policyToEdit.provider)
-            setType(policyToEdit.type as "health" | "life" | "property" | "vehicle")
-            setPremiumAmount(policyToEdit.premium_amount.toString())
-            setPremiumFrequency(policyToEdit.premium_frequency as "monthly" | "yearly")
-            setRenewalDate(policyToEdit.renewal_date || "")
-            setPolicyNumber(policyToEdit.policy_number || "")
-            setAssetId(policyToEdit.asset_id || "none")
-        } else if (open && !policyToEdit) {
-            setName("")
-            setProvider("")
-            setType(defaultType)
-            setPremiumAmount("")
-            setPremiumFrequency("monthly")
-            setRenewalDate("")
-            setPolicyNumber("")
-            setAssetId("none")
+    // Reset when dialog opens
+    useEffect(() => {
+        if (open) {
+            setName(policy?.name || "")
+            setProvider(policy?.provider || "")
+            // If the database has 'life', fall back to 'health'
+            const dbType = policy?.type === 'life' ? INSURANCE_TYPES.HEALTH : policy?.type;
+            setType((dbType as InsuranceType) || defaultType)
+            
+            // Subtype reset logic. If editing, keep the existing one.
+            // If creating, we'll reset it, but only once we have the options.
+            setSubtype(policy?.subtype || "")
+            
+            setPremiumAmount(policy?.premium_amount?.toString() || "")
+            setPremiumFrequency(policy?.premium_frequency || "monthly")
+            setRenewalDate(policy?.renewal_date || "")
+            setPolicyNumber(policy?.policy_number || "")
+            setAssetId(policy?.asset_id || "none")
             setFile(null)
+            setErrorMsg("")
         }
-    }
+    }, [open, policy, defaultType])
+
+    // Reset subtype when primary type changes (only when creating, or if user explicitly changes type while editing)
+    useEffect(() => {
+        if (open && type) {
+            // When type changes, if the current subtype doesn't belong to this type, clear it.
+            const subtypeKey = type as keyof typeof INSURANCE_SUBTYPES
+            const validSubtypes = INSURANCE_SUBTYPES[subtypeKey] || []
+            if (!validSubtypes.find(st => st.value === subtype)) {
+                setSubtype("")
+            }
+        }
+    // disabled because we only want to run this when `type` changes, specifically to clear the subtype.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [type])
 
     // Fetch assets when the dialog opens
     useEffect(() => {
@@ -100,7 +121,7 @@ export function AddEditPolicyDialog({
     }
 
     const uploadDocument = async () => {
-        if (!file) return policyToEdit?.document_url || null
+        if (!file) return policy?.document_url || null
 
         const fileExt = file.name.split('.').pop()
         const fileName = `${Math.random()}.${fileExt}`
@@ -122,80 +143,89 @@ export function AddEditPolicyDialog({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
+        setErrorMsg("")
 
-        let documentUrl = policyToEdit?.document_url || null
+        let documentUrl = policy?.document_url || null
         if (file) {
             documentUrl = await uploadDocument()
         }
 
-        const payload = {
-            name,
-            provider,
-            type,
-            premium_amount: parseFloat(premiumAmount),
-            premium_frequency: premiumFrequency,
-            renewal_date: renewalDate || null,
-            policy_number: policyNumber || null,
-            document_url: documentUrl,
-            asset_id: assetId === "none" ? null : assetId
+        const formData = new FormData()
+        formData.append("name", name)
+        formData.append("provider", provider)
+        formData.append("type", type)
+        if (subtype) formData.append("subtype", subtype)
+        formData.append("premium_amount", premiumAmount)
+        formData.append("premium_frequency", premiumFrequency)
+        if (renewalDate) formData.append("renewal_date", renewalDate)
+        if (policyNumber) formData.append("policy_number", policyNumber)
+        if (assetId && assetId !== "none") formData.append("asset_id", assetId)
+        if (documentUrl) formData.append("document_url", documentUrl)
+
+        let result
+        if (isEditMode) {
+            result = await updatePolicyAction(policy.id, formData)
+        } else {
+            result = await addPolicyAction(formData)
         }
 
-        if (policyToEdit) {
-            // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
-            const { error } = await supabase.from("policies").update(payload).eq('id', policyToEdit.id)
-            if (error) {
-                console.error("Error updating policy:", error)
-                alert("שגיאה בעדכון הפוליסה")
-            } else {
-                setOpen(false)
-                router.refresh()
-            }
-        } else {
-            // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
-            const { error } = await supabase.from("policies").insert(payload)
-            if (error) {
-                console.error("Error inserting policy:", error)
-                alert("שגיאה בהוספת הפוליסה")
-            } else {
-                setOpen(false)
-                router.refresh()
-            }
-        }
         setLoading(false)
+
+        if (result?.error) {
+            setErrorMsg(result.error)
+        } else {
+            setOpen(false)
+        }
     }
+
+    const subtypeKey = type as keyof typeof INSURANCE_SUBTYPES
+    const subtypeOptions = INSURANCE_SUBTYPES[subtypeKey] || []
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                {triggerButton || (
-                    <Button>
-                        <Plus className="ml-2 h-4 w-4" />
-                        הוסף פוליסה
-                    </Button>
-                )}
-            </DialogTrigger>
+            {triggerButton && (
+                <DialogTrigger asChild>
+                    {triggerButton}
+                </DialogTrigger>
+            )}
             <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto" dir="rtl">
-                <DialogHeader>
-                    <DialogTitle>{policyToEdit ? "עריכת פוליסה" : "הוספת פוליסה חדשה"}</DialogTitle>
-                    <DialogDescription>
+                <DialogHeader className="text-right">
+                    {/* Fixed alignment for title using `text-right` */}
+                    <DialogTitle className="text-right">{isEditMode ? "עריכת פוליסה" : "הוספת פוליסה חדשה"}</DialogTitle>
+                    <DialogDescription className="text-right">
                         הזן את נתוני הפוליסה לצורך בקרה מהירה.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="type" className="text-right text-xs md:text-sm">סוג הפוליסה</Label>
-                        <Select value={type} onValueChange={(v: "health" | "life" | "property" | "vehicle") => setType(v)}>
+                        <Select value={type} onValueChange={(v: InsuranceType) => setType(v)}>
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="בחר סוג" />
                             </SelectTrigger>
                             <SelectContent dir="rtl">
-                                <SelectItem value="health">בריאות</SelectItem>
-                                <SelectItem value="life">חיים / משכנתא</SelectItem>
-                                <SelectItem value="property">מבנה ותכולה (דירה)</SelectItem>
-                                <SelectItem value="vehicle">רכב (חובה / מקיף)</SelectItem>
+                                <SelectItem value={INSURANCE_TYPES.HEALTH}>בריאות וחיים</SelectItem>
+                                <SelectItem value={INSURANCE_TYPES.PROPERTY}>מבנה ותכולה (דירה)</SelectItem>
+                                <SelectItem value={INSURANCE_TYPES.VEHICLE}>רכב (חובה / מקיף)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
+
+                    {subtypeOptions.length > 0 && (
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="subtype" className="text-right text-xs md:text-sm">תת-סוג</Label>
+                            <Select value={subtype} onValueChange={setSubtype}>
+                                <SelectTrigger className="col-span-3">
+                                    <SelectValue placeholder="בחר תת-סוג" />
+                                </SelectTrigger>
+                                <SelectContent dir="rtl">
+                                    {subtypeOptions.map(st => (
+                                        <SelectItem key={st.value} value={st.value}>{st.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="provider" className="text-right text-xs md:text-sm">חברת ביטוח</Label>
@@ -216,7 +246,7 @@ export function AddEditPolicyDialog({
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="col-span-3"
-                            placeholder="ביטוח בריאות משפחתי מושלם"
+                            placeholder={type === INSURANCE_TYPES.HEALTH ? 'ביטוח בריאות משפחתי מושלם' : ''}
                             required
                         />
                     </div>
@@ -278,7 +308,7 @@ export function AddEditPolicyDialog({
                                 <SelectContent dir="rtl">
                                     <SelectItem value="none">ללא שיוך</SelectItem>
                                     {assets
-                                        .filter(a => type === 'vehicle' ? a.type === 'vehicle' : (a.type === 'property' || a.type === 'real_estate'))
+                                        .filter(a => type === INSURANCE_TYPES.VEHICLE ? a.type === 'vehicle' : (a.type === 'property' || a.type === 'real_estate'))
                                         .map(a => (
                                             <SelectItem key={a.id} value={a.id}>
                                                 {(a.metadata as Record<string, unknown>)?.license_plate ? `(${(a.metadata as Record<string, unknown>).license_plate})` : ''}
@@ -298,17 +328,23 @@ export function AddEditPolicyDialog({
                                 onChange={handleFileChange}
                                 className="cursor-pointer file:bg-zinc-100 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-2 file:text-sm"
                             />
-                            {policyToEdit?.document_url && (
-                                <a href={policyToEdit.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-1">
+                            {policy?.document_url && (
+                                <a href={policy.document_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-1">
                                     צפה במסמך קיים
                                 </a>
                             )}
                         </div>
                     </div>
 
+                    {errorMsg && (
+                        <div className="text-sm font-medium text-destructive mt-2 text-right">
+                            {errorMsg}
+                        </div>
+                    )}
+
                     <DialogFooter className="mt-4">
                         <Button type="submit" disabled={loading}>
-                            {loading ? "שומר..." : "שמור פוליסה"}
+                            {loading ? "שומר..." : isEditMode ? "שמור פוליסה" : "הוסף פוליסה"}
                         </Button>
                     </DialogFooter>
                 </form>

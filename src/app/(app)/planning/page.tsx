@@ -9,6 +9,7 @@ import { AddTripDialog } from "@/components/planning/AddTripDialog"
 import { ReminderRowActions } from "@/components/planning/ReminderRowActions"
 import { Database } from "@/types/database.types"
 import { SYSTEM_REMINDER_TYPES } from "@/lib/constants"
+import { differenceInDays, startOfDay } from "date-fns"
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
 type ReminderRowWithAsset = ReminderRow & { assets?: { name: string } | null }
@@ -46,10 +47,9 @@ function RemindersTable({ items, customTypes }: { items: ReminderRowWithAsset[],
             </TableHeader>
             <TableBody>
                 {items.map(item => {
-                    const today = new Date()
-                    today.setHours(0, 0, 0, 0)
-                    const dueDate = new Date(item.due_date)
-                    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                    const today = startOfDay(new Date())
+                    const dueDate = startOfDay(new Date(item.due_date))
+                    const diffDays = differenceInDays(dueDate, today)
                     
                     let daysColorClass = ""
                     if (diffDays < 0) daysColorClass = "text-red-600 dark:text-red-400 font-bold"

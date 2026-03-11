@@ -212,6 +212,7 @@ export interface Database {
                     covered_individuals: string[] | null
                     asset_id: string | null
                     document_url: string | null
+                    subtype: string | null
                 }
                 Insert: {
                     id?: string
@@ -226,6 +227,7 @@ export interface Database {
                     covered_individuals?: string[] | null
                     asset_id?: string | null
                     document_url?: string | null
+                    subtype?: string | null
                 }
                 Update: {
                     id?: string
@@ -240,6 +242,7 @@ export interface Database {
                     covered_individuals?: string[] | null
                     asset_id?: string | null
                     document_url?: string | null
+                    subtype?: string | null
                 }
             }
             recurring_flows: {
