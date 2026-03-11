@@ -161,7 +161,7 @@ export async function POST(req: Request) {
         }
 
         // Clean up internal original_index field
-        const finalResults = classifiedRows.map(({ original_index, ...rest }) => rest)
+        const finalResults = classifiedRows.map(({ ...rest }) => rest)
 
         // 5. Return results
         return NextResponse.json({

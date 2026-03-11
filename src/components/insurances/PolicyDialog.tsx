@@ -53,7 +53,7 @@ export function PolicyDialog({
     // Form State
     const [name, setName] = useState(policy?.name || "")
     const [provider, setProvider] = useState(policy?.provider || "")
-    const [type, setType] = useState<InsuranceType>(policy?.type as any || defaultType)
+    const [type, setType] = useState<InsuranceType>(policy?.type as InsuranceType || defaultType)
     const [subtype, setSubtype] = useState(policy?.subtype || "")
     const [premiumAmount, setPremiumAmount] = useState(policy?.premium_amount?.toString() || "")
     const [premiumFrequency, setPremiumFrequency] = useState<"monthly" | "yearly">(

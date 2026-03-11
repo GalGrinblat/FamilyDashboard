@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
+import { MoreHorizontal, Edit } from "lucide-react"
 import { toggleReminderCompletionAction } from "@/app/(app)/planning/actions"
 import { ReminderDialog } from "./ReminderDialog"
 import {
@@ -16,10 +16,10 @@ import { Database } from "@/types/database.types"
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
 
-export function ReminderRowActions({ 
-    reminder, 
-    customTypes 
-}: { 
+export function ReminderRowActions({
+    reminder,
+    customTypes
+}: {
     reminder: ReminderRow,
     customTypes: string[]
 }) {
@@ -34,13 +34,13 @@ export function ReminderRowActions({
 
     return (
         <div className="flex items-center gap-3">
-            <Checkbox 
-                checked={!!reminder.is_completed} 
+            <Checkbox
+                checked={!!reminder.is_completed}
                 onCheckedChange={handleToggle}
                 disabled={loading}
                 aria-label="Mark as completed"
             />
-            
+
             <DropdownMenu dir="rtl">
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -57,10 +57,10 @@ export function ReminderRowActions({
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <ReminderDialog 
-                open={editOpen} 
-                onOpenChange={setEditOpen} 
-                reminder={reminder} 
+            <ReminderDialog
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                reminder={reminder}
                 customTypes={customTypes}
             />
         </div>
