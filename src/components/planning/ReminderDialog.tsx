@@ -60,10 +60,8 @@ export function ReminderDialog({
             setType(reminder?.type || REMINDER_TYPES.MAINTENANCE)
             setDueDate(reminder?.due_date || "")
             setStartDate(reminder?.start_date || "")
-            setErrorMsg("")
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, reminder])
+    }, [open, reminder, setTitle, setType, setDueDate, setStartDate, setErrorMsg])
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
