@@ -21,7 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { SYSTEM_REMINDER_TYPES } from "@/lib/constants"
+import { SYSTEM_REMINDER_TYPES, REMINDER_TYPES, ReminderType } from "@/lib/constants"
 import { Database } from "@/types/database.types"
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
@@ -50,14 +50,14 @@ export function ReminderDialog({
 
     // Form State
     const [title, setTitle] = useState(reminder?.title || "")
-    const [type, setType] = useState(reminder?.type || "maintenance")
+    const [type, setType] = useState<string>(reminder?.type || REMINDER_TYPES.MAINTENANCE)
     const [dueDate, setDueDate] = useState(reminder?.due_date || "")
     const [startDate, setStartDate] = useState(reminder?.start_date || "")
 
     useEffect(() => {
         if (open) {
             setTitle(reminder?.title || "")
-            setType(reminder?.type || "maintenance")
+            setType(reminder?.type || REMINDER_TYPES.MAINTENANCE)
             setDueDate(reminder?.due_date || "")
             setStartDate(reminder?.start_date || "")
             setErrorMsg("")
@@ -93,9 +93,8 @@ export function ReminderDialog({
             if (!isEditMode) {
                 // Reset form only if not controlled by edit mode
                 setTitle("")
-                setType("maintenance")
-                setDueDate("")
                 setStartDate("")
+                setType(REMINDER_TYPES.MAINTENANCE)
             }
         }
     }

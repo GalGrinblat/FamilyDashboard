@@ -49,10 +49,18 @@ export const CATEGORY_DOMAIN_SHORT_LABELS: Record<CategoryDomain, string> = {
     [CATEGORY_DOMAINS.VACATION]: 'חופשות',
 };
 
+export const REMINDER_TYPES = {
+    MAINTENANCE: 'maintenance',
+    CAR_TEST: 'car_test',
+    INSURANCE: 'insurance',
+} as const;
+
+export type ReminderType = typeof REMINDER_TYPES[keyof typeof REMINDER_TYPES];
+
 export const SYSTEM_REMINDER_TYPES = [
-    { value: 'maintenance', label: 'תחזוקה (Maintenance)' },
-    { value: 'car_test', label: 'טסט לרכב (Car Test)' },
-    { value: 'insurance', label: 'ביטוחים (Insurance)' },
+    { value: REMINDER_TYPES.MAINTENANCE, label: 'תחזוקה (Maintenance)' },
+    { value: REMINDER_TYPES.CAR_TEST, label: 'טסט לרכב (Car Test)' },
+    { value: REMINDER_TYPES.INSURANCE, label: 'ביטוחים (Insurance)' },
 ]
 
 export const FREQUENCY_TYPES = {
