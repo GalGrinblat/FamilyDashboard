@@ -4,13 +4,14 @@ A comprehensive family management system designed for tracking finances, assets,
 
 ## 🎯 Features
 
-- **Monthly Balance Tracking:** View expected and actual income vs. expenses chronologically with local overrides.
-- **Transactions & Cash Flow:** Track general spending, map expenses to bank/credit cards, and utilize an AI-powered Expense Engine for automated CSV classification.
-- **Finance & Wealth:** Track income sources, assets (crypto, stocks, real estate).
+- **Monthly Balance (מאזן חודשי):** Dashboard correlating Liquidity and Transactions for burnout projections.
+- **Daily Liquidity (עו״ש ותזרים):** Manage day-to-day cash availability, bank balances, credit cards, and recurring obligations.
+- **Transaction Hub (יומן תנועות):** Data entry, classification, and audit log with AI-powered Expense Engine for automated CSV classification.
+- **Wealth & Assets (הון ונכסים):** Long-term net worth tracking, strategic growth, investment accounts, and portfolio management.
 - **Housing & Household:** Manage contracts, utilities, and track inventory (appliances, furniture, electronics).
-- **Vehicles:** Overview fleet values and log maintenance and licensing (annual tests, mileage).
+- **Vehicles:** Overview fleet values and log maintenance and licensing.
 - **Insurances:** Track health, life, property, and vehicle insurances in one place.
-- **Planning:** Visual timeline for periodic planning (renewals, maintenance) and dedicated vacation budgeting.
+- **Planning:** Periodic reminders and trip budgeting.
 - **Mobile & PWA Ready:** Responsive design with bottom navigation, touch-first UI, and offline caching support for core views.
 
 ## 🛠 Tech Stack

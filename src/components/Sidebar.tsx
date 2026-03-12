@@ -13,6 +13,7 @@ import {
     Shield,
     Scale,
     LineChart,
+    TrendingUp,
     LucideIcon
 } from "lucide-react"
 
@@ -20,9 +21,10 @@ import {
 
 const navItems = [
     { href: "/", label: "ראשי", icon: Home },
-    { href: "/monthly-balance", label: "מאזן חודשי", icon: Scale },
-    { href: "/transactions", label: "תנועות / עו״ש", icon: ArrowRightLeft },
-    { href: "/finance", label: "פיננסים ונכסים", icon: PieChart },
+    { href: "/monthly-balance", label: "מאזן חודשי", icon: PieChart },
+    { href: "/liquidity", label: "עו״ש ותזרים", icon: Scale },
+    { href: "/transactions", label: "יומן תנועות", icon: ArrowRightLeft },
+    { href: "/wealth", label: "הון ונכסים", icon: TrendingUp },
     { href: "/housing", label: "מגורים ומשק בית", icon: Sofa },
     { href: "/transportation", label: "תחבורה", icon: Car },
     { href: "/insurances", label: "ביטוחים", icon: Shield },

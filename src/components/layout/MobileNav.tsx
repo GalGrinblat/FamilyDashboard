@@ -2,18 +2,18 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, ArrowRightLeft, PieChart, Calendar, Settings as SettingsIcon, Scale } from "lucide-react"
+import { Home, ArrowRightLeft, TrendingUp, Calendar, Settings as SettingsIcon, Scale, PieChart } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function MobileNav() {
     const pathname = usePathname()
 
     const links = [
-        { href: "/", icon: LayoutDashboard, label: "ראשי" },
-        { href: "/monthly-balance", icon: Scale, label: "מאזן" },
+        { href: "/", icon: Home, label: "ראשי" },
+        { href: "/monthly-balance", icon: PieChart, label: "מאזן" },
+        { href: "/liquidity", icon: Scale, label: "עו״ש" },
         { href: "/transactions", icon: ArrowRightLeft, label: "תנועות" },
-        { href: "/finance", icon: PieChart, label: "פיננסים" },
-        { href: "/planning", icon: Calendar, label: "תכנון" },
+        { href: "/wealth", icon: TrendingUp, label: "הון" },
         { href: "/settings", icon: SettingsIcon, label: "הגדרות" },
     ]
 
