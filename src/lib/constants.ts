@@ -101,6 +101,8 @@ export const ASSET_TYPES = {
     STOCK: 'stock',
     CRYPTO: 'crypto',
     REAL_ESTATE: 'real_estate',
+    PENSION: 'pension',
+    VEHICLE: 'vehicle',
     OTHER: 'other',
 } as const;
 
@@ -110,5 +112,7 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
     [ASSET_TYPES.STOCK]: 'מניות ושוק ההון',
     [ASSET_TYPES.CRYPTO]: 'מטבעות קריפטו',
     [ASSET_TYPES.REAL_ESTATE]: 'נדל״ן',
+    [ASSET_TYPES.PENSION]: 'פנסיה וגמל',
+    [ASSET_TYPES.VEHICLE]: 'רכב',
     [ASSET_TYPES.OTHER]: 'אחר',
 };

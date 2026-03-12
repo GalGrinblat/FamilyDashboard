@@ -43,7 +43,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     const isEditing = !!assetToEdit
 
     const [name, setName] = useState(assetToEdit?.name || "")
-    const [type, setType] = useState(assetToEdit?.type === 'vehicle' ? ASSET_TYPES.OTHER : (assetToEdit?.type || ASSET_TYPES.STOCK))
+    const [type, setType] = useState(assetToEdit?.type || ASSET_TYPES.STOCK)
     const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
 
     const handleSubmit = async (e: React.FormEvent) => {

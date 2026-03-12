@@ -39,7 +39,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
 
     // Grouping assets
     const grouped = assets.reduce((acc, asset) => {
-        const t = asset.type === 'vehicle' ? ASSET_TYPES.OTHER : (asset.type || ASSET_TYPES.OTHER);
+        const t = asset.type || ASSET_TYPES.OTHER;
         if (!acc[t]) acc[t] = []
         acc[t].push(asset)
         return acc

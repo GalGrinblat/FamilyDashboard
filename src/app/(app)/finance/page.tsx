@@ -7,6 +7,7 @@ import { AssetsTable } from "@/components/finance/AssetsTable"
 import { PensionTable } from "@/components/finance/PensionTable"
 import { Database } from "@/types/database.types"
 import { PageHeader } from "@/components/layout/PageHeader"
+import { CATEGORY_TYPES, ASSET_TYPES } from "@/lib/constants"
 
 type AccountRow = Database["public"]["Tables"]["accounts"]["Row"]
 type RecurringFlowRow = Database["public"]["Tables"]["recurring_flows"]["Row"]
@@ -28,7 +29,7 @@ export default async function FinancePage() {
     const { data: rawIncomeFlows, error: incomeError } = await supabase
         .from('recurring_flows')
         .select('*')
-        .eq('type', 'income')
+        .eq('type', CATEGORY_TYPES.INCOME)
         .order('name', { ascending: true })
 
     if (incomeError) console.error('Error fetching income flows:', incomeError)
@@ -38,7 +39,7 @@ export default async function FinancePage() {
     const { data: rawAssets, error: assetsError } = await supabase
         .from('assets')
         .select('*')
-        .not('type', 'in', ['vehicle', 'pension'])
+        .not('type', 'in', `("${ASSET_TYPES.VEHICLE}","${ASSET_TYPES.PENSION}")`)
         .eq('status', 'active')
         .order('name', { ascending: true })
 
@@ -49,7 +50,7 @@ export default async function FinancePage() {
     const { data: rawPensions, error: pensionsError } = await supabase
         .from('assets')
         .select('*')
-        .eq('type', 'pension')
+        .eq('type', ASSET_TYPES.PENSION)
         .eq('status', 'active')
         .order('name', { ascending: true })
 
