@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Pencil } from "lucide-react"
-import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryType, CategoryDomain } from "@/lib/constants"
+import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryType, CategoryDomain, ACCOUNT_TYPES } from "@/lib/constants"
 import { formatCurrency } from "@/lib/utils"
 
 type Account = Database["public"]["Tables"]["accounts"]["Row"]
@@ -63,7 +63,7 @@ export function SpecificMonthTab() {
     // --- Calculation Logic ---
     // 1. Calculate Bank Start Balance
     // Taking the primary checking account (assuming first one or specific type for now)
-    const bankAccount = data?.accounts.find(a => a.type === 'checking' || a.type === 'bank')
+    const bankAccount = data?.accounts.find(a => a.type === ACCOUNT_TYPES.BANK || a.type === 'checking')
 
     // We would trace back the current_balance by reversing the effect of transactions between *now* and *start_of_month*
     // For simplicity of MVP, if month in past we show `current_balance` (assuming it's accurate at that time? actually no, balance is always NOW).
@@ -72,7 +72,7 @@ export function SpecificMonthTab() {
     const startBalance = bankAccount?.current_balance || 0
 
     // 2. Identify Credit Cards
-    const creditCards = data?.accounts.filter(a => a.type === 'credit') || []
+    const creditCards = data?.accounts.filter(a => a.type === ACCOUNT_TYPES.CREDIT_CARD || a.type === 'credit') || []
 
     // 3. Build Timeline
     // A single unified list of: Historical Transactions + Expected Recurring Flows + Expected CC Bills

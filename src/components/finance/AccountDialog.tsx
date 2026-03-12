@@ -24,6 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Plus, Pencil } from "lucide-react";
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABELS } from "@/lib/constants";
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 
@@ -43,7 +44,7 @@ export function AccountDialog({
 
     // Form State
     const [name, setName] = useState(accountToEdit?.name || "");
-    const [type, setType] = useState(accountToEdit?.type || "checking");
+    const [type, setType] = useState(accountToEdit?.type || ACCOUNT_TYPES.BANK);
     const [balance, setBalance] = useState(accountToEdit?.current_balance ? accountToEdit.current_balance.toString() : "0");
 
     // Credit Card specific metadata
@@ -55,7 +56,7 @@ export function AccountDialog({
         setLoading(true);
 
         let metadata = null;
-        if (type === 'credit' && billingDay) {
+        if (type === ACCOUNT_TYPES.CREDIT_CARD && billingDay) {
             metadata = { billingDay: parseInt(billingDay) };
         }
 
@@ -147,9 +148,9 @@ export function AccountDialog({
                                 <SelectValue placeholder="בחר סוג חשבון" />
                             </SelectTrigger>
                             <SelectContent dir="rtl">
-                                <SelectItem value="checking">חשבון עו״ש (בנק)</SelectItem>
-                                <SelectItem value="credit">כרטיס אשראי</SelectItem>
-                                <SelectItem value="investment">חיסכון / תיק השקעות</SelectItem>
+                                <SelectItem value={ACCOUNT_TYPES.BANK}>{ACCOUNT_TYPE_LABELS[ACCOUNT_TYPES.BANK]}</SelectItem>
+                                <SelectItem value={ACCOUNT_TYPES.CREDIT_CARD}>{ACCOUNT_TYPE_LABELS[ACCOUNT_TYPES.CREDIT_CARD]}</SelectItem>
+                                <SelectItem value={ACCOUNT_TYPES.INVESTMENT}>{ACCOUNT_TYPE_LABELS[ACCOUNT_TYPES.INVESTMENT]}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -168,7 +169,7 @@ export function AccountDialog({
                         />
                     </div>
 
-                    {type === 'credit' && (
+                    {type === ACCOUNT_TYPES.CREDIT_CARD && (
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="billingDay" className="text-right text-sm">
                                 יום חיוב בחודש

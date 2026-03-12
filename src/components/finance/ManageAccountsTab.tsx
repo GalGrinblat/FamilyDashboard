@@ -4,14 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Database } from "@/types/database.types";
 import { Landmark, CreditCard, TrendingUp } from "lucide-react";
 import { AccountDialog } from "./AccountDialog";
+import { ACCOUNT_TYPES } from "@/lib/constants";
 
 type AccountRow = Database["public"]["Tables"]["accounts"]["Row"];
 
 export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
 
-    const checkingAccounts = accounts.filter(a => a.type === 'checking' || a.type === 'bank');
-    const creditAccounts = accounts.filter(a => a.type === 'credit' || a.type === 'credit_card');
-    const investmentAccounts = accounts.filter(a => a.type === 'investment');
+    const checkingAccounts = accounts.filter(a => a.type === ACCOUNT_TYPES.BANK || a.type === 'checking');
+    const creditAccounts = accounts.filter(a => a.type === ACCOUNT_TYPES.CREDIT_CARD || a.type === 'credit');
+    const investmentAccounts = accounts.filter(a => a.type === ACCOUNT_TYPES.INVESTMENT);
 
     const totalChecking = checkingAccounts.reduce((sum, a) => sum + Number(a.current_balance || 0), 0);
     const totalCredit = creditAccounts.reduce((sum, a) => sum + Number(a.current_balance || 0), 0);
@@ -36,7 +37,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                     <CardHeader className="pb-2">
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <Landmark className="h-5 w-5 text-indigo-500" />
-                            עו״ש ומזומן
+                            חשבונות בנק
                         </CardTitle>
                         <CardDescription>יתרה כוללת: <span className="font-semibold text-zinc-900 dark:text-zinc-100">₪{totalChecking.toLocaleString()}</span></CardDescription>
                     </CardHeader>
@@ -110,7 +111,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                     <CardHeader className="pb-2">
                         <CardTitle className="flex items-center gap-2 text-lg">
                             <TrendingUp className="h-5 w-5 text-emerald-500" />
-                            השקעות שוטפות
+                            חשבונות השקעה
                         </CardTitle>
                         <CardDescription>שווי כולל: <span className="font-semibold text-zinc-900 dark:text-zinc-100">₪{totalInvestment.toLocaleString()}</span></CardDescription>
                     </CardHeader>

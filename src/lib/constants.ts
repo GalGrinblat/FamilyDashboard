@@ -116,3 +116,17 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
     [ASSET_TYPES.VEHICLE]: 'רכב',
     [ASSET_TYPES.OTHER]: 'אחר',
 };
+
+export const ACCOUNT_TYPES = {
+    BANK: 'bank',
+    CREDIT_CARD: 'credit_card',
+    INVESTMENT: 'investment',
+} as const;
+
+export type AccountType = typeof ACCOUNT_TYPES[keyof typeof ACCOUNT_TYPES];
+
+export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
+    [ACCOUNT_TYPES.BANK]: 'חשבון עו״ש (בנק)',
+    [ACCOUNT_TYPES.CREDIT_CARD]: 'כרטיס אשראי',
+    [ACCOUNT_TYPES.INVESTMENT]: 'חיסכון / תיק השקעות',
+};
