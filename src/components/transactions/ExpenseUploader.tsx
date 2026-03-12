@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { StatementUploadEngine, ParsedTransactionRow } from "@/components/finance/StatementUploadEngine"
-import { ReviewTransactionsTable, ClassifiedTransactionRow } from "@/components/finance/ReviewTransactionsTable"
+import { StatementUploadEngine, ParsedTransactionRow } from "@/components/transactions/StatementUploadEngine"
+import { ReviewTransactionsTable, ClassifiedTransactionRow } from "@/components/transactions/ReviewTransactionsTable"
 
 import { useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"

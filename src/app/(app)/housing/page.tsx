@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server"
 import { HouseholdItemDialog } from "@/components/household/HouseholdItemDialog"
 import { Database } from "@/types/database.types"
 import { ContractsTab } from "@/components/housing/ContractsTab"
-import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
+import { DomainTransactionsTab } from "@/components/transactions/DomainTransactionsTab";
 import { CATEGORY_DOMAINS } from "@/lib/constants"
 import { PageHeader } from "@/components/layout/PageHeader"
 

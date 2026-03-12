@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { WealthAccountsTab } from "@/components/finance/WealthAccountsTab";
-import { AssetsTable } from "@/components/finance/AssetsTable";
-import { PensionTable } from "@/components/finance/PensionTable";
+import { WealthAccountsTab } from "@/components/wealth/WealthAccountsTab";
+import { AssetsTable } from "@/components/wealth/AssetsTable";
+import { PensionTable } from "@/components/wealth/PensionTable";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { TrendingUp, Briefcase, WalletCards } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

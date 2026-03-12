@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, HeartPulse, Home, Car as CarIcon, Plus } from "lucide-react"
-import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
+import { DomainTransactionsTab } from "@/components/transactions/DomainTransactionsTab";
 import { CATEGORY_DOMAINS, INSURANCE_TYPES } from "@/lib/constants"
 import { createClient } from "@/lib/supabase/server"
 import { PolicyWithAsset } from "@/types/insurance"

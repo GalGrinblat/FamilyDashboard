@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Database } from "@/types/database.types";
 import { Landmark, CreditCard } from "lucide-react";
-import { AccountDialog } from "./AccountDialog";
+import { AccountDialog } from "@/components/finance/AccountDialog";
 import { ACCOUNT_TYPES } from "@/lib/constants";
 
 type AccountRow = Database["public"]["Tables"]["accounts"]["Row"];

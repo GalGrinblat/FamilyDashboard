@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TabsContent } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/server"
-import { TransactionsTable, TransactionWithCategory } from "@/components/finance/TransactionsTable"
+import { TransactionsTable, TransactionWithCategory } from "@/components/transactions/TransactionsTable"
 import { CategoryDomain } from "@/lib/constants"
 
 interface DomainTransactionsTabProps {

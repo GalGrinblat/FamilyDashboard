@@ -11,9 +11,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
-import { HouseholdItemDialog } from "@/components/household/HouseholdItemDialog"
-import { ReminderDialog } from "@/components/planning/ReminderDialog"
+import { RecurringFlowDialog } from "@/components/liquidity/RecurringFlowDialog";
+import { AssetDialog } from "@/components/wealth/AssetDialog";
+import { StatementUploadEngine } from "@/components/transactions/StatementUploadEngine";
+import { PensionDialog } from "@/components/wealth/PensionDialog";
+import { AccountDialog } from "@/components/finance/AccountDialog";
+import { ExpenseUploader } from "@/components/transactions/ExpenseUploader";
+import { HouseholdItemDialog } from "@/components/household/HouseholdItemDialog";
+import { ReminderDialog } from "@/components/planning/ReminderDialog";
 
 export function GlobalFAB({ categories, accounts }: { categories: { id: string, name_he: string, domain?: string }[], accounts: { id: string, name: string }[] }) {
     const [isExpenseOpen, setIsExpenseOpen] = React.useState(false)
