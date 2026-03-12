@@ -33,7 +33,8 @@ interface AddMaintenanceDialogProps {
     cars: AssetRow[]
 }
 
-export function AddMaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
+export function MaintenanceDialog({
+ cars }: AddMaintenanceDialogProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()

@@ -96,3 +96,19 @@ export const INSURANCE_SUBTYPES = {
         { value: 'third_party', label: 'צד ג\'' },
     ]
 }
+
+export const ASSET_TYPES = {
+    STOCK: 'stock',
+    CRYPTO: 'crypto',
+    REAL_ESTATE: 'real_estate',
+    OTHER: 'other',
+} as const;
+
+export type AssetType = typeof ASSET_TYPES[keyof typeof ASSET_TYPES];
+
+export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
+    [ASSET_TYPES.STOCK]: 'מניות ושוק ההון',
+    [ASSET_TYPES.CRYPTO]: 'מטבעות קריפטו',
+    [ASSET_TYPES.REAL_ESTATE]: 'נדל״ן',
+    [ASSET_TYPES.OTHER]: 'אחר',
+};

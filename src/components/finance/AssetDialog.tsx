@@ -23,17 +23,18 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Plus, Pencil } from "lucide-react"
+import { ASSET_TYPES, ASSET_TYPE_LABELS, AssetType } from "@/lib/constants"
 
 import { Database } from "@/types/database.types"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 
-interface AddEditAssetDialogProps {
+interface AssetDialogProps {
     triggerButton?: React.ReactNode
     assetToEdit?: AssetRow
 }
 
-export function AddEditAssetDialog({ triggerButton, assetToEdit }: AddEditAssetDialogProps) {
+export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()
@@ -42,7 +43,7 @@ export function AddEditAssetDialog({ triggerButton, assetToEdit }: AddEditAssetD
     const isEditing = !!assetToEdit
 
     const [name, setName] = useState(assetToEdit?.name || "")
-    const [type, setType] = useState(assetToEdit?.type === 'vehicle' ? 'other' : (assetToEdit?.type || "stock"))
+    const [type, setType] = useState(assetToEdit?.type === 'vehicle' ? ASSET_TYPES.OTHER : (assetToEdit?.type || ASSET_TYPES.STOCK))
     const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -79,7 +80,7 @@ export function AddEditAssetDialog({ triggerButton, assetToEdit }: AddEditAssetD
         setOpen(false)
         if (!isEditing) {
             setName("")
-            setType("stock")
+            setType(ASSET_TYPES.STOCK)
             setEstimatedValue("")
         }
         router.refresh()
@@ -120,10 +121,9 @@ export function AddEditAssetDialog({ triggerButton, assetToEdit }: AddEditAssetD
                                 <SelectValue placeholder="בחר סוג נכס" />
                             </SelectTrigger>
                             <SelectContent dir="rtl">
-                                <SelectItem value="stock">מניות ושוק ההון</SelectItem>
-                                <SelectItem value="crypto">מטבעות קריפטו</SelectItem>
-                                <SelectItem value="real_estate">נדל״ן</SelectItem>
-                                <SelectItem value="other">אחר</SelectItem>
+                                {Object.entries(ASSET_TYPE_LABELS).map(([value, label]) => (
+                                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>

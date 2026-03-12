@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Pencil } from "lucide-react";
 
-export function AddRecurringFlowDialog({
+export function RecurringFlowDialog({
   triggerButton,
   flowToEdit,
   accounts,

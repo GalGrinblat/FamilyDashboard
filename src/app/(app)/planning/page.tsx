@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Calendar } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { ReminderDialog } from "@/components/planning/ReminderDialog"
-import { AddTripDialog } from "@/components/planning/AddTripDialog"
+import { TripDialog } from "@/components/planning/TripDialog"
 import { ReminderRowActions } from "@/components/planning/ReminderRowActions"
 import { Database } from "@/types/database.types"
 import { SYSTEM_REMINDER_TYPES } from "@/lib/constants"
@@ -96,7 +96,7 @@ function TripsTable({ items }: { items: TripRow[] }) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>אין חופשות מתוכננות כרגע.</p>
-                <AddTripDialog triggerButton={
+                <TripDialog triggerButton={
                     <Button variant="outline" className="mt-4">
                         <Plus className="ml-2 h-4 w-4" />
                         הוסף חופשה
@@ -188,7 +188,7 @@ export default async function PlanningPage() {
                                     <CardTitle>תכנון חופשות</CardTitle>
                                     <CardDescription>תכנון תקציב ותוכניות מסלול לחופשות עתידיות (למשל קיצביל 2026).</CardDescription>
                                 </div>
-                                <AddTripDialog triggerButton={
+                                <TripDialog triggerButton={
                                     <Button size="sm">
                                         <Plus className="ml-2 h-4 w-4" />
                                         חופשה חדשה

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus } from "lucide-react"
 
-export function AddTripDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
+export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [errorMsg, setErrorMsg] = useState("")

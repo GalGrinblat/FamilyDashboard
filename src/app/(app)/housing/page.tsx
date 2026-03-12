@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Plus, Sofa } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
+import { HouseholdItemDialog } from "@/components/household/HouseholdItemDialog"
 import { Database } from "@/types/database.types"
 import { ContractsTab } from "@/components/housing/ContractsTab"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
@@ -18,7 +18,7 @@ function ItemsTable({ items }: { items: HouseholdItemRow[] }) {
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>אין פריטים להצגה בקטגוריה זו.</p>
-                <AddHouseholdItemDialog triggerButton={
+                <HouseholdItemDialog triggerButton={
                     <Button variant="outline" className="mt-4">
                         <Plus className="ml-2 h-4 w-4" />
                         הוסף פריט חדש
@@ -127,7 +127,7 @@ export default async function HousingPage() {
                                 <CardTitle>מכשירי חשמל</CardTitle>
                                 <CardDescription>מעקב אחר מקרר, מכונת כביסה, תנור ועוד.</CardDescription>
                             </div>
-                            <AddHouseholdItemDialog triggerButton={
+                            <HouseholdItemDialog triggerButton={
                                 <Button size="sm">
                                     <Plus className="ml-2 h-4 w-4" />
                                     פריט חדש
@@ -147,7 +147,7 @@ export default async function HousingPage() {
                                 <CardTitle>ריהוט</CardTitle>
                                 <CardDescription>מעקב אחר ספות, מיטות, שולחנות וארונות.</CardDescription>
                             </div>
-                            <AddHouseholdItemDialog triggerButton={
+                            <HouseholdItemDialog triggerButton={
                                 <Button size="sm">
                                     <Plus className="ml-2 h-4 w-4" />
                                     פריט חדש
@@ -167,7 +167,7 @@ export default async function HousingPage() {
                                 <CardTitle>אלקטרוניקה</CardTitle>
                                 <CardDescription>מחשבים, טלוויזיות, קונסולות וציוד נלווה.</CardDescription>
                             </div>
-                            <AddHouseholdItemDialog triggerButton={
+                            <HouseholdItemDialog triggerButton={
                                 <Button size="sm">
                                     <Plus className="ml-2 h-4 w-4" />
                                     פריט חדש

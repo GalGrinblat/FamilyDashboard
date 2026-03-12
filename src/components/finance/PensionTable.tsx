@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Database } from "@/types/database.types"
 import { Briefcase, Landmark, PiggyBank, GraduationCap, Trash2 } from "lucide-react"
-import { AddEditPensionDialog } from "./AddEditPensionDialog"
+import { PensionDialog } from "./PensionDialog"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -53,7 +53,7 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
                         סך צבירה פנסיונית: <span className="font-semibold text-zinc-900 dark:text-zinc-100">₪{totalValue.toLocaleString()}</span>
                     </CardDescription>
                 </div>
-                <AddEditPensionDialog />
+                <PensionDialog />
             </CardHeader>
             <CardContent>
                 {pensions.length === 0 ? (
@@ -88,7 +88,7 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
                                             ₪{Number(pension.estimated_value).toLocaleString()}
                                         </span>
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <AddEditPensionDialog assetToEdit={pension} />
+                                            <PensionDialog assetToEdit={pension} />
                                             <Button variant="ghost" size="icon" onClick={() => handleDelete(pension.id)}>
                                                 <Trash2 className="h-4 w-4 text-red-500" />
                                             </Button>

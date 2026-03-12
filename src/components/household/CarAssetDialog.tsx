@@ -26,7 +26,8 @@ interface AddCarAssetDialogProps {
     assetToEdit?: AssetRow
 }
 
-export function AddCarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialogProps) {
+export function CarAssetDialog({
+ triggerButton, assetToEdit }: AddCarAssetDialogProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()

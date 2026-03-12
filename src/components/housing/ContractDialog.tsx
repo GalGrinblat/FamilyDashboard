@@ -27,7 +27,7 @@ interface AddContractDialogProps {
     contractToEdit?: RecurringFlowRow
 }
 
-export function AddContractDialog({ triggerButton, contractToEdit }: AddContractDialogProps) {
+export function ContractDialog({ triggerButton, contractToEdit }: AddContractDialogProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const router = useRouter()

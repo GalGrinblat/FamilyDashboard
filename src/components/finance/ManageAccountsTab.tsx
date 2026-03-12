@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Database } from "@/types/database.types";
 import { Landmark, CreditCard, TrendingUp } from "lucide-react";
-import { AddEditAccountDialog } from "./AddEditAccountDialog";
+import { AccountDialog } from "./AccountDialog";
 
 type AccountRow = Database["public"]["Tables"]["accounts"]["Row"];
 
@@ -26,7 +26,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                         האזור לריכוז וקביעת יתרות הפתיחה לחשבונות, כרטיסי אשראי וחסכונות.
                     </p>
                 </div>
-                <AddEditAccountDialog />
+                <AccountDialog />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -55,7 +55,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                                                 ₪{Number(acc.current_balance).toLocaleString()}
                                             </span>
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <AddEditAccountDialog accountToEdit={acc} />
+                                                <AccountDialog accountToEdit={acc} />
                                             </div>
                                         </div>
                                     </div>
@@ -94,7 +94,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                                                     ₪{Math.abs(Number(acc.current_balance)).toLocaleString()}
                                                 </span>
                                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <AddEditAccountDialog accountToEdit={acc} />
+                                                    <AccountDialog accountToEdit={acc} />
                                                 </div>
                                             </div>
                                         </div>
@@ -129,7 +129,7 @@ export function ManageAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                                                 ₪{Number(acc.current_balance).toLocaleString()}
                                             </span>
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <AddEditAccountDialog accountToEdit={acc} />
+                                                <AccountDialog accountToEdit={acc} />
                                             </div>
                                         </div>
                                     </div>

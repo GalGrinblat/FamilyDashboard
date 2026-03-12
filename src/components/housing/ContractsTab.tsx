@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Database } from "@/types/database.types"
 import { Receipt, Trash2 } from "lucide-react"
-import { AddContractDialog } from "./AddContractDialog"
+import { ContractDialog } from "./ContractDialog"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -39,7 +39,7 @@ export function ContractsTab({ contracts }: { contracts: RecurringFlowRow[] }) {
                         סך עלות חודשית מוערכת: <span className="font-semibold text-zinc-900 dark:text-zinc-100">₪{totalCost.toLocaleString()}</span>
                     </CardDescription>
                 </div>
-                <AddContractDialog />
+                <ContractDialog />
             </CardHeader>
             <CardContent>
                 {contracts.length === 0 ? (
@@ -64,7 +64,7 @@ export function ContractsTab({ contracts }: { contracts: RecurringFlowRow[] }) {
                                             ₪{Number(contract.amount).toLocaleString()}
                                         </span>
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <AddContractDialog contractToEdit={contract} />
+                                            <ContractDialog contractToEdit={contract} />
                                             <Button variant="ghost" size="icon" onClick={() => handleDelete(contract.id)}>
                                                 <Trash2 className="h-4 w-4 text-red-500" />
                                             </Button>

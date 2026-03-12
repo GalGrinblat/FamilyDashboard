@@ -29,12 +29,12 @@ import { Database } from "@/types/database.types"
 type AssetRow = Database['public']['Tables']['assets']['Row']
 
 
-interface AddEditPensionDialogProps {
+interface PensionDialogProps {
     triggerButton?: React.ReactNode
     assetToEdit?: AssetRow
 }
 
-export function AddEditPensionDialog({ triggerButton, assetToEdit }: AddEditPensionDialogProps) {
+export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps) {
     const [open, setOpen] = useState(false)
 
     const [loading, setLoading] = useState(false)

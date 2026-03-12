@@ -6,7 +6,7 @@ import { Plus } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/finance/TransactionsTable"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
-import { AddRecurringFlowDialog } from "@/components/finance/AddRecurringFlowDialog"
+import { RecurringFlowDialog } from "@/components/finance/RecurringFlowDialog"
 import { ChangePaymentMethodDialog } from "@/components/finance/ChangePaymentMethodDialog"
 import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/finance/TransactionsTable"
@@ -23,7 +23,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>לא הוגדרו תזרימים קבועים במערכת (משכורות, הוצאות ליבה).</p>
-                <AddRecurringFlowDialog triggerButton={
+                <RecurringFlowDialog triggerButton={
                     <Button variant="outline" className="mt-4">
                         <Plus className="ml-2 h-4 w-4" />
                         הוסף תזרים קבוע
@@ -76,7 +76,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                                 <TableCell>
                                     <div className="flex items-center gap-2">
                                         <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
-                                        <AddRecurringFlowDialog flowToEdit={flow} accounts={accounts} />
+                                        <RecurringFlowDialog flowToEdit={flow} accounts={accounts} />
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -91,7 +91,7 @@ function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], accounts: 
                     <div key={flow.id} className="flex flex-col space-y-3 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative">
                         <div className="absolute top-2 right-2 flex items-center gap-2">
                             <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
-                            <AddRecurringFlowDialog flowToEdit={flow} accounts={accounts} />
+                            <RecurringFlowDialog flowToEdit={flow} accounts={accounts} />
                         </div>
 
                         <div className="flex flex-col pt-2">
@@ -182,7 +182,7 @@ export default async function TransactionsPage() {
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">תנועות / עו״ש</h2>
-                <AddRecurringFlowDialog accounts={dbAccounts} />
+                <RecurringFlowDialog accounts={dbAccounts} />
             </div>
 
             <Tabs defaultValue="budget" className="w-full mt-4" dir="rtl">

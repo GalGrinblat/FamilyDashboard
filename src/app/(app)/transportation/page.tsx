@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Plus, Car as CarIcon, ShieldCheck, Wrench } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { AddCarAssetDialog } from "@/components/household/AddCarAssetDialog"
+import { CarAssetDialog } from "@/components/household/CarAssetDialog"
 import { Database } from "@/types/database.types"
 import { MaintenanceLog } from "@/components/transportation/MaintenanceLog"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
@@ -23,7 +23,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[], reminders: R
         return (
             <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
                 <p>אין רכבים רשומים המנוהלים כנכסים במשפחה.</p>
-                <AddCarAssetDialog triggerButton={
+                <CarAssetDialog triggerButton={
                     <Button variant="outline" className="mt-4">
                         <Plus className="ml-2 h-4 w-4" />
                         הוסף רכב
@@ -51,7 +51,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[], reminders: R
                         {cars.map(car => {
                             const metadata = (car.metadata || {}) as { license_plate?: string; year?: string }
                             return (
-                                <AddCarAssetDialog
+                                <CarAssetDialog
                                     key={car.id}
                                     assetToEdit={car}
                                     triggerButton={
@@ -75,7 +75,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[], reminders: R
                 {cars.map(car => {
                     const metadata = (car.metadata || {}) as { license_plate?: string; year?: string }
                     return (
-                        <AddCarAssetDialog
+                        <CarAssetDialog
                             key={car.id}
                             assetToEdit={car}
                             triggerButton={
@@ -179,7 +179,7 @@ export default async function TransportationPage() {
                                 <CardTitle className="text-zinc-800 dark:text-zinc-300">הנכסים המוטוריים במשפחה</CardTitle>
                                 <CardDescription>מעקב אחר ערך הרכבים, חיפושים וטסטים.</CardDescription>
                             </div>
-                            <AddCarAssetDialog triggerButton={
+                            <CarAssetDialog triggerButton={
                                 <Button size="sm">
                                     <Plus className="ml-2 h-4 w-4" />
                                     רכב חדש

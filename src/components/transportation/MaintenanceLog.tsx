@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Database } from "@/types/database.types"
 import { Wrench, CarIcon, ShieldCheck, ClipboardList, Trash2 } from "lucide-react"
-import { AddMaintenanceDialog } from "./AddMaintenanceDialog"
+import { MaintenanceDialog } from "./MaintenanceDialog"
 import { MaintenanceLogEntry, AssetMetadata } from "@/types/maintenance"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -76,7 +76,7 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
                         תיעוד היסטוריית טיפולי מוסך, אישורי רישוי (טסטים) ותחזוקת צי הרכבים.
                     </CardDescription>
                 </div>
-                <AddMaintenanceDialog cars={cars} />
+                <MaintenanceDialog cars={cars} />
             </CardHeader>
             <CardContent>
                 {allLogs.length === 0 ? (

@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ExpenseUploader } from "@/components/finance/ExpenseUploader"
-import { AddHouseholdItemDialog } from "@/components/household/AddHouseholdItemDialog"
+import { HouseholdItemDialog } from "@/components/household/HouseholdItemDialog"
 import { ReminderDialog } from "@/components/planning/ReminderDialog"
 
 export function GlobalFAB({ categories, accounts }: { categories: { id: string, name_he: string, domain?: string }[], accounts: { id: string, name: string }[] }) {
@@ -65,7 +65,7 @@ export function GlobalFAB({ categories, accounts }: { categories: { id: string, 
 
             {/* Dialog wrappers */}
             {isHouseholdOpen && (
-                <AddHouseholdItemDialog
+                <HouseholdItemDialog
                     triggerButton={<span className="hidden"></span>}
                     forceOpen={true}
                     onForceClose={() => setIsHouseholdOpen(false)}

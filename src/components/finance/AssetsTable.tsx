@@ -3,10 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Database } from "@/types/database.types"
 import { TrendingUp, Building2, Bitcoin, LineChart, Trash2 } from "lucide-react"
-import { AddEditAssetDialog } from "./AddEditAssetDialog"
+import { AssetDialog } from "./AssetDialog"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { ASSET_TYPES, ASSET_TYPE_LABELS, AssetType } from "@/lib/constants"
 
 type AssetRow = Database["public"]["Tables"]["assets"]["Row"]
 
@@ -26,24 +27,19 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
     }
 
     const typeIcons: Record<string, React.ReactNode> = {
-        'stock': <LineChart className="h-4 w-4 text-blue-500" />,
-        'crypto': <Bitcoin className="h-4 w-4 text-orange-500" />,
-        'real_estate': <Building2 className="h-4 w-4 text-emerald-500" />,
-        'other': <TrendingUp className="h-4 w-4 text-zinc-500" />
+        [ASSET_TYPES.STOCK]: <LineChart className="h-4 w-4 text-blue-500" />,
+        [ASSET_TYPES.CRYPTO]: <Bitcoin className="h-4 w-4 text-orange-500" />,
+        [ASSET_TYPES.REAL_ESTATE]: <Building2 className="h-4 w-4 text-emerald-500" />,
+        [ASSET_TYPES.OTHER]: <TrendingUp className="h-4 w-4 text-zinc-500" />
     }
 
-    const typeLabels: Record<string, string> = {
-        'stock': 'מניות ושוק ההון',
-        'crypto': 'קריפטו',
-        'real_estate': 'נדל״ן',
-        'other': 'אחר'
-    }
+    const typeLabels = ASSET_TYPE_LABELS
 
     const totalValue = assets.reduce((sum, a) => sum + Number(a.estimated_value || 0), 0)
 
     // Grouping assets
     const grouped = assets.reduce((acc, asset) => {
-        const t = asset.type === 'vehicle' ? 'other' : (asset.type || 'other');
+        const t = asset.type === 'vehicle' ? ASSET_TYPES.OTHER : (asset.type || ASSET_TYPES.OTHER);
         if (!acc[t]) acc[t] = []
         acc[t].push(asset)
         return acc
@@ -61,7 +57,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                         הערכת שווי נכסים כוללת: <span className="font-semibold text-zinc-900 dark:text-zinc-100">₪{totalValue.toLocaleString()}</span>
                     </CardDescription>
                 </div>
-                <AddEditAssetDialog />
+                <AssetDialog />
             </CardHeader>
             <CardContent>
                 {assets.length === 0 ? (
@@ -73,8 +69,8 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                         {Object.entries(grouped).map(([type, list]) => (
                             <div key={type} className="space-y-3">
                                 <h4 className="text-sm font-semibold flex items-center gap-2 text-zinc-800 dark:text-zinc-200 border-b pb-1">
-                                    {typeIcons[type] || typeIcons['other']}
-                                    {typeLabels[type] || typeLabels['other']}
+                                    {typeIcons[type] || typeIcons[ASSET_TYPES.OTHER]}
+                                    {typeLabels[type as AssetType] || typeLabels[ASSET_TYPES.OTHER]}
                                 </h4>
                                 <div className="space-y-3 pl-2 pr-2">
                                     {list.map(asset => (
@@ -90,7 +86,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                                                     ₪{Number(asset.estimated_value).toLocaleString()}
                                                 </span>
                                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <AddEditAssetDialog assetToEdit={asset} />
+                                                    <AssetDialog assetToEdit={asset} />
                                                     <Button variant="ghost" size="icon" onClick={() => handleDelete(asset.id)}>
                                                         <Trash2 className="h-4 w-4 text-red-500" />
                                                     </Button>

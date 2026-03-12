@@ -27,7 +27,7 @@ import { Plus, Pencil } from "lucide-react";
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 
-export function AddEditAccountDialog({
+export function AccountDialog({
     triggerButton,
     accountToEdit,
 }: {

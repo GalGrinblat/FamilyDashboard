@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
 
-export function AddHouseholdItemDialog({
+export function HouseholdItemDialog({
     triggerButton,
     forceOpen = false,
     onForceClose

@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Database } from "@/types/database.types";
 import { Landmark, Trash2 } from "lucide-react";
-import { AddRecurringFlowDialog } from "./AddRecurringFlowDialog";
+import { RecurringFlowDialog } from "./RecurringFlowDialog";
 import { FREQUENCY_TYPES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ export function IncomeSourcesTab({
                         סך הכנסות חודשיות מוערכות: <span className="font-semibold text-zinc-900 dark:text-zinc-100">₪{totalIncome.toLocaleString()}</span>
                     </CardDescription>
                 </div>
-                <AddRecurringFlowDialog accounts={accounts} />
+                <RecurringFlowDialog accounts={accounts} />
             </CardHeader>
             <CardContent>
                 {incomeFlows.length === 0 ? (
@@ -72,7 +72,7 @@ export function IncomeSourcesTab({
                                             ₪{Number(flow.amount).toLocaleString()}
                                         </span>
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <AddRecurringFlowDialog 
+                                            <RecurringFlowDialog 
                                                 flowToEdit={flow} 
                                                 accounts={accounts} 
                                             />
