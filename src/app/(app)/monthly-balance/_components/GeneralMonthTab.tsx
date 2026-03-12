@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getMonthlyBalanceData } from "../actions"
 import { Database } from "@/types/database.types"
 import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryDomain, FREQUENCY_TYPES } from "@/lib/constants"
+import { formatCurrency } from "@/lib/utils"
 
 type RecurringFlow = Database["public"]["Tables"]["recurring_flows"]["Row"]
 
@@ -78,12 +79,12 @@ export function GeneralMonthTab() {
                                                 </span>
                                             )}
                                         </div>
-                                        <span className="font-bold text-emerald-600">₪{Number(inc.amount).toLocaleString()}</span>
+                                        <span dir="ltr" className="font-bold text-emerald-600">{formatCurrency(Number(inc.amount))}</span>
                                     </div>
                                 ))}
                                 <div className="flex justify-between items-center font-bold pt-2 mt-2">
                                     <span>סה״כ הכנסות</span>
-                                    <span className="text-emerald-600">₪{totalIncome.toLocaleString()}</span>
+                                    <span dir="ltr" className="text-emerald-600">{formatCurrency(totalIncome)}</span>
                                 </div>
                             </div>
                         )}
@@ -112,13 +113,13 @@ export function GeneralMonthTab() {
                                                 {domExpenses.map(exp => (
                                                     <div key={exp.id} className="flex justify-between items-center text-sm">
                                                         <span className="text-zinc-600 dark:text-zinc-400">{exp.name} {exp.frequency !== FREQUENCY_TYPES.MONTHLY ? <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1 rounded">({exp.frequency})</span> : ''}</span>
-                                                        <span className="text-rose-500 font-medium">₪{Number(exp.amount).toLocaleString()}</span>
+                                                        <span dir="ltr" className="text-rose-500 font-medium">{formatCurrency(Number(exp.amount))}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                             <div className="flex justify-between items-center text-xs font-semibold pt-1 text-zinc-500">
                                                 <span>תקציב/צפי נדרש מול התחום:</span>
-                                                <span>₪{domainTotal.toLocaleString()}</span>
+                                                <span dir="ltr">{formatCurrency(domainTotal)}</span>
                                             </div>
                                         </div>
                                     )
@@ -126,7 +127,7 @@ export function GeneralMonthTab() {
                                 <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-2">
                                     <div className="flex justify-between items-center font-bold text-lg">
                                         <span>סה״כ הוצאות/תקציב צפוי</span>
-                                        <span className="text-rose-600">₪{totalExpense.toLocaleString()}</span>
+                                        <span dir="ltr" className="text-rose-600">{formatCurrency(totalExpense)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -141,8 +142,8 @@ export function GeneralMonthTab() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-4xl font-extrabold flex flex-col items-center justify-center py-6 gap-2">
-                            <span className={totalIncome - totalExpense >= 0 ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"}>
-                                ₪{(totalIncome - totalExpense).toLocaleString()}
+                            <span dir="ltr" className={totalIncome - totalExpense >= 0 ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"}>
+                                {formatCurrency(totalIncome - totalExpense)}
                             </span>
                             {totalIncome - totalExpense > 0 && (
                                 <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
