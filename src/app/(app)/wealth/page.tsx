@@ -19,18 +19,28 @@ export default async function WealthPage() {
         .from('accounts')
         .select('*')
         .order('name', { ascending: true });
-    
+
     const accounts = rawAccounts as AccountRow[] || [];
 
-    // Fetch investment assets (excluding vehicles and pensions)
+    // Fetch investment assets (Stocks, Crypto, Other)
     const { data: rawAssets } = await supabase
         .from('assets')
         .select('*')
-        .not('type', 'in', `("${ASSET_TYPES.VEHICLE}","${ASSET_TYPES.PENSION}")`)
+        .not('type', 'in', `("${ASSET_TYPES.VEHICLE}","${ASSET_TYPES.PENSION}","${ASSET_TYPES.REAL_ESTATE}")`)
         .eq('status', 'active')
         .order('name', { ascending: true });
 
     const investmentAssets = rawAssets as AssetRow[] || [];
+
+    // Fetch Real Estate assets
+    const { data: rawRealEstate } = await supabase
+        .from('assets')
+        .select('*')
+        .eq('type', ASSET_TYPES.REAL_ESTATE)
+        .eq('status', 'active')
+        .order('name', { ascending: true });
+
+    const realEstateAssets = rawRealEstate as AssetRow[] || [];
 
     // Fetch Pension assets
     const { data: rawPensions } = await supabase
@@ -55,7 +65,13 @@ export default async function WealthPage() {
                     <TabsTrigger value="investments">
                         <div className="flex items-center gap-2">
                             <Briefcase className="w-4 h-4" />
-                            השקעות שוטפות (Stocks/Crypto)
+                            השקעות (Stocks/Crypto)
+                        </div>
+                    </TabsTrigger>
+                    <TabsTrigger value="real_estate">
+                        <div className="flex items-center gap-2">
+                            <Briefcase className="w-4 h-4" />
+                            נדל״ן
                         </div>
                     </TabsTrigger>
                     <TabsTrigger value="pension">
@@ -68,6 +84,10 @@ export default async function WealthPage() {
 
                 <TabsContent value="investments" className="space-y-4 mt-4">
                     <AssetsTable assets={investmentAssets} />
+                </TabsContent>
+
+                <TabsContent value="real_estate" className="space-y-4 mt-4">
+                    <AssetsTable assets={realEstateAssets} />
                 </TabsContent>
 
                 <TabsContent value="pension" className="space-y-4 mt-4">

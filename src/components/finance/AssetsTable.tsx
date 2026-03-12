@@ -77,7 +77,17 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                                         <div key={asset.id} className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group">
                                             <div className="flex flex-col">
                                                 <span className="font-medium">{asset.name}</span>
-                                                <span className="text-xs text-muted-foreground">
+                                                {asset.type === ASSET_TYPES.REAL_ESTATE && asset.metadata && (
+                                                    <div className="flex flex-col gap-0.5 mt-0.5">
+                                                        {(asset.metadata as any).address && (
+                                                            <span className="text-[10px] text-zinc-500">{(asset.metadata as any).address}</span>
+                                                        )}
+                                                        {(asset.metadata as any).monthly_rent && (
+                                                            <span className="text-[10px] text-emerald-600 font-medium">שכירות: ₪{Number((asset.metadata as any).monthly_rent).toLocaleString()}</span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                <span className="text-[10px] text-muted-foreground mt-1">
                                                     עודכן לאחרונה: {new Date(asset.updated_at || asset.created_at || '').toLocaleDateString('he-IL')}
                                                 </span>
                                             </div>

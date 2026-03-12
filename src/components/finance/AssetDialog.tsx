@@ -45,6 +45,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     const [name, setName] = useState(assetToEdit?.name || "")
     const [type, setType] = useState(assetToEdit?.type || ASSET_TYPES.STOCK)
     const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
+    const [metadata, setMetadata] = useState<Record<string, any>>(assetToEdit?.metadata as Record<string, any> || {})
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -54,7 +55,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
             name,
             type,
             estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
-            status: 'active'
+            status: 'active',
+            metadata: type === ASSET_TYPES.REAL_ESTATE ? metadata : null
         }
 
         let error;
@@ -82,6 +84,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
             setName("")
             setType(ASSET_TYPES.STOCK)
             setEstimatedValue("")
+            setMetadata({})
         }
         router.refresh()
     }
@@ -139,6 +142,32 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                             required
                         />
                     </div>
+
+                    {type === ASSET_TYPES.REAL_ESTATE && (
+                        <>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="address" className="text-right text-xs">כתובת</Label>
+                                <Input
+                                    id="address"
+                                    value={metadata.address || ""}
+                                    onChange={(e) => setMetadata({ ...metadata, address: e.target.value })}
+                                    className="col-span-3"
+                                    placeholder="רחוב, עיר"
+                                />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="rent" className="text-right text-xs">שכירות חודשית</Label>
+                                <Input
+                                    id="rent"
+                                    type="number"
+                                    value={metadata.monthly_rent || ""}
+                                    onChange={(e) => setMetadata({ ...metadata, monthly_rent: e.target.value })}
+                                    className="col-span-3"
+                                    placeholder="₪"
+                                />
+                            </div>
+                        </>
+                    )}
                     <DialogFooter>
                         <Button type="submit" disabled={loading}>
                             {loading ? "שומר..." : isEditing ? "שמור פריט" : "הוסף נכס"}
