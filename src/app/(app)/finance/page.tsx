@@ -16,40 +16,44 @@ export default async function FinancePage() {
     const supabase = await createClient()
 
     // Fetch all accounts to display in the new manager
-    const { data: rawAccounts } = await supabase
+    const { data: rawAccounts, error: accountsError } = await supabase
         .from('accounts')
         .select('*')
         .order('name', { ascending: true })
 
+    if (accountsError) console.error('Error fetching accounts:', accountsError)
     const accounts = rawAccounts as AccountRow[] || []
 
     // Fetch Income flows
-    const { data: rawIncomeFlows } = await supabase
+    const { data: rawIncomeFlows, error: incomeError } = await supabase
         .from('recurring_flows')
         .select('*')
         .eq('type', 'income')
         .order('name', { ascending: true })
 
+    if (incomeError) console.error('Error fetching income flows:', incomeError)
     const incomeFlows = rawIncomeFlows as RecurringFlowRow[] || []
 
     // Fetch investment assets (excluding vehicles and pensions)
-    const { data: rawAssets } = await supabase
+    const { data: rawAssets, error: assetsError } = await supabase
         .from('assets')
         .select('*')
-        .not('type', 'in', '("vehicle","pension")')
+        .not('type', 'in', ['vehicle', 'pension'])
         .eq('status', 'active')
         .order('name', { ascending: true })
 
+    if (assetsError) console.error('Error fetching investment assets:', assetsError)
     const investmentAssets = rawAssets as AssetRow[] || []
 
     // Fetch Pension assets
-    const { data: rawPensions } = await supabase
+    const { data: rawPensions, error: pensionsError } = await supabase
         .from('assets')
         .select('*')
         .eq('type', 'pension')
         .eq('status', 'active')
         .order('name', { ascending: true })
 
+    if (pensionsError) console.error('Error fetching pension assets:', pensionsError)
     const pensionAssets = rawPensions as AssetRow[] || []
 
     return (
