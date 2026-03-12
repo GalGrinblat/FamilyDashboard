@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Pencil } from "lucide-react"
 import { CATEGORY_TYPES, CATEGORY_DOMAINS, CATEGORY_DOMAIN_SHORT_LABELS, CategoryType, CategoryDomain } from "@/lib/constants"
+import { formatCurrency } from "@/lib/utils"
 
 type Account = Database["public"]["Tables"]["accounts"]["Row"]
 type Transaction = Database["public"]["Tables"]["transactions"]["Row"]
@@ -200,7 +201,7 @@ export function SpecificMonthTab() {
                         <CardTitle className="text-sm font-medium">יתרת פתיחה עו״ש</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₪{startBalance.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{formatCurrency(startBalance)}</div>
                         <p className="text-xs text-muted-foreground">{bankAccount ? bankAccount.name : 'אין חשבון מוגדר'}</p>
                     </CardContent>
                 </Card>
@@ -210,7 +211,7 @@ export function SpecificMonthTab() {
                     </CardHeader>
                     <CardContent>
                         <div className={`text-2xl font-bold ${endBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                            ₪{endBalance.toLocaleString()}
+                            <span dir="ltr">{formatCurrency(endBalance)}</span>
                         </div>
                         <p className="text-xs text-muted-foreground">בסוף החודש</p>
                     </CardContent>
@@ -243,8 +244,8 @@ export function SpecificMonthTab() {
                                             </span>
                                         )}
                                     </div>
-                                    <div className={`text-sm font-bold ${item.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600' : ''}`}>
-                                        {item.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{item.amount.toLocaleString()}
+                                    <div className={`text-sm font-bold ${item.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        <span dir="ltr">{formatCurrency(item.type === CATEGORY_TYPES.EXPENSE ? -item.amount : item.amount, true)}</span>
                                     </div>
                                     <div className="mr-2">
                                         {item.originalRecurringId && !item.isActual && (
