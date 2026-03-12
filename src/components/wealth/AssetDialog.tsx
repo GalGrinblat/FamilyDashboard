@@ -23,9 +23,10 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Plus, Pencil } from "lucide-react"
-import { ASSET_TYPES, ASSET_TYPE_LABELS, AssetType } from "@/lib/constants"
+import { ASSET_TYPES, ASSET_TYPE_LABELS } from "@/lib/constants"
 
 import { Database } from "@/types/database.types"
+import { AssetMetadata, RealEstateMetadata } from "@/types/wealth"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 
@@ -45,7 +46,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     const [name, setName] = useState(assetToEdit?.name || "")
     const [type, setType] = useState(assetToEdit?.type || ASSET_TYPES.STOCK)
     const [estimatedValue, setEstimatedValue] = useState(assetToEdit?.estimated_value?.toString() || "")
-    const [metadata, setMetadata] = useState<Record<string, any>>(assetToEdit?.metadata as Record<string, any> || {})
+    const [metadata, setMetadata] = useState<AssetMetadata>(assetToEdit?.metadata as AssetMetadata || {})
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -149,7 +150,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                                 <Label htmlFor="address" className="text-right text-xs">כתובת</Label>
                                 <Input
                                     id="address"
-                                    value={metadata.address || ""}
+                                    value={(metadata as RealEstateMetadata)?.address || ""}
                                     onChange={(e) => setMetadata({ ...metadata, address: e.target.value })}
                                     className="col-span-3"
                                     placeholder="רחוב, עיר"
@@ -160,7 +161,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                                 <Input
                                     id="rent"
                                     type="number"
-                                    value={metadata.monthly_rent || ""}
+                                    value={(metadata as RealEstateMetadata)?.monthly_rent || ""}
                                     onChange={(e) => setMetadata({ ...metadata, monthly_rent: e.target.value })}
                                     className="col-span-3"
                                     placeholder="₪"

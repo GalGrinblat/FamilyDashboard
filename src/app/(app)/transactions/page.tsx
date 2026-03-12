@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createClient } from "@/lib/supabase/server"
 import { TransactionsTable } from "@/components/transactions/TransactionsTable"
 import { ExpenseUploader } from "@/components/transactions/ExpenseUploader"
-import { Database } from "@/types/database.types"
 import { TransactionWithCategory } from "@/components/transactions/TransactionsTable"
 import { CATEGORY_TYPES, CATEGORY_DOMAINS } from "@/lib/constants"
 import { PageHeader } from "@/components/layout/PageHeader"

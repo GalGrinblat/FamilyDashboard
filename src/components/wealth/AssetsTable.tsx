@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Database } from "@/types/database.types"
+import { RealEstateMetadata } from "@/types/wealth"
 import { TrendingUp, Building2, Bitcoin, LineChart, Trash2 } from "lucide-react"
 import { AssetDialog } from "./AssetDialog"
 import { createClient } from "@/lib/supabase/client"
@@ -79,11 +80,11 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                                                 <span className="font-medium">{asset.name}</span>
                                                 {asset.type === ASSET_TYPES.REAL_ESTATE && asset.metadata && (
                                                     <div className="flex flex-col gap-0.5 mt-0.5">
-                                                        {(asset.metadata as any).address && (
-                                                            <span className="text-[10px] text-zinc-500">{(asset.metadata as any).address}</span>
+                                                        {(asset.metadata as RealEstateMetadata)?.address && (
+                                                            <span className="text-[10px] text-zinc-500">{(asset.metadata as RealEstateMetadata).address}</span>
                                                         )}
-                                                        {(asset.metadata as any).monthly_rent && (
-                                                            <span className="text-[10px] text-emerald-600 font-medium">שכירות: ₪{Number((asset.metadata as any).monthly_rent).toLocaleString()}</span>
+                                                        {(asset.metadata as RealEstateMetadata)?.monthly_rent && (
+                                                            <span className="text-[10px] text-emerald-600 font-medium">שכירות: ₪{Number((asset.metadata as RealEstateMetadata).monthly_rent).toLocaleString()}</span>
                                                         )}
                                                     </div>
                                                 )}

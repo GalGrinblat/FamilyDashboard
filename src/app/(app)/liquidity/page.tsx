@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createClient } from "@/lib/supabase/server";
 import { LiquidityAccountsTab } from "@/components/liquidity/LiquidityAccountsTab";
 import { RecurringFlowsTable } from "@/components/liquidity/RecurringFlowsTable";
-import { RecurringFlowDialog } from "@/components/liquidity/RecurringFlowDialog";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Scale } from "lucide-react";
 import { Database } from "@/types/database.types";
