@@ -183,11 +183,11 @@ export function SpecificMonthTab() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={handleNextMonth}>
+                    <Button variant="outline" size="icon" onClick={handlePrevMonth} aria-label="חודש קודם">
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                     <h3 className="text-xl font-bold min-w-[150px] text-center">{currentMonthLabel}</h3>
-                    <Button variant="outline" size="icon" onClick={handlePrevMonth}>
+                    <Button variant="outline" size="icon" onClick={handleNextMonth} aria-label="חודש הבא">
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                 </div>
