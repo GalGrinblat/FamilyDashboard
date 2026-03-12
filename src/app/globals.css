@@ -124,3 +124,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .tabs-highlight {
+    @apply bg-indigo-50 data-[state=active]:bg-indigo-100 dark:bg-indigo-900/20 dark:data-[state=active]:bg-indigo-900/40;
+  }
+}

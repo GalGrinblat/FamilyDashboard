@@ -4,6 +4,7 @@ import { Database } from "@/types/database.types"
 import { Settings as SettingsIcon } from "lucide-react"
 import { CategoryManager } from "./CategoryManager"
 import { SystemSettingsTab } from "@/components/settings/SystemSettingsTab"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 type CategoryRow = Database['public']['Tables']['categories']['Row']
 
@@ -20,15 +21,10 @@ export default async function SettingsPage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <SettingsIcon className="h-8 w-8 text-zinc-400" />
-                    הגדרות מתקדמות
-                </h2>
-            </div>
+            <PageHeader title="הגדרות מתקדמות" icon={SettingsIcon} />
 
             <Tabs defaultValue="categories" className="w-full mt-6" dir="rtl">
-                <TabsList className="mb-4">
+                <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value="categories">קטגוריות</TabsTrigger>
                     <TabsTrigger value="general">הגדרות מערכת</TabsTrigger>
                 </TabsList>

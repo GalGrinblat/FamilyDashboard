@@ -9,6 +9,7 @@ import { Database } from "@/types/database.types"
 import { ContractsTab } from "@/components/housing/ContractsTab"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
 import { CATEGORY_DOMAINS } from "@/lib/constants"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 type HouseholdItemRow = Database['public']['Tables']['household_items']['Row']
 
@@ -104,23 +105,15 @@ export default async function HousingPage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <Sofa className="h-8 w-8 text-zinc-400" />
-                    מגורים ומשק בית
-                </h2>
-                <div className="flex gap-2">
-                    <AddHouseholdItemDialog />
-                </div>
-            </div>
+            <PageHeader title="מגורים ומשק בית" icon={Sofa} />
 
             <Tabs defaultValue="utilities" className="w-full mt-4" dir="rtl">
-                <TabsList className="mb-4">
+                <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value="utilities">חוזים ושירותים</TabsTrigger>
                     <TabsTrigger value="appliances">מכשירי חשמל</TabsTrigger>
                     <TabsTrigger value="furniture">ריהוט</TabsTrigger>
                     <TabsTrigger value="electronics">אלקטרוניקה</TabsTrigger>
-                    <TabsTrigger value="transactions" className="bg-indigo-50 data-[state=active]:bg-indigo-100 dark:bg-indigo-900/20 dark:data-[state=active]:bg-indigo-900/40">תנועות והוצאות</TabsTrigger>
+                    <TabsTrigger value="transactions" className="tabs-highlight">תנועות והוצאות</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="utilities" className="space-y-4">
@@ -129,9 +122,17 @@ export default async function HousingPage() {
 
                 <TabsContent value="appliances" className="m-0">
                     <Card>
-                        <CardHeader>
-                            <CardTitle>מכשירי חשמל</CardTitle>
-                            <CardDescription>מעקב אחר מקרר, מכונת כביסה, תנור ועוד.</CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>מכשירי חשמל</CardTitle>
+                                <CardDescription>מעקב אחר מקרר, מכונת כביסה, תנור ועוד.</CardDescription>
+                            </div>
+                            <AddHouseholdItemDialog triggerButton={
+                                <Button size="sm">
+                                    <Plus className="ml-2 h-4 w-4" />
+                                    פריט חדש
+                                </Button>
+                            } />
                         </CardHeader>
                         <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
                             <ItemsTable items={appliances} />
@@ -141,9 +142,17 @@ export default async function HousingPage() {
 
                 <TabsContent value="furniture" className="m-0">
                     <Card>
-                        <CardHeader>
-                            <CardTitle>ריהוט</CardTitle>
-                            <CardDescription>מעקב אחר ספות, מיטות, שולחנות וארונות.</CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>ריהוט</CardTitle>
+                                <CardDescription>מעקב אחר ספות, מיטות, שולחנות וארונות.</CardDescription>
+                            </div>
+                            <AddHouseholdItemDialog triggerButton={
+                                <Button size="sm">
+                                    <Plus className="ml-2 h-4 w-4" />
+                                    פריט חדש
+                                </Button>
+                            } />
                         </CardHeader>
                         <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
                             <ItemsTable items={furniture} />
@@ -153,9 +162,17 @@ export default async function HousingPage() {
 
                 <TabsContent value="electronics" className="m-0">
                     <Card>
-                        <CardHeader>
-                            <CardTitle>אלקטרוניקה</CardTitle>
-                            <CardDescription>מחשבים, טלוויזיות, קונסולות וציוד נלווה.</CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>אלקטרוניקה</CardTitle>
+                                <CardDescription>מחשבים, טלוויזיות, קונסולות וציוד נלווה.</CardDescription>
+                            </div>
+                            <AddHouseholdItemDialog triggerButton={
+                                <Button size="sm">
+                                    <Plus className="ml-2 h-4 w-4" />
+                                    פריט חדש
+                                </Button>
+                            } />
                         </CardHeader>
                         <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
                             <ItemsTable items={electronics} />

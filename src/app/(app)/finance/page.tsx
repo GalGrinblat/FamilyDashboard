@@ -6,6 +6,7 @@ import { IncomeSourcesTab } from "@/components/finance/IncomeSourcesTab"
 import { AssetsTable } from "@/components/finance/AssetsTable"
 import { PensionTable } from "@/components/finance/PensionTable"
 import { Database } from "@/types/database.types"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 type AccountRow = Database["public"]["Tables"]["accounts"]["Row"]
 type RecurringFlowRow = Database["public"]["Tables"]["recurring_flows"]["Row"]
@@ -53,19 +54,14 @@ export default async function FinancePage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <PieChart className="h-8 w-8 text-zinc-400" />
-                    פיננסים ונכסים
-                </h2>
-            </div>
+            <PageHeader title="פיננסים ונכסים" icon={PieChart} />
 
             <ManageAccountsTab accounts={accounts} />
 
             <div className="pt-8 w-full border-t border-zinc-100 dark:border-zinc-800 mt-8"></div>
 
             <Tabs defaultValue="income" className="w-full mt-4" dir="rtl">
-                <TabsList className="mb-4">
+                <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value="income">
                         <div className="flex items-center gap-2">
                             <PiggyBank className="w-4 h-4" />

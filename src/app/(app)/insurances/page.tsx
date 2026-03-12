@@ -8,6 +8,7 @@ import { PolicyWithAsset } from "@/types/insurance"
 import { PolicyDialog } from "@/components/insurances/PolicyDialog"
 import { PolicyCard } from "@/components/insurances/PolicyCard"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 export default async function InsurancesPage() {
     const supabase = await createClient()
@@ -26,23 +27,18 @@ export default async function InsurancesPage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <Shield className="h-8 w-8 text-zinc-400" />
-                    תיק ביטוחים
-                </h2>
-            </div>
-
-            <p className="text-muted-foreground mt-2 mb-6">
-                מרכז שליטה פוליסות ביטוח וכיסויים למשפחה, רכוש ורכבים.
-            </p>
+            <PageHeader 
+                title="תיק ביטוחים" 
+                icon={Shield} 
+                description="מרכז שליטה פוליסות ביטוח וכיסויים למשפחה, רכוש ורכבים." 
+            />
 
             <Tabs defaultValue={INSURANCE_TYPES.HEALTH} className="w-full mt-4" dir="rtl">
-                <TabsList className="mb-4">
+                <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value={INSURANCE_TYPES.HEALTH}>בריאות וחיים</TabsTrigger>
                     <TabsTrigger value={INSURANCE_TYPES.PROPERTY}>מבנה ותכולה</TabsTrigger>
                     <TabsTrigger value={INSURANCE_TYPES.VEHICLE}>רכב</TabsTrigger>
-                    <TabsTrigger value="transactions" className="bg-indigo-50 data-[state=active]:bg-indigo-100 dark:bg-indigo-900/20 dark:data-[state=active]:bg-indigo-900/40">תנועות והוצאות</TabsTrigger>
+                    <TabsTrigger value="transactions" className="tabs-highlight">תנועות והוצאות</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value={INSURANCE_TYPES.HEALTH} className="space-y-4">

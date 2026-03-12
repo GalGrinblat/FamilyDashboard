@@ -9,6 +9,7 @@ import { Database } from "@/types/database.types"
 import { MaintenanceLog } from "@/components/transportation/MaintenanceLog"
 import { DomainTransactionsTab } from "@/components/finance/DomainTransactionsTab"
 import { CATEGORY_DOMAINS } from "@/lib/constants"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 type AssetRow = Database['public']['Tables']['assets']['Row']
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
@@ -78,9 +79,9 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[], reminders: R
                             key={car.id}
                             assetToEdit={car}
                             triggerButton={
-                                <div className="flex flex-col space-y-2 p-4 rounded-xl border border-blue-100 bg-white shadow-sm dark:border-blue-900/30 dark:bg-zinc-950 cursor-pointer hover:border-blue-300 transition-colors">
-                                    <div className="flex justify-between items-start">
-                                        <span className="font-semibold text-blue-700 dark:text-blue-400 text-lg">{car.name}</span>
+                        <div key={car.id} className="flex flex-col space-y-2 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 cursor-pointer hover:border-zinc-300 transition-colors">
+                            <div className="flex justify-between items-start">
+                                <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">{car.name}</span>
                                         <span className="font-bold">{car.estimated_value ? `₪${car.estimated_value.toLocaleString()}` : '-'}</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
@@ -162,28 +163,28 @@ export default async function TransportationPage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <CarIcon className="h-8 w-8 text-zinc-400" />
-                    תחבורה וניהול צי רכבים
-                </h2>
-                <div className="flex gap-2">
-                    <AddCarAssetDialog />
-                </div>
-            </div>
+            <PageHeader title="תחבורה וניהול צי רכבים" icon={CarIcon} />
 
             <Tabs defaultValue="cars" className="w-full mt-4" dir="rtl">
-                <TabsList className="mb-4">
+                <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value="cars">רכבים פעילים</TabsTrigger>
                     <TabsTrigger value="maintenance">טיפולים ותחזוקה</TabsTrigger>
-                    <TabsTrigger value="transactions" className="bg-indigo-50 data-[state=active]:bg-indigo-100 dark:bg-indigo-900/20 dark:data-[state=active]:bg-indigo-900/40">תנועות והוצאות</TabsTrigger>
+                    <TabsTrigger value="transactions" className="tabs-highlight">תנועות והוצאות</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="cars" className="m-0">
-                    <Card className="border-blue-100 dark:border-blue-900 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-blue-50/30 dark:bg-blue-900/10">
-                            <CardTitle className="text-blue-800 dark:text-blue-300">הנכסים המוטוריים במשפחה</CardTitle>
-                            <CardDescription>מעקב אחר ערך הרכבים, חיפושים וטסטים.</CardDescription>
+                    <Card className="border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+                        <CardHeader className="bg-zinc-50/30 dark:bg-zinc-900/10 flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle className="text-zinc-800 dark:text-zinc-300">הנכסים המוטוריים במשפחה</CardTitle>
+                                <CardDescription>מעקב אחר ערך הרכבים, חיפושים וטסטים.</CardDescription>
+                            </div>
+                            <AddCarAssetDialog triggerButton={
+                                <Button size="sm">
+                                    <Plus className="ml-2 h-4 w-4" />
+                                    רכב חדש
+                                </Button>
+                            } />
                         </CardHeader>
                         <CardContent className="p-0 sm:p-0 pt-0 sm:pt-0">
                             <CarsTable cars={cars} reminders={notifications} />

@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Calendar } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { ReminderDialog } from "@/components/planning/ReminderDialog"
 import { AddTripDialog } from "@/components/planning/AddTripDialog"
@@ -10,6 +10,7 @@ import { ReminderRowActions } from "@/components/planning/ReminderRowActions"
 import { Database } from "@/types/database.types"
 import { SYSTEM_REMINDER_TYPES } from "@/lib/constants"
 import { differenceInDays, startOfDay } from "date-fns"
+import { PageHeader } from "@/components/layout/PageHeader"
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row']
 type ReminderRowWithAsset = ReminderRow & { assets?: { name: string } | null }
@@ -150,13 +151,11 @@ export default async function PlanningPage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">תכנון</h2>
-            </div>
+            <PageHeader title="תכנון" icon={Calendar} />
 
             <Tabs defaultValue="periodic" className="w-full mt-4" dir="rtl">
 
-                <TabsList className="flex flex-wrap h-auto w-full justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
+                <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
                     <TabsTrigger value="periodic">תכנון עיתי (Periodic)</TabsTrigger>
                     <TabsTrigger value="vacation">תכנון חופשות (Vacations)</TabsTrigger>
                 </TabsList>
