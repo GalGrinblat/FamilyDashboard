@@ -264,7 +264,7 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
             </CardContent>
 
             <Dialog open={customCategoryDialogIndex !== null} onOpenChange={(open) => !open && setCustomCategoryDialogIndex(null)}>
-                <DialogContent>
+                <DialogContent dir="rtl">
                     <DialogHeader>
                         <DialogTitle>יצירת קטגוריה חדשה</DialogTitle>
                         <DialogDescription>
@@ -308,7 +308,7 @@ export function ReviewTransactionsTable({ rows, categories, activeAssets = [], o
                         </div>
                     </div>
 
-                    <DialogFooter className="flex gap-2 justify-end sm:justify-start">
+                    <DialogFooter className="flex gap-2">
                         <Button variant="outline" onClick={() => setCustomCategoryDialogIndex(null)}>ביטול</Button>
                         <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateCustomCategory} disabled={!newCategoryName.trim()}>אישור ויצירה</Button>
                     </DialogFooter>

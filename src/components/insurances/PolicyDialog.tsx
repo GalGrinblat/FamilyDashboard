@@ -52,7 +52,7 @@ export function PolicyDialog({
                 </DialogTrigger>
             )}
             <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto" dir="rtl">
-                <DialogHeader className="text-right">
+                <DialogHeader>
                     <DialogTitle>{!!policy ? "עריכת פוליסה" : "הוספת פוליסה חדשה"}</DialogTitle>
                     <DialogDescription>
                         הזן את נתוני הפוליסה לצורך בקרה מהירה.
