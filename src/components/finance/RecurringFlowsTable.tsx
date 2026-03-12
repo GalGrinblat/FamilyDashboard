@@ -86,7 +86,7 @@ export function RecurringFlowsTable({ flows, accounts }: { flows: FlowRow[], acc
             <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
                 {sortedFlows.map(flow => (
                     <div key={flow.id} className="flex flex-col space-y-3 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative">
-                        <div className="absolute top-2 right-2 flex items-center gap-2">
+                        <div className="absolute top-2 left-2 flex items-center gap-2">
                             <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
                             <RecurringFlowDialog flowToEdit={flow} accounts={accounts} />
                         </div>
