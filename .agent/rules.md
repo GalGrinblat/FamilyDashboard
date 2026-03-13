@@ -55,14 +55,29 @@ my_table: {
 };
 ```
 
----
+## Zod Schema Validation
 
-## General TypeScript Rules
+Zod schemas must match **exactly what the query selects**, not the full table row.
 
-- **No `@ts-ignore`** — ever. Use `@ts-expect-error` only with a specific justification comment, and only when there is no proper type fix.
-- **No `as any`** on return values from Supabase — if the inferred type is wrong, fix the type, not the assertion.
-- **Prefer `unknown` over `any`** for intermediate casts when necessary.
-- When a Supabase query selects partial columns (e.g., `select('id, name')`), the state type must match the selected shape — use `Pick<Row, 'id' | 'name'>` not the full `Row` type.
+### Rule: match the schema to the select shape
+
+If you query partial columns, use `.pick()` or an inline schema — never validate partial results with the full `*` schema:
+
+```ts
+// ❌ Wrong: query selects 2 fields but schema expects ALL fields incl. currency, type, etc.
+supabase.from('accounts').select('id, name')
+z.array(AccountSchema).parse(data)  // ← crashes at runtime with ZodError
+
+// ✅ Right: pick only what was selected
+supabase.from('accounts').select('id, name')
+z.array(AccountSchema.pick({ id: true, name: true })).parse(data)
+
+// ✅ Also right: select * to match the full schema
+supabase.from('accounts').select('*')
+z.array(AccountSchema).parse(data)
+```
+
+This is a **runtime crash** (not caught by TypeScript) because Supabase returns rows where the unselected fields are simply absent (not null).
 
 ---
 
@@ -73,4 +88,5 @@ my_table: {
 | `(supabase.from('x') as any).insert(...)` | Type the payload; call without cast |
 | `(data as MyType[])` on join results | `(data as unknown as MyType[])` with comment |
 | Hand-editing `database.types.ts` | `npm run db:types` |
-| `supabase.from('assets').select('id, name, domain')` when `domain` doesn't exist in schema | Only select columns that exist in the `Row` type |
+| `supabase.from('assets').select('id, name, domain')` when `domain` doesn't exist | Only select columns that exist in the `Row` type |
+| `z.array(FullSchema).parse(partialSelectResult)` | `z.array(FullSchema.pick({ col: true })).parse(data)` |

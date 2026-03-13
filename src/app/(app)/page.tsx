@@ -67,9 +67,9 @@ export default async function Home() {
       .limit(5),
   ]);
 
-  // 2. Process results with Zod validation
-  const accounts = z.array(AccountSchema).parse(accountsRaw || []);
-  const assets = z.array(AssetSchema).parse(assetsRaw || []);
+  // 2. Process results — parse only the fields we actually selected
+  const accounts = z.array(AccountSchema.pick({ current_balance: true })).parse(accountsRaw || []);
+  const assets = z.array(AssetSchema.pick({ estimated_value: true })).parse(assetsRaw || []);
 
   const totalBalance = accounts.reduce((acc, curr) => acc + (curr.current_balance || 0), 0);
   const totalAssetsValue = assets.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0);

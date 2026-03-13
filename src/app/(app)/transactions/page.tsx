@@ -34,7 +34,7 @@ export default async function TransactionsPage() {
 
   const transactions = z.array(TransactionSchema).parse(rawTransactions || []);
   const dbCategories = (rawCategories || []) as { id: string; name_he: string; domain: string }[];
-  const dbAccounts = z.array(AccountSchema).parse(rawAccounts || []);
+  const dbAccounts = z.array(AccountSchema.pick({ id: true, name: true })).parse(rawAccounts || []);
 
   // Map categories to Tabs visually
   const incomes = transactions.filter(
