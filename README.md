@@ -25,6 +25,7 @@ A comprehensive family management system designed for tracking finances, assets,
 ## 🚀 Getting Started
 
 First, install dependencies:
+
 ```bash
 npm install
 # or
@@ -34,9 +35,11 @@ pnpm install
 ```
 
 Set up your environment variables by copying the example file:
+
 ```bash
 cp .env.example .env.local
 ```
+
 Fill in `.env.local` with your Supabase credentials.
 
 Then, run the development server:
@@ -56,10 +59,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 3. **Architecture:** Use Server Components for data fetching and Client Components for interactive UI (forms, tabs, uploads).
 4. **Shadcn/ui:** Use Shadcn for the base components, ensuring they are adjusted for RTL (check animation directions).
 5. **TypeScript Guidelines:**
-    - **Strict Typing**: NEVER use the `any` type under any circumstances.
-    - **Defined Types**: ALWAYS use strictly defined types or interfaces for variables, function parameters, and return types.
-    - **Supabase**: When working with database payloads, always import and use the strictly generated types from the `Database` schema (e.g., `Database['public']['Tables']['table_name']['Row']`).
-    - **Unknown Data**: If the exact shape of data is truly unknown at runtime, use the `unknown` type and employ type-narrowing/validation before use, but prefer explicitly mapping the expected structure.
+   - **Strict Typing**: NEVER use the `any` type under any circumstances.
+   - **Defined Types**: ALWAYS use strictly defined types or interfaces for variables, function parameters, and return types.
+   - **Supabase**: When working with database payloads, always import and use the strictly generated types from the `Database` schema (e.g., `Database['public']['Tables']['table_name']['Row']`).
+   - **Unknown Data**: If the exact shape of data is truly unknown at runtime, use the `unknown` type and employ type-narrowing/validation before use, but prefer explicitly mapping the expected structure.
 
 ## 💾 Database Schema (Supabase)
 
@@ -68,6 +71,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - **Optimization:** Add a mapping table for merchants to cache AI classifications.
 
 ## 🚀 Advanced Features (Phase 2 Roadmap)
+
 - **Currency Handling:** Automated conversion from USD/EUR to ILS for investments.
 - **Deduplication:** Logic to merge identical transactions appearing in both Bank and Credit Card exports.
 

@@ -1,104 +1,122 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { AlertCircle, ArrowDownRight, ArrowUpRight, CarFront, ShieldCheck, Wallet, Wrench } from "lucide-react"
-import { createClient } from "@/lib/supabase/server"
-import { Database } from "@/types/database.types"
-import { CATEGORY_TYPES } from "@/lib/constants"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+  AlertCircle,
+  ArrowDownRight,
+  ArrowUpRight,
+  CarFront,
+  ShieldCheck,
+  Wallet,
+  Wrench,
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
+import { Database } from '@/types/database.types';
+import { CATEGORY_TYPES } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-import { 
-  AccountSchema, 
-  AssetSchema, 
-  TransactionSchema, 
-  ReminderSchema, 
-  type TransactionRef, 
-  type ReminderRef 
-} from "@/lib/schemas"
-import { z } from "zod"
+import {
+  AccountSchema,
+  AssetSchema,
+  TransactionSchema,
+  ReminderSchema,
+  type TransactionRef,
+  type ReminderRef,
+} from '@/lib/schemas';
+import { z } from 'zod';
 
 // Helper function to format currency
 const formatILS = (amount: number) => {
-  return new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(amount)
-}
+  return new Intl.NumberFormat('he-IL', {
+    style: 'currency',
+    currency: 'ILS',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 
 const getTypeIcon = (type: string) => {
   switch (type) {
-    case 'car_test': return <CarFront className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-    case 'insurance': return <ShieldCheck className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
-    case 'maintenance': return <Wrench className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-    default: return <AlertCircle className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+    case 'car_test':
+      return <CarFront className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
+    case 'insurance':
+      return <ShieldCheck className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />;
+    case 'maintenance':
+      return <Wrench className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+    default:
+      return <AlertCircle className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />;
   }
-}
+};
 
 export default async function Home() {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   // 1. Fetch data in parallel
-  const startOfMonth = new Date()
-  startOfMonth.setDate(1)
-  startOfMonth.setHours(0, 0, 0, 0)
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
 
-  const in30Days = new Date()
-  in30Days.setDate(in30Days.getDate() + 30)
+  const in30Days = new Date();
+  in30Days.setDate(in30Days.getDate() + 30);
 
   const [
     { data: accountsRaw },
     { data: assetsRaw },
     { data: transactionsRaw },
-    { data: remindersRaw }
+    { data: remindersRaw },
   ] = await Promise.all([
     supabase.from('accounts').select('current_balance'),
     supabase.from('assets').select('estimated_value').eq('status', 'active'),
-    supabase.from('transactions')
-      .select(`
+    supabase
+      .from('transactions')
+      .select(
+        `
         amount,
         categories ( type )
-      `)
+      `,
+      )
       .gte('date', startOfMonth.toISOString()),
-    supabase.from('reminders')
+    supabase
+      .from('reminders')
       .select('*')
       .eq('is_completed', false)
       .lte('due_date', in30Days.toISOString())
       .order('due_date', { ascending: true })
-      .limit(5)
-  ])
+      .limit(5),
+  ]);
 
   // 2. Process results with Zod validation
-  const accounts = z.array(AccountSchema).parse(accountsRaw || [])
-  const assets = z.array(AssetSchema).parse(assetsRaw || [])
+  const accounts = z.array(AccountSchema).parse(accountsRaw || []);
+  const assets = z.array(AssetSchema).parse(assetsRaw || []);
 
-  const totalBalance = accounts.reduce((acc, curr) => acc + (curr.current_balance || 0), 0)
-  const totalAssetsValue = assets.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0)
-  const netWorth = totalBalance + totalAssetsValue
+  const totalBalance = accounts.reduce((acc, curr) => acc + (curr.current_balance || 0), 0);
+  const totalAssetsValue = assets.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0);
+  const netWorth = totalBalance + totalAssetsValue;
 
-  const transactions = z.array(TransactionSchema).parse(transactionsRaw || [])
+  const transactions = z.array(TransactionSchema).parse(transactionsRaw || []);
 
   const monthlyBurnRate = transactions.reduce((acc, curr) => {
-    const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
+    const catType = Array.isArray(curr.categories)
+      ? curr.categories[0]?.type
+      : curr.categories?.type;
 
     if (catType === CATEGORY_TYPES.EXPENSE) {
-      return acc + (curr.amount || 0)
+      return acc + (curr.amount || 0);
     }
-    return acc
-  }, 0)
+    return acc;
+  }, 0);
 
   const monthlyIncome = transactions.reduce((acc, curr) => {
-    const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
+    const catType = Array.isArray(curr.categories)
+      ? curr.categories[0]?.type
+      : curr.categories?.type;
 
     if (catType === CATEGORY_TYPES.INCOME) {
-      return acc + (curr.amount || 0)
+      return acc + (curr.amount || 0);
     }
-    return acc
-  }, 0)
+    return acc;
+  }, 0);
 
-  const cashFlow = monthlyIncome - monthlyBurnRate
-  const reminders = z.array(ReminderSchema).parse(remindersRaw || [])
+  const cashFlow = monthlyIncome - monthlyBurnRate;
+  const reminders = z.array(ReminderSchema).parse(remindersRaw || []);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -108,35 +126,30 @@ export default async function Home() {
 
       {/* Main KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
         {/* Net Worth */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              שווי נקי (Net Worth)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">שווי נקי (Net Worth)</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatILS(netWorth)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              סה״כ נכסים וחסכונות
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">סה״כ נכסים וחסכונות</p>
           </CardContent>
         </Card>
 
         {/* Income */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              הכנסות החודש
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">הכנסות החודש</CardTitle>
             <ArrowUpRight className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">{formatILS(monthlyIncome)}</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">
+              {formatILS(monthlyIncome)}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              מתחילת החודש ({startOfMonth.toLocaleDateString("he-IL", { month: 'long' })})
+              מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
             </p>
           </CardContent>
         </Card>
@@ -144,15 +157,15 @@ export default async function Home() {
         {/* Burn Rate */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              הוצאות החודש
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">הוצאות החודש</CardTitle>
             <ArrowDownRight className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-rose-600 dark:text-rose-500">{formatILS(monthlyBurnRate)}</div>
+            <div className="text-2xl font-bold text-rose-600 dark:text-rose-500">
+              {formatILS(monthlyBurnRate)}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
-              מתחילת החודש ({startOfMonth.toLocaleDateString("he-IL", { month: 'long' })})
+              מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
             </p>
           </CardContent>
         </Card>
@@ -160,26 +173,22 @@ export default async function Home() {
         {/* Cash Flow */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              תזרים חודשי (Cash Flow)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">תזרים חודשי (Cash Flow)</CardTitle>
             <Wallet className="h-4 w-4 text-indigo-500" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${cashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'}`}>
+            <div
+              className={`text-2xl font-bold ${cashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'}`}
+            >
               <span dir="ltr">{formatILS(cashFlow)}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              הכנסות מול הוצאות בפועל
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">הכנסות מול הוצאות בפועל</p>
           </CardContent>
         </Card>
-
       </div>
 
       {/* Sub-Grids */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-4">
-
         {/* Alerts / Reminders */}
         <Card className="col-span-4 shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader>
@@ -190,37 +199,48 @@ export default async function Home() {
             <CardDescription>
               {reminders && reminders.length > 0
                 ? `יש לך ${reminders.length} התראות קרובות הדורשות תשומת לב.`
-                : "אין לך משימות קרובות ל-30 ימים הקרובים."}
+                : 'אין לך משימות קרובות ל-30 ימים הקרובים.'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-
-              {reminders && reminders.length > 0 ? reminders.map((reminder) => {
-                const isUrgent = new Date(reminder.due_date).getTime() < (new Date().getTime() + 7 * 24 * 60 * 60 * 1000); // within 7 days
-                return (
-                  <div key={reminder.id} className={`flex items-center p-3 rounded-lg border ${isUrgent
-                    ? "border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/10"
-                    : "border-zinc-200 dark:border-zinc-800"
-                    }`}>
-                    <div className={`p-2 rounded-full ml-4 ${isUrgent
-                      ? "bg-amber-100 dark:bg-amber-900"
-                      : "bg-zinc-100 dark:bg-zinc-800"
-                      }`}>
-                      {getTypeIcon(reminder.type)}
+              {reminders && reminders.length > 0 ? (
+                reminders.map((reminder) => {
+                  const isUrgent =
+                    new Date(reminder.due_date).getTime() <
+                    new Date().getTime() + 7 * 24 * 60 * 60 * 1000; // within 7 days
+                  return (
+                    <div
+                      key={reminder.id}
+                      className={`flex items-center p-3 rounded-lg border ${
+                        isUrgent
+                          ? 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/10'
+                          : 'border-zinc-200 dark:border-zinc-800'
+                      }`}
+                    >
+                      <div
+                        className={`p-2 rounded-full ml-4 ${
+                          isUrgent
+                            ? 'bg-amber-100 dark:bg-amber-900'
+                            : 'bg-zinc-100 dark:bg-zinc-800'
+                        }`}
+                      >
+                        {getTypeIcon(reminder.type)}
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium leading-none">{reminder.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          תאריך יעד: {new Date(reminder.due_date).toLocaleDateString('he-IL')}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">{reminder.title}</p>
-                      <p className="text-sm text-muted-foreground">תאריך יעד: {new Date(reminder.due_date).toLocaleDateString("he-IL")}</p>
-                    </div>
-                  </div>
-                )
-              }) : (
+                  );
+                })
+              ) : (
                 <div className="text-center p-6 text-muted-foreground bg-zinc-50 dark:bg-zinc-900/50 rounded-lg">
                   הכל תקין, אין משימות דחופות כרגע!
                 </div>
               )}
-
             </div>
           </CardContent>
         </Card>
@@ -258,9 +278,7 @@ export default async function Home() {
             </Link>
           </CardContent>
         </Card>
-
       </div>
-
     </div>
   );
 }

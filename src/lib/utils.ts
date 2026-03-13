@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
@@ -12,8 +12,8 @@ export function cn(...inputs: ClassValue[]) {
  * For positive values with showSign=true a plus sign is added, e.g. +₪4,000.
  */
 export function formatCurrency(amount: number, showSign = false): string {
-  const absFormatted = Math.abs(amount).toLocaleString()
-  if (amount < 0) return `-₪${absFormatted}`
-  if (showSign) return `+₪${absFormatted}`
-  return `₪${absFormatted}`
+  const absFormatted = Math.abs(amount).toLocaleString();
+  if (amount < 0) return `-₪${absFormatted}`;
+  if (showSign) return `+₪${absFormatted}`;
+  return `₪${absFormatted}`;
 }

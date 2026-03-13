@@ -22,12 +22,12 @@ Recent major milestones achieved in the 4-pillar financial architecture:
 
 Now that core data entry works across all domains, the focus shifts to visualization and insights.
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **Domain Spending Chart** | Bar/pie chart of monthly spend per domain (using `recharts`). | ❌ Planned |
-| **Net Worth Trend** | Line chart of net worth over time (snapshot monthly). | ❌ Planned |
-| **Budget vs. Actual** | Compare budgeted (`recurring_flows`) vs. actual (`transactions`) per domain. | ❌ Planned |
-| **Annual Summary** | Year-to-date income, expenses, and savings rate dashboard. | ❌ Planned |
+| Feature                   | Description                                                                  | Status     |
+| ------------------------- | ---------------------------------------------------------------------------- | ---------- |
+| **Domain Spending Chart** | Bar/pie chart of monthly spend per domain (using `recharts`).                | ❌ Planned |
+| **Net Worth Trend**       | Line chart of net worth over time (snapshot monthly).                        | ❌ Planned |
+| **Budget vs. Actual**     | Compare budgeted (`recurring_flows`) vs. actual (`transactions`) per domain. | ❌ Planned |
+| **Annual Summary**        | Year-to-date income, expenses, and savings rate dashboard.                   | ❌ Planned |
 
 ---
 
@@ -57,12 +57,12 @@ Groundwork is done; polish for "standalone" usage is required.
 
 Future-looking features to expand the app's utility.
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-currency** | Automated USD/EUR → ILS conversion for investment assets (via API). |
-| **Shopping List** | A lightweight grocery/errand list with offline support. |
+| Feature               | Description                                                                |
+| --------------------- | -------------------------------------------------------------------------- |
+| **Multi-currency**    | Automated USD/EUR → ILS conversion for investment assets (via API).        |
+| **Shopping List**     | A lightweight grocery/errand list with offline support.                    |
 | **Payment Reminders** | Browser/Email notifications for upcoming test/licensing/contract renewals. |
-| **Family Profiles** | Multi-user support with shared vs. individual attribution. |
+| **Family Profiles**   | Multi-user support with shared vs. individual attribution.                 |
 
 ---
 
@@ -72,5 +72,5 @@ Future-looking features to expand the app's utility.
 - **Type Safety**: No `any`– strict use of Supabase generated types.
 - **Security**: Mandatory RLS on all new tables.
 - **Performance**: Use Server Components for high-volume data fetching.
-ty (RLS) enabled before going to production.
+  ty (RLS) enabled before going to production.
 - **Server Components** for data fetching, **Client Components** for interactive forms/tabs.

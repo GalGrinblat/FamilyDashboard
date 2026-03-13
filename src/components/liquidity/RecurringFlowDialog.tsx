@@ -1,14 +1,20 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Database } from "@/types/database.types";
-import { CategoryType, CATEGORY_TYPES, CATEGORY_DOMAIN_LABELS, FREQUENCY_TYPES, FrequencyType } from "@/lib/constants";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { Database } from '@/types/database.types';
+import {
+  CategoryType,
+  CATEGORY_TYPES,
+  CATEGORY_DOMAIN_LABELS,
+  FREQUENCY_TYPES,
+  FrequencyType,
+} from '@/lib/constants';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -17,17 +23,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Plus, Pencil } from "lucide-react";
+} from '@/components/ui/select';
+import { Plus, Pencil } from 'lucide-react';
 
 export function RecurringFlowDialog({
   triggerButton,
@@ -46,14 +52,14 @@ export function RecurringFlowDialog({
   const isEditing = !!flowToEdit;
 
   // Form State
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
+  const [name, setName] = useState('');
+  const [amount, setAmount] = useState('');
   const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.INCOME);
   const [frequency, setFrequency] = useState<FrequencyType>(FREQUENCY_TYPES.MONTHLY);
-  const [accountId, setAccountId] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [domain, setDomain] = useState("general");
+  const [accountId, setAccountId] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [domain, setDomain] = useState('general');
 
   const [prevOpen, setPrevOpen] = useState(open);
   const [prevFlowToEdit, setPrevFlowToEdit] = useState(flowToEdit);
@@ -63,23 +69,23 @@ export function RecurringFlowDialog({
     setPrevFlowToEdit(flowToEdit);
 
     if (open && isEditing && flowToEdit) {
-      setName(flowToEdit.name || "");
-      setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : "");
+      setName(flowToEdit.name || '');
+      setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : '');
       setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
       setFrequency((flowToEdit.frequency as FrequencyType) || FREQUENCY_TYPES.MONTHLY);
-      setAccountId(flowToEdit.account_id || "");
-      setStartDate(flowToEdit.start_date || "");
-      setEndDate(flowToEdit.end_date || "");
-      setDomain(flowToEdit.domain || "general");
+      setAccountId(flowToEdit.account_id || '');
+      setStartDate(flowToEdit.start_date || '');
+      setEndDate(flowToEdit.end_date || '');
+      setDomain(flowToEdit.domain || 'general');
     } else if (!open && !isEditing) {
-      setName("");
-      setAmount("");
+      setName('');
+      setAmount('');
       setType(CATEGORY_TYPES.INCOME);
       setFrequency(FREQUENCY_TYPES.MONTHLY);
-      setAccountId("");
-      setStartDate("");
-      setEndDate("");
-      setDomain("general");
+      setAccountId('');
+      setStartDate('');
+      setEndDate('');
+      setDomain('general');
     }
   }
 
@@ -92,7 +98,7 @@ export function RecurringFlowDialog({
       amount: parseFloat(amount),
       type,
       frequency,
-      account_id: accountId === "none" ? null : accountId || null,
+      account_id: accountId === 'none' ? null : accountId || null,
       start_date: startDate || null,
       end_date: endDate || null,
       domain: domain || 'general',
@@ -103,14 +109,14 @@ export function RecurringFlowDialog({
 
     if (isEditing && flowToEdit) {
       const { error: updateError } = await supabase
-        .from("recurring_flows")
+        .from('recurring_flows')
         // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .update(payload)
-        .eq("id", flowToEdit.id);
+        .eq('id', flowToEdit.id);
       error = updateError;
     } else {
       const { error: insertError } = await supabase
-        .from("recurring_flows")
+        .from('recurring_flows')
         // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .insert(payload);
       error = insertError;
@@ -119,8 +125,8 @@ export function RecurringFlowDialog({
     setLoading(false);
 
     if (error) {
-      console.error("Error saving recurring flow:", error);
-      alert(isEditing ? "שגיאה בעדכון התזרים" : "שגיאה בהוספת תזרים קבוע");
+      console.error('Error saving recurring flow:', error);
+      alert(isEditing ? 'שגיאה בעדכון התזרים' : 'שגיאה בהוספת תזרים קבוע');
     } else {
       setOpen(false);
       // Refresh the page data
@@ -132,10 +138,7 @@ export function RecurringFlowDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
-          <Button
-            variant={isEditing ? "ghost" : "default"}
-            size={isEditing ? "icon" : "default"}
-          >
+          <Button variant={isEditing ? 'ghost' : 'default'} size={isEditing ? 'icon' : 'default'}>
             {isEditing ? (
               <Pencil className="h-4 w-4" />
             ) : (
@@ -150,12 +153,12 @@ export function RecurringFlowDialog({
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת תזרים קבוע" : "הוספת תזרים קבוע (Salary/Rent)"}
+            {isEditing ? 'עריכת תזרים קבוע' : 'הוספת תזרים קבוע (Salary/Rent)'}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "עדכן את פרטי התזרים הקיים. השינוי ישפיע על התחזיות העתידיות."
-              : "הגדר הכנסה או הוצאה קבועה (כגון משכורת, שכר דירה, או ארנונה) לצורך תחזית ומעקב חריגות."}
+              ? 'עדכן את פרטי התזרים הקיים. השינוי ישפיע על התחזיות העתידיות.'
+              : 'הגדר הכנסה או הוצאה קבועה (כגון משכורת, שכר דירה, או ארנונה) לצורך תחזית ומעקב חריגות.'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -276,7 +279,7 @@ export function RecurringFlowDialog({
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading}>
-              {loading ? "שומר..." : isEditing ? "שמור שינויים" : "שמור תזרים"}
+              {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור תזרים'}
             </Button>
           </DialogFooter>
         </form>

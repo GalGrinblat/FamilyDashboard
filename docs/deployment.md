@@ -5,6 +5,7 @@ This guide provides step-by-step instructions for deploying Family Dashboard. Th
 ## Prerequisites
 
 Before you begin, ensure you have:
+
 - A Google account
 - A GitHub account
 - A Supabase account
@@ -23,7 +24,7 @@ We use Google OAuth for secure authentication.
    - Choose **External** (unless you have a Google Workspace) and click **Create**.
    - Fill in the required fields: App name, User support email, and Developer contact information.
    - Click **Save and Continue** through the Scopes page (default scopes `email`, `profile`, `openid` are fine).
-   - On the **Test users** page, if your app is in "Testing" mode, add the specific email addresses that are allowed to log in. *Note: If you don't do this, users will get a "403 Access Blocked" error during login.*
+   - On the **Test users** page, if your app is in "Testing" mode, add the specific email addresses that are allowed to log in. _Note: If you don't do this, users will get a "403 Access Blocked" error during login._
 4. **Create Credentials:**
    - Go to **APIs & Services > Credentials**.
    - Click **Create Credentials** and select **OAuth client ID**.
@@ -77,13 +78,16 @@ We use Google OAuth for secure authentication.
 ## Troubleshooting Common Issues
 
 ### 403 Access Blocked (Google Login)
+
 - **Cause:** Your Google Cloud OAuth Consent Screen is set to "Testing", but the email you are trying to log in with is not added to the "Test users" list.
 - **Fix:** Go to Google Cloud Console > APIs & Services > OAuth consent screen > Test users, and add the email address. Alternatively, publish the app.
 
 ### Supabase Redirects to `localhost:3000` in Production
+
 - **Cause:** The Site URL in Supabase is still pointing to `localhost`.
 - **Fix:** Go to Supabase Dashboard > Authentication > URL Configuration and change the Site URL to your Vercel deployment URL.
 
 ### "Unauthorized Email" After Login
+
 - **Cause:** The user successfully logged in with Google, but their email is not present in the `authorized_users` table in your Supabase database.
 - **Fix:** Manually insert a record for the user's email into the `authorized_users` table in the Supabase SQL Editor or Table Editor.

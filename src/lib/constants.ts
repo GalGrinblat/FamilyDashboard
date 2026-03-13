@@ -1,132 +1,132 @@
 export const CATEGORY_TYPES = {
-    EXPENSE: 'expense',
-    INCOME: 'income',
+  EXPENSE: 'expense',
+  INCOME: 'income',
 } as const;
 
-export type CategoryType = typeof CATEGORY_TYPES[keyof typeof CATEGORY_TYPES];
+export type CategoryType = (typeof CATEGORY_TYPES)[keyof typeof CATEGORY_TYPES];
 
 export const CATEGORY_DOMAINS = {
-    GENERAL: 'general',
-    HOUSING: 'housing',
-    TRANSPORTATION: 'transportation',
-    INSURANCES: 'insurances',
-    UTILITIES: 'utilities',
-    SUPERMARKET: 'supermarket',
-    HOBBIES: 'hobbies',
-    ENTERTAINMENT: 'entertainment',
-    VACATION: 'vacation',
+  GENERAL: 'general',
+  HOUSING: 'housing',
+  TRANSPORTATION: 'transportation',
+  INSURANCES: 'insurances',
+  UTILITIES: 'utilities',
+  SUPERMARKET: 'supermarket',
+  HOBBIES: 'hobbies',
+  ENTERTAINMENT: 'entertainment',
+  VACATION: 'vacation',
 } as const;
 
-export type CategoryDomain = typeof CATEGORY_DOMAINS[keyof typeof CATEGORY_DOMAINS];
+export type CategoryDomain = (typeof CATEGORY_DOMAINS)[keyof typeof CATEGORY_DOMAINS];
 
 // Helper labels for UI
 export const CATEGORY_TYPE_LABELS: Record<CategoryType, string> = {
-    [CATEGORY_TYPES.EXPENSE]: 'הוצאה (-)',
-    [CATEGORY_TYPES.INCOME]: 'הכנסה (+)',
+  [CATEGORY_TYPES.EXPENSE]: 'הוצאה (-)',
+  [CATEGORY_TYPES.INCOME]: 'הכנסה (+)',
 };
 
 export const CATEGORY_DOMAIN_LABELS: Record<CategoryDomain, string> = {
-    [CATEGORY_DOMAINS.GENERAL]: 'כללי (מופיע רק בעו״ש)',
-    [CATEGORY_DOMAINS.HOUSING]: 'מגורים ומשק בית',
-    [CATEGORY_DOMAINS.TRANSPORTATION]: 'תחבורה ורכבים',
-    [CATEGORY_DOMAINS.INSURANCES]: 'ביטוחים',
-    [CATEGORY_DOMAINS.UTILITIES]: 'חשבונות (מים, חשמל, גז)',
-    [CATEGORY_DOMAINS.SUPERMARKET]: 'סופרמרקט ומכולת',
-    [CATEGORY_DOMAINS.HOBBIES]: 'חוגים ופנאי',
-    [CATEGORY_DOMAINS.ENTERTAINMENT]: 'בילויים ומסעדות',
-    [CATEGORY_DOMAINS.VACATION]: 'חופשות וטיולים',
+  [CATEGORY_DOMAINS.GENERAL]: 'כללי (מופיע רק בעו״ש)',
+  [CATEGORY_DOMAINS.HOUSING]: 'מגורים ומשק בית',
+  [CATEGORY_DOMAINS.TRANSPORTATION]: 'תחבורה ורכבים',
+  [CATEGORY_DOMAINS.INSURANCES]: 'ביטוחים',
+  [CATEGORY_DOMAINS.UTILITIES]: 'חשבונות (מים, חשמל, גז)',
+  [CATEGORY_DOMAINS.SUPERMARKET]: 'סופרמרקט ומכולת',
+  [CATEGORY_DOMAINS.HOBBIES]: 'חוגים ופנאי',
+  [CATEGORY_DOMAINS.ENTERTAINMENT]: 'בילויים ומסעדות',
+  [CATEGORY_DOMAINS.VACATION]: 'חופשות וטיולים',
 };
 
 export const CATEGORY_DOMAIN_SHORT_LABELS: Record<CategoryDomain, string> = {
-    [CATEGORY_DOMAINS.GENERAL]: 'כללי',
-    [CATEGORY_DOMAINS.HOUSING]: 'מגורים',
-    [CATEGORY_DOMAINS.TRANSPORTATION]: 'תחבורה',
-    [CATEGORY_DOMAINS.INSURANCES]: 'ביטוחים',
-    [CATEGORY_DOMAINS.UTILITIES]: 'חשבונות',
-    [CATEGORY_DOMAINS.SUPERMARKET]: 'סופר',
-    [CATEGORY_DOMAINS.HOBBIES]: 'חוגים',
-    [CATEGORY_DOMAINS.ENTERTAINMENT]: 'בילויים',
-    [CATEGORY_DOMAINS.VACATION]: 'חופשות',
+  [CATEGORY_DOMAINS.GENERAL]: 'כללי',
+  [CATEGORY_DOMAINS.HOUSING]: 'מגורים',
+  [CATEGORY_DOMAINS.TRANSPORTATION]: 'תחבורה',
+  [CATEGORY_DOMAINS.INSURANCES]: 'ביטוחים',
+  [CATEGORY_DOMAINS.UTILITIES]: 'חשבונות',
+  [CATEGORY_DOMAINS.SUPERMARKET]: 'סופר',
+  [CATEGORY_DOMAINS.HOBBIES]: 'חוגים',
+  [CATEGORY_DOMAINS.ENTERTAINMENT]: 'בילויים',
+  [CATEGORY_DOMAINS.VACATION]: 'חופשות',
 };
 
 export const REMINDER_TYPES = {
-    MAINTENANCE: 'maintenance',
-    CAR_TEST: 'car_test',
-    INSURANCE: 'insurance',
+  MAINTENANCE: 'maintenance',
+  CAR_TEST: 'car_test',
+  INSURANCE: 'insurance',
 } as const;
 
-export type ReminderType = typeof REMINDER_TYPES[keyof typeof REMINDER_TYPES];
+export type ReminderType = (typeof REMINDER_TYPES)[keyof typeof REMINDER_TYPES];
 
 export const SYSTEM_REMINDER_TYPES = [
-    { value: REMINDER_TYPES.MAINTENANCE, label: 'תחזוקה (Maintenance)' },
-    { value: REMINDER_TYPES.CAR_TEST, label: 'טסט לרכב (Car Test)' },
-    { value: REMINDER_TYPES.INSURANCE, label: 'ביטוחים (Insurance)' },
-]
+  { value: REMINDER_TYPES.MAINTENANCE, label: 'תחזוקה (Maintenance)' },
+  { value: REMINDER_TYPES.CAR_TEST, label: 'טסט לרכב (Car Test)' },
+  { value: REMINDER_TYPES.INSURANCE, label: 'ביטוחים (Insurance)' },
+];
 
 export const FREQUENCY_TYPES = {
-    MONTHLY: 'monthly',
-    YEARLY: 'yearly',
-    WEEKLY: 'weekly', // Adding weekly as it appeared in some grep results
+  MONTHLY: 'monthly',
+  YEARLY: 'yearly',
+  WEEKLY: 'weekly', // Adding weekly as it appeared in some grep results
 } as const;
 
-export type FrequencyType = typeof FREQUENCY_TYPES[keyof typeof FREQUENCY_TYPES];
+export type FrequencyType = (typeof FREQUENCY_TYPES)[keyof typeof FREQUENCY_TYPES];
 
 export const INSURANCE_TYPES = {
-    HEALTH: 'health',
-    PROPERTY: 'property',
-    VEHICLE: 'vehicle',
+  HEALTH: 'health',
+  PROPERTY: 'property',
+  VEHICLE: 'vehicle',
 } as const;
 
-export type InsuranceType = typeof INSURANCE_TYPES[keyof typeof INSURANCE_TYPES];
+export type InsuranceType = (typeof INSURANCE_TYPES)[keyof typeof INSURANCE_TYPES];
 
 export const INSURANCE_SUBTYPES = {
-    health: [
-        { value: 'shaban', label: 'שב"ן (קופת חולים)' },
-        { value: 'private', label: 'פרטי' },
-        { value: 'critical_illness', label: 'מחלות קשות' },
-        { value: 'life', label: 'חיים' },
-    ],
-    property: [
-        { value: 'structure', label: 'מבנה' },
-        { value: 'contents', label: 'תכולה' },
-    ],
-    vehicle: [
-        { value: 'comprehensive', label: 'מקיף' },
-        { value: 'mandatory', label: 'חובה' },
-        { value: 'third_party', label: 'צד ג\'' },
-    ]
-}
+  health: [
+    { value: 'shaban', label: 'שב"ן (קופת חולים)' },
+    { value: 'private', label: 'פרטי' },
+    { value: 'critical_illness', label: 'מחלות קשות' },
+    { value: 'life', label: 'חיים' },
+  ],
+  property: [
+    { value: 'structure', label: 'מבנה' },
+    { value: 'contents', label: 'תכולה' },
+  ],
+  vehicle: [
+    { value: 'comprehensive', label: 'מקיף' },
+    { value: 'mandatory', label: 'חובה' },
+    { value: 'third_party', label: "צד ג'" },
+  ],
+};
 
 export const ASSET_TYPES = {
-    STOCK: 'stock',
-    CRYPTO: 'crypto',
-    REAL_ESTATE: 'real_estate',
-    PENSION: 'pension',
-    VEHICLE: 'vehicle',
-    OTHER: 'other',
+  STOCK: 'stock',
+  CRYPTO: 'crypto',
+  REAL_ESTATE: 'real_estate',
+  PENSION: 'pension',
+  VEHICLE: 'vehicle',
+  OTHER: 'other',
 } as const;
 
-export type AssetType = typeof ASSET_TYPES[keyof typeof ASSET_TYPES];
+export type AssetType = (typeof ASSET_TYPES)[keyof typeof ASSET_TYPES];
 
 export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
-    [ASSET_TYPES.STOCK]: 'מניות ושוק ההון',
-    [ASSET_TYPES.CRYPTO]: 'מטבעות קריפטו',
-    [ASSET_TYPES.REAL_ESTATE]: 'נדל״ן',
-    [ASSET_TYPES.PENSION]: 'פנסיה וגמל',
-    [ASSET_TYPES.VEHICLE]: 'רכב',
-    [ASSET_TYPES.OTHER]: 'אחר',
+  [ASSET_TYPES.STOCK]: 'מניות ושוק ההון',
+  [ASSET_TYPES.CRYPTO]: 'מטבעות קריפטו',
+  [ASSET_TYPES.REAL_ESTATE]: 'נדל״ן',
+  [ASSET_TYPES.PENSION]: 'פנסיה וגמל',
+  [ASSET_TYPES.VEHICLE]: 'רכב',
+  [ASSET_TYPES.OTHER]: 'אחר',
 };
 
 export const ACCOUNT_TYPES = {
-    BANK: 'bank',
-    CREDIT_CARD: 'credit_card',
-    INVESTMENT: 'investment',
+  BANK: 'bank',
+  CREDIT_CARD: 'credit_card',
+  INVESTMENT: 'investment',
 } as const;
 
-export type AccountType = typeof ACCOUNT_TYPES[keyof typeof ACCOUNT_TYPES];
+export type AccountType = (typeof ACCOUNT_TYPES)[keyof typeof ACCOUNT_TYPES];
 
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-    [ACCOUNT_TYPES.BANK]: 'חשבון עו״ש (בנק)',
-    [ACCOUNT_TYPES.CREDIT_CARD]: 'כרטיס אשראי',
-    [ACCOUNT_TYPES.INVESTMENT]: 'חיסכון / תיק השקעות',
+  [ACCOUNT_TYPES.BANK]: 'חשבון עו״ש (בנק)',
+  [ACCOUNT_TYPES.CREDIT_CARD]: 'כרטיס אשראי',
+  [ACCOUNT_TYPES.INVESTMENT]: 'חיסכון / תיק השקעות',
 };

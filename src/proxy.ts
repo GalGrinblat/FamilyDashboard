@@ -51,7 +51,7 @@ export async function proxy(request: NextRequest) {
           });
         },
       },
-    }
+    },
   );
 
   const {
@@ -59,7 +59,11 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // If there's no user and the requested path isn't /login or /auth/callback, redirect to /login
-  if (!user && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/auth')) {
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/auth')
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
@@ -78,7 +82,15 @@ export async function proxy(request: NextRequest) {
         const supabaseAdmin = createServerClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           serviceRoleKey,
-          { cookies: { get() { return '' }, set() { }, remove() { } } }
+          {
+            cookies: {
+              get() {
+                return '';
+              },
+              set() {},
+              remove() {},
+            },
+          },
         );
 
         const { data: authRecord } = await supabaseAdmin
