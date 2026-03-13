@@ -96,10 +96,7 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span
-                      className={`font-semibold ${getAmountColorClass('income')}`}
-                      dir="ltr"
-                    >
+                    <span className={`font-semibold ${getAmountColorClass('income')}`} dir="ltr">
                       {formatCurrency(Number(pension.estimated_value))}
                     </span>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

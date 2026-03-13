@@ -69,9 +69,7 @@ export async function POST(req: Request) {
     }));
 
     // Insert new transactions into the ledger
-    const { error: txError } = await supabase
-      .from('transactions')
-      .insert(newTransactions);
+    const { error: txError } = await supabase.from('transactions').insert(newTransactions);
 
     if (txError) {
       console.error('Transactions Insert Error:', txError);
@@ -93,9 +91,7 @@ export async function POST(req: Request) {
 
     // Upsert unique dictionary definitions silently.
     if (mappingsToLearn.length > 0) {
-      await supabase
-        .from('merchant_mappings')
-        .insert(mappingsToLearn);
+      await supabase.from('merchant_mappings').insert(mappingsToLearn);
     }
 
     return NextResponse.json({

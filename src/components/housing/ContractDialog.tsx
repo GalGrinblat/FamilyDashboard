@@ -121,7 +121,11 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
               {loading ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף ספק'}
             </Button>
           </DialogFooter>

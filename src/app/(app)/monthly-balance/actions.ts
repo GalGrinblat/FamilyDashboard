@@ -66,16 +66,14 @@ export async function upsertMonthlyOverride(
   } = await supabase.auth.getUser();
   if (authError || !user) throw new Error('Unauthorized');
 
-  const { error } = await supabase
-    .from('monthly_overrides')
-    .upsert(
-      {
-        month_year,
-        recurring_flow_id,
-        override_amount: amount,
-      },
-      { onConflict: 'month_year,recurring_flow_id' },
-    );
+  const { error } = await supabase.from('monthly_overrides').upsert(
+    {
+      month_year,
+      recurring_flow_id,
+      override_amount: amount,
+    },
+    { onConflict: 'month_year,recurring_flow_id' },
+  );
 
   if (error) {
     console.error('Error upserting override:', error);

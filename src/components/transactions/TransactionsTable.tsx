@@ -92,10 +92,7 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
                   <span>{t.date ? new Date(t.date).toLocaleDateString('he-IL') : '-'}</span>
                 </div>
               </div>
-              <div
-                className={`font-bold ${getAmountColorClass(catType || '')}`}
-                dir="ltr"
-              >
+              <div className={`font-bold ${getAmountColorClass(catType || '')}`} dir="ltr">
                 {formatCurrency(catType === CATEGORY_TYPES.EXPENSE ? -t.amount : t.amount, true)}
               </div>
             </div>

@@ -114,9 +114,7 @@ export function RecurringFlowDialog({
         .eq('id', flowToEdit.id);
       error = updateError;
     } else {
-      const { error: insertError } = await supabase
-        .from('recurring_flows')
-        .insert(payload);
+      const { error: insertError } = await supabase.from('recurring_flows').insert(payload);
       error = insertError;
     }
 

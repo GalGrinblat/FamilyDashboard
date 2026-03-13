@@ -71,11 +71,19 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                       </TableCell>
                       <TableCell>{metadata.license_plate || '-'}</TableCell>
                       <TableCell>{metadata.year || '-'}</TableCell>
-                      <TableCell className={`font-medium ${getAmountColorClass('income')}`} dir="ltr">
+                      <TableCell
+                        className={`font-medium ${getAmountColorClass('income')}`}
+                        dir="ltr"
+                      >
                         {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
                       </TableCell>
-                      <TableCell className={`font-semibold ${getAmountColorClass('expense')}`} dir="ltr">
-                        {car.total_spent > 0 ? formatCurrency(-car.total_spent, true) : formatCurrency(0)}
+                      <TableCell
+                        className={`font-semibold ${getAmountColorClass('expense')}`}
+                        dir="ltr"
+                      >
+                        {car.total_spent > 0
+                          ? formatCurrency(-car.total_spent, true)
+                          : formatCurrency(0)}
                       </TableCell>
                     </TableRow>
                   }
@@ -118,9 +126,14 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                       {metadata.year || '-'}
                     </span>
                   </div>
-                  <div className={`pt-1 text-sm font-medium ${getAmountColorClass('expense')}`} dir="ltr">
+                  <div
+                    className={`pt-1 text-sm font-medium ${getAmountColorClass('expense')}`}
+                    dir="ltr"
+                  >
                     סך הוצאות מצטבר:{' '}
-                    {car.total_spent > 0 ? formatCurrency(-car.total_spent, true) : formatCurrency(0)}
+                    {car.total_spent > 0
+                      ? formatCurrency(-car.total_spent, true)
+                      : formatCurrency(0)}
                   </div>
                 </div>
               }
@@ -185,7 +198,9 @@ export default async function TransportationPage() {
 
   // Process accumulated transactions
   const cars: CarAssetWithCost[] = (assetsData || []).map((rawCar) => {
-    const car = rawCar as unknown as AssetRow & { transactions?: { amount: number | null }[] | null };
+    const car = rawCar as unknown as AssetRow & {
+      transactions?: { amount: number | null }[] | null;
+    };
     const total = (car.transactions || []).reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
     return {
       ...car,

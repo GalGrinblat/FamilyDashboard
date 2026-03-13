@@ -87,7 +87,9 @@ export function GeneralMonthTab() {
                     <div className="flex items-center gap-2">
                       <span>{inc.name}</span>
                       {inc.domain && inc.domain !== CATEGORY_DOMAINS.GENERAL && (
-                        <span className={`text-xs px-1.5 py-0.5 rounded-md ${getBadgeColorClass('income')}`}>
+                        <span
+                          className={`text-xs px-1.5 py-0.5 rounded-md ${getBadgeColorClass('income')}`}
+                        >
                           {CATEGORY_DOMAIN_SHORT_LABELS[inc.domain as CategoryDomain] || inc.domain}
                         </span>
                       )}
@@ -147,7 +149,10 @@ export function GeneralMonthTab() {
                                   ''
                                 )}
                               </span>
-                              <span dir="ltr" className={`font-medium ${getAmountColorClass('expense')}`}>
+                              <span
+                                dir="ltr"
+                                className={`font-medium ${getAmountColorClass('expense')}`}
+                              >
                                 {formatCurrency(-Number(exp.amount), true)}
                               </span>
                             </div>
@@ -186,7 +191,9 @@ export function GeneralMonthTab() {
             <div className="text-4xl font-extrabold flex flex-col items-center justify-center py-6 gap-2">
               <span
                 dir="ltr"
-                className={getAmountColorClass(totalIncome - totalExpense >= 0 ? 'income' : 'expense')}
+                className={getAmountColorClass(
+                  totalIncome - totalExpense >= 0 ? 'income' : 'expense',
+                )}
               >
                 {formatCurrency(totalIncome - totalExpense)}
               </span>

@@ -204,17 +204,19 @@ export function ReviewTransactionsTable({
                   <TableCell className="font-medium text-sm">
                     {row.description}
                     {row.is_duplicate && (
-                      <span className={`inline-flex ml-2 items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getBadgeColorClass('expense')}`}>
+                      <span
+                        className={`inline-flex ml-2 items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getBadgeColorClass('expense')}`}
+                      >
                         כבר קיים במערכת
                       </span>
                     )}
                   </TableCell>
-                    <span
-                      className={`font-bold text-sm ${getAmountColorClass(row.amount < 0 ? 'expense' : 'income')}`}
-                      dir="ltr"
-                    >
-                      {formatCurrency(row.amount, true)}
-                    </span>
+                  <span
+                    className={`font-bold text-sm ${getAmountColorClass(row.amount < 0 ? 'expense' : 'income')}`}
+                    dir="ltr"
+                  >
+                    {formatCurrency(row.amount, true)}
+                  </span>
                   <TableCell>
                     <select
                       className={`w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer ${

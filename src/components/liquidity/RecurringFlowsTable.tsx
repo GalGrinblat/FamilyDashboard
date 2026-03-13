@@ -115,7 +115,10 @@ export function RecurringFlowsTable({
                   className={`font-semibold text-left ${getAmountColorClass(flow.type)}`}
                   dir="ltr"
                 >
-                  {formatCurrency(flow.type === CATEGORY_TYPES.EXPENSE ? -flow.amount : flow.amount, true)}
+                  {formatCurrency(
+                    flow.type === CATEGORY_TYPES.EXPENSE ? -flow.amount : flow.amount,
+                    true,
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -151,11 +154,11 @@ export function RecurringFlowsTable({
                 <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">
                   {flow.name}
                 </span>
-                <span
-                  className={`font-semibold ${getAmountColorClass(flow.type)}`}
-                  dir="ltr"
-                >
-                  {formatCurrency(flow.type === CATEGORY_TYPES.EXPENSE ? -flow.amount : flow.amount, true)}
+                <span className={`font-semibold ${getAmountColorClass(flow.type)}`} dir="ltr">
+                  {formatCurrency(
+                    flow.type === CATEGORY_TYPES.EXPENSE ? -flow.amount : flow.amount,
+                    true,
+                  )}
                 </span>
               </div>
             </div>

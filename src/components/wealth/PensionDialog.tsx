@@ -88,7 +88,9 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'עריכת קרן פנסיה/השתלמות' : 'הוספת קרן פנסיה/השתלמות'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? 'עריכת קרן פנסיה/השתלמות' : 'הוספת קרן פנסיה/השתלמות'}
+          </DialogTitle>
           <DialogDescription>
             הזן את שם הקרן והיתרה העדכנית כפי שמופיעה בדוח הרבעוני או באתר הקופה.
           </DialogDescription>

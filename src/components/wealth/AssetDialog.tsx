@@ -31,7 +31,6 @@ import { AssetMetadata, RealEstateMetadata } from '@/types/wealth';
 
 type AssetRow = Database['public']['Tables']['assets']['Row'];
 type AssetInsert = Database['public']['Tables']['assets']['Insert'];
-type AssetUpdate = Database['public']['Tables']['assets']['Update'];
 
 interface AssetDialogProps {
   triggerButton?: React.ReactNode;
@@ -64,7 +63,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
       type,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
       status: 'active',
-      metadata: (type === ASSET_TYPES.REAL_ESTATE ? (metadata as Json) : null),
+      metadata: type === ASSET_TYPES.REAL_ESTATE ? (metadata as Json) : null,
     };
 
     let error;

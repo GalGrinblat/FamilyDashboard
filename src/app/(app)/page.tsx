@@ -14,14 +14,8 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 import Link from 'next/link';
 
-import {
-  AccountSchema,
-  AssetSchema,
-  TransactionSchema,
-  ReminderSchema,
-} from '@/lib/schemas';
+import { AccountSchema, AssetSchema, TransactionSchema, ReminderSchema } from '@/lib/schemas';
 import { z } from 'zod';
-
 
 const getTypeIcon = (type: string) => {
   switch (type) {
@@ -119,7 +113,9 @@ export default async function Home() {
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" dir="ltr">{formatCurrency(netWorth)}</div>
+            <div className="text-2xl font-bold" dir="ltr">
+              {formatCurrency(netWorth)}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">סה״כ נכסים וחסכונות</p>
           </CardContent>
         </Card>

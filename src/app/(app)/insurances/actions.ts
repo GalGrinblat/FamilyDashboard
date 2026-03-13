@@ -58,13 +58,7 @@ export async function addPolicyAction(formData: FormData) {
     .single();
 
   if (newPolicy) {
-    await syncPolicyToFlow(
-      supabase,
-      newPolicy.id,
-      name,
-      payload.premium_amount,
-      premiumFrequency,
-    );
+    await syncPolicyToFlow(supabase, newPolicy.id, name, payload.premium_amount, premiumFrequency);
   }
 
   revalidatePath('/insurances');

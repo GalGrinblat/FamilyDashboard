@@ -52,14 +52,12 @@ export function ChangePaymentMethodDialog({
       accounts.find((a) => a.id === selectedAccountId)?.name || 'חשבון לא מוכר';
 
     // Create a new reminder
-    const { error } = await supabase
-      .from('reminders')
-      .insert({
-        title: `החלפת אמצעי תשלום עבור ${flow.name} ל-${targetAccountName}`,
-        type: 'finance',
-        due_date: new Date().toISOString(),
-        is_completed: false,
-      });
+    const { error } = await supabase.from('reminders').insert({
+      title: `החלפת אמצעי תשלום עבור ${flow.name} ל-${targetAccountName}`,
+      type: 'finance',
+      due_date: new Date().toISOString(),
+      is_completed: false,
+    });
 
     setLoading(false);
 

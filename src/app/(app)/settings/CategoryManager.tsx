@@ -122,11 +122,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
         setCategories(categories.map((c) => (c.id === updatedCategory.id ? updatedCategory : c)));
       }
     } else {
-      const { data, error } = await supabase
-        .from('categories')
-        .insert(payload)
-        .select()
-        .single();
+      const { data, error } = await supabase.from('categories').insert(payload).select().single();
 
       if (error) {
         alert('שגיאה ביצירת הקטגוריה');

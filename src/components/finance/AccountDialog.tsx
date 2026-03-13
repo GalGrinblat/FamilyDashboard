@@ -80,9 +80,7 @@ export function AccountDialog({
         .eq('id', accountToEdit.id);
       error = updateError;
     } else {
-      const { error: insertError } = await supabase
-        .from('accounts')
-        .insert(payload);
+      const { error: insertError } = await supabase.from('accounts').insert(payload);
       error = insertError;
     }
 
