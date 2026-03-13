@@ -4,6 +4,7 @@ import { Shield, FileText, Calendar, Edit2, Link } from 'lucide-react';
 import { PolicyDialog } from './PolicyDialog';
 import { INSURANCE_SUBTYPES, INSURANCE_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
 import { differenceInDays, startOfDay } from 'date-fns';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
   // Map life to health since it's grouped there
@@ -52,10 +53,10 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <span className="font-bold text-lg">
-              ₪{policy.premium_amount.toLocaleString()}
+            <span className={`font-bold text-lg ${getAmountColorClass('expense')}`} dir="ltr">
+              {formatCurrency(-policy.premium_amount, true)}
               <span className="text-xs text-zinc-500 font-normal mr-1">
-                {policy.premium_frequency === FREQUENCY_TYPES.YEARLY ? '/ שנה' : '/ חד׳'}
+                {policy.premium_frequency === FREQUENCY_TYPES.YEARLY ? ' / שנה' : ' / חד׳'}
               </span>
             </span>
 

@@ -8,6 +8,7 @@ import { FREQUENCY_TYPES } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
@@ -45,8 +46,8 @@ export function IncomeSourcesTab({
           </CardTitle>
           <CardDescription>
             סך הכנסות חודשיות מוערכות:{' '}
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-              ₪{totalIncome.toLocaleString()}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100" dir="ltr">
+              {formatCurrency(totalIncome)}
             </span>
           </CardDescription>
         </div>
@@ -78,8 +79,8 @@ export function IncomeSourcesTab({
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="font-semibold text-emerald-600">
-                      ₪{Number(flow.amount).toLocaleString()}
+                    <span className={`font-semibold ${getAmountColorClass('income')}`} dir="ltr">
+                      {formatCurrency(Number(flow.amount))}
                     </span>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <RecurringFlowDialog flowToEdit={flow} accounts={accounts} />

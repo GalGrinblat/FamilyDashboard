@@ -39,15 +39,20 @@ export const TransactionSchema = z.object({
   total_installments: z.number().nullable(),
   asset_id: z.string().nullable(),
   categories: z
-    .preprocess((val) => {
-      if (Array.isArray(val)) return val[0];
-      return val;
-    }, z.object({
-      name_he: z.string().optional(),
-      name_en: z.string().optional(),
-      type: z.string(),
-      domain: z.string().optional(),
-    }).nullable())
+    .preprocess(
+      (val) => {
+        if (Array.isArray(val)) return val[0];
+        return val;
+      },
+      z
+        .object({
+          name_he: z.string().optional(),
+          name_en: z.string().optional(),
+          type: z.string(),
+          domain: z.string().optional(),
+        })
+        .nullable(),
+    )
     .nullable()
     .default(null),
   metadata: z.any().nullable(),

@@ -17,6 +17,7 @@ import { ContractsTab } from '@/components/housing/ContractsTab';
 import { DomainTransactionsTab } from '@/components/transactions/DomainTransactionsTab';
 import { CATEGORY_DOMAINS } from '@/lib/constants';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { formatCurrency } from '@/lib/utils';
 
 type HouseholdItemRow = Database['public']['Tables']['household_items']['Row'];
 
@@ -59,8 +60,8 @@ function ItemsTable({ items }: { items: HouseholdItemRow[] }) {
                     ? new Date(item.purchase_date).toLocaleDateString('he-IL')
                     : '-'}
                 </TableCell>
-                <TableCell>
-                  {item.purchase_price ? `₪${item.purchase_price.toLocaleString()}` : '-'}
+                <TableCell dir="ltr">
+                  {item.purchase_price ? formatCurrency(item.purchase_price) : '-'}
                 </TableCell>
                 <TableCell>
                   {item.warranty_expiry
@@ -84,8 +85,8 @@ function ItemsTable({ items }: { items: HouseholdItemRow[] }) {
               <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">
                 {item.name}
               </span>
-              <span className="font-medium">
-                {item.purchase_price ? `₪${item.purchase_price.toLocaleString()}` : '-'}
+              <span className="font-medium" dir="ltr">
+                {item.purchase_price ? formatCurrency(item.purchase_price) : '-'}
               </span>
             </div>
             <div className="flex flex-col gap-1 text-sm text-zinc-600 dark:text-zinc-400 mt-1">

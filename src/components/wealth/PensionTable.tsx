@@ -7,6 +7,7 @@ import { PensionDialog } from './PensionDialog';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type AssetRow = Database['public']['Tables']['assets']['Row'];
 
@@ -51,8 +52,8 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
           </CardTitle>
           <CardDescription>
             סך צבירה פנסיונית:{' '}
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-              ₪{totalValue.toLocaleString()}
+            <span className={`font-semibold ${getAmountColorClass('income')}`} dir="ltr">
+              {formatCurrency(totalValue)}
             </span>
           </CardDescription>
         </div>
@@ -95,8 +96,11 @@ export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="font-semibold text-indigo-600">
-                      ₪{Number(pension.estimated_value).toLocaleString()}
+                    <span
+                      className={`font-semibold ${getAmountColorClass('income')}`}
+                      dir="ltr"
+                    >
+                      {formatCurrency(Number(pension.estimated_value))}
                     </span>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <PensionDialog assetToEdit={pension} />

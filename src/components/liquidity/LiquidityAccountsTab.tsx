@@ -5,6 +5,7 @@ import { Database } from '@/types/database.types';
 import { Landmark, CreditCard } from 'lucide-react';
 import { AccountDialog } from '@/components/finance/AccountDialog';
 import { ACCOUNT_TYPES } from '@/lib/constants';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 
@@ -36,8 +37,8 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
             </CardTitle>
             <CardDescription>
               יתרה כוללת:{' '}
-              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                ₪{totalBank.toLocaleString()}
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100" dir="ltr">
+                {formatCurrency(totalBank)}
               </span>
             </CardDescription>
           </CardHeader>
@@ -59,9 +60,10 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                     </div>
                     <div className="flex items-center gap-3">
                       <span
-                        className={`font-semibold ${Number(account.current_balance || 0) < 0 ? 'text-red-500' : 'text-zinc-900 dark:text-zinc-100'}`}
+                        className={`font-semibold ${getAmountColorClass(Number(account.current_balance || 0) < 0 ? 'expense' : 'income')}`}
+                        dir="ltr"
                       >
-                        ₪{Number(account.current_balance || 0).toLocaleString()}
+                        {formatCurrency(Number(account.current_balance || 0))}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <AccountDialog accountToEdit={account} />
@@ -78,13 +80,13 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <CreditCard className="h-5 w-5 text-rose-500" />
+              <CreditCard className="h-5 w-5 text-rose-600" />
               כרטיסי אשראי
             </CardTitle>
             <CardDescription>
               ניצול כולל:{' '}
-              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-                ₪{totalCredit.toLocaleString()}
+              <span className="font-semibold text-zinc-900 dark:text-zinc-100" dir="ltr">
+                {formatCurrency(-totalCredit, true)}
               </span>
             </CardDescription>
           </CardHeader>
@@ -106,8 +108,8 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-rose-600">
-                        ₪{Number(account.current_balance || 0).toLocaleString()}
+                      <span className={`font-semibold ${getAmountColorClass('expense')}`} dir="ltr">
+                        {formatCurrency(-Number(account.current_balance || 0), true)}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <AccountDialog accountToEdit={account} />

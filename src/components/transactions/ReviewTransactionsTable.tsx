@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { ParsedTransactionRow } from './StatementUploadEngine';
 import { CheckCircle2, Loader2, PlusCircle } from 'lucide-react';
 import { CATEGORY_TYPES, CategoryType } from '@/lib/constants';
+import { formatCurrency, getAmountColorClass, getBadgeColorClass } from '@/lib/utils';
 
 export interface ClassifiedTransactionRow extends ParsedTransactionRow {
   suggested_category_id: string | null;
@@ -203,23 +204,17 @@ export function ReviewTransactionsTable({
                   <TableCell className="font-medium text-sm">
                     {row.description}
                     {row.is_duplicate && (
-                      <span className="inline-flex ml-2 items-center rounded-md bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20">
+                      <span className={`inline-flex ml-2 items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getBadgeColorClass('expense')}`}>
                         כבר קיים במערכת
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="font-bold text-sm">
                     <span
-                      style={{ direction: 'ltr', display: 'inline-block' }}
-                      className={
-                        row.amount < 0
-                          ? 'text-rose-600 dark:text-rose-400'
-                          : 'text-emerald-600 dark:text-emerald-400'
-                      }
+                      className={`font-bold text-sm ${getAmountColorClass(row.amount < 0 ? 'expense' : 'income')}`}
+                      dir="ltr"
                     >
-                      {row.amount > 0 ? '+' : ''}₪{row.amount.toLocaleString()}
+                      {formatCurrency(row.amount, true)}
                     </span>
-                  </TableCell>
                   <TableCell>
                     <select
                       className={`w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer ${
@@ -370,8 +365,8 @@ export function ReviewTransactionsTable({
                   variant={newCategoryType === CATEGORY_TYPES.EXPENSE ? 'default' : 'outline'}
                   className={
                     newCategoryType === CATEGORY_TYPES.EXPENSE
-                      ? 'bg-red-500 hover:bg-red-600 border-transparent shadow-none'
-                      : 'border-red-200 text-red-600 hover:bg-red-50'
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                      : 'border-rose-200 text-rose-600 hover:bg-rose-50'
                   }
                   onClick={() => setNewCategoryType(CATEGORY_TYPES.EXPENSE)}
                 >
@@ -382,7 +377,7 @@ export function ReviewTransactionsTable({
                   variant={newCategoryType === CATEGORY_TYPES.INCOME ? 'default' : 'outline'}
                   className={
                     newCategoryType === CATEGORY_TYPES.INCOME
-                      ? 'bg-emerald-500 hover:bg-emerald-600 border-transparent shadow-none'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                       : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
                   }
                   onClick={() => setNewCategoryType(CATEGORY_TYPES.INCOME)}

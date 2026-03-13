@@ -19,6 +19,7 @@ import {
 } from '@/lib/constants';
 import { RecurringFlowDialog } from './RecurringFlowDialog';
 import { ChangePaymentMethodDialog } from './ChangePaymentMethodDialog';
+import { formatCurrency, getAmountColorClass, getBadgeColorClass } from '@/lib/utils';
 
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
   accounts?: { name: string } | null;
@@ -76,11 +77,7 @@ export function RecurringFlowsTable({
               <TableRow key={flow.id}>
                 <TableCell>
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                      flow.type === CATEGORY_TYPES.INCOME
-                        ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
-                        : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'
-                    }`}
+                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${getBadgeColorClass(flow.type)}`}
                   >
                     {flow.type === 'income' ? 'הכנסה' : 'הוצאה'}
                   </span>
@@ -115,9 +112,10 @@ export function RecurringFlowsTable({
                   {flow.end_date ? new Date(flow.end_date).toLocaleDateString('he-IL') : '-'}
                 </TableCell>
                 <TableCell
-                  className={`font-semibold ${flow.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600 dark:text-emerald-400' : ''}`}
+                  className={`font-semibold text-left ${getAmountColorClass(flow.type)}`}
+                  dir="ltr"
                 >
-                  {flow.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{flow.amount.toLocaleString()}
+                  {formatCurrency(flow.type === CATEGORY_TYPES.EXPENSE ? -flow.amount : flow.amount, true)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -145,7 +143,7 @@ export function RecurringFlowsTable({
 
             <div className="flex flex-col pt-2">
               <span
-                className={`inline-flex self-start items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset mb-1 ${flow.type === CATEGORY_TYPES.INCOME ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20' : 'bg-rose-50 text-rose-700 ring-rose-600/10 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20'}`}
+                className={`inline-flex self-start items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset mb-1 ${getBadgeColorClass(flow.type)}`}
               >
                 {flow.type === CATEGORY_TYPES.INCOME ? 'הכנסה' : 'הוצאה'}
               </span>
@@ -154,9 +152,10 @@ export function RecurringFlowsTable({
                   {flow.name}
                 </span>
                 <span
-                  className={`font-semibold ${flow.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
+                  className={`font-semibold ${getAmountColorClass(flow.type)}`}
+                  dir="ltr"
                 >
-                  {flow.type === CATEGORY_TYPES.EXPENSE ? '-' : '+'}₪{flow.amount.toLocaleString()}
+                  {formatCurrency(flow.type === CATEGORY_TYPES.EXPENSE ? -flow.amount : flow.amount, true)}
                 </span>
               </div>
             </div>

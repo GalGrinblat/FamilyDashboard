@@ -17,6 +17,7 @@ import { MaintenanceLog } from '@/components/transportation/MaintenanceLog';
 import { DomainTransactionsTab } from '@/components/transactions/DomainTransactionsTab';
 import { CATEGORY_DOMAINS } from '@/lib/constants';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type AssetRow = Database['public']['Tables']['assets']['Row'];
 type ReminderRow = Database['public']['Tables']['reminders']['Row'];
@@ -52,8 +53,8 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
               <TableHead className="text-right">שם הרכב</TableHead>
               <TableHead className="text-right">מספר רישוי</TableHead>
               <TableHead className="text-right">שנתון</TableHead>
-              <TableHead className="text-right">שווי מוערך (₪)</TableHead>
-              <TableHead className="text-right">השקעה מצטברת בהוצאות (₪)</TableHead>
+              <TableHead className="text-right">שווי מוערך</TableHead>
+              <TableHead className="text-right">השקעה מצטברת בהוצאות</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,11 +71,11 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                       </TableCell>
                       <TableCell>{metadata.license_plate || '-'}</TableCell>
                       <TableCell>{metadata.year || '-'}</TableCell>
-                      <TableCell className="font-medium">
-                        {car.estimated_value ? `₪${car.estimated_value.toLocaleString()}` : '-'}
+                      <TableCell className={`font-medium ${getAmountColorClass('income')}`} dir="ltr">
+                        {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
                       </TableCell>
-                      <TableCell className="font-semibold text-rose-500">
-                        {car.total_spent > 0 ? `₪${car.total_spent.toLocaleString()}` : '₪0'}
+                      <TableCell className={`font-semibold ${getAmountColorClass('expense')}`} dir="ltr">
+                        {car.total_spent > 0 ? formatCurrency(-car.total_spent, true) : formatCurrency(0)}
                       </TableCell>
                     </TableRow>
                   }
@@ -102,8 +103,8 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                     <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">
                       {car.name}
                     </span>
-                    <span className="font-bold">
-                      {car.estimated_value ? `₪${car.estimated_value.toLocaleString()}` : '-'}
+                    <span className={`font-bold ${getAmountColorClass('income')}`} dir="ltr">
+                      {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
@@ -117,9 +118,9 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                       {metadata.year || '-'}
                     </span>
                   </div>
-                  <div className="pt-1 text-sm text-rose-500 dark:text-rose-400 font-medium">
+                  <div className={`pt-1 text-sm font-medium ${getAmountColorClass('expense')}`} dir="ltr">
                     סך הוצאות מצטבר:{' '}
-                    {car.total_spent > 0 ? `₪${car.total_spent.toLocaleString()}` : '₪0'}
+                    {car.total_spent > 0 ? formatCurrency(-car.total_spent, true) : formatCurrency(0)}
                   </div>
                 </div>
               }
@@ -141,7 +142,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                 className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-900 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800"
               >
                 <div
-                  className={`p-2 rounded-full ${r.type === 'car_test' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : r.type === 'insurance' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'}`}
+                  className={`p-2 rounded-full ${r.type === 'car_test' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : r.type === 'insurance' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'}`}
                 >
                   {r.type === 'car_test' ? (
                     <CarIcon className="w-4 h-4" />

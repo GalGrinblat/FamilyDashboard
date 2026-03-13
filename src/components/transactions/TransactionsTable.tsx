@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/table';
 import { Database } from '@/types/database.types';
 import { CATEGORY_TYPES } from '@/lib/constants';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type TransactionRow = Database['public']['Tables']['transactions']['Row'];
 type CategoryRow = Database['public']['Tables']['categories']['Row'];
@@ -56,14 +57,13 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
                   </TableCell>
                   <TableCell>{catName || '-'}</TableCell>
                   <TableCell
-                    className={
-                      catType === CATEGORY_TYPES.EXPENSE
-                        ? 'text-red-500 font-medium'
-                        : 'text-emerald-500 font-medium'
-                    }
+                    className={`font-semibold text-left ${getAmountColorClass(catType || '')}`}
+                    dir="ltr"
                   >
-                    {catType === CATEGORY_TYPES.EXPENSE ? '-' : '+'}
-                    {`₪${(t.amount || 0).toLocaleString()}`}
+                    {formatCurrency(
+                      catType === CATEGORY_TYPES.EXPENSE ? -t.amount : t.amount,
+                      true,
+                    )}
                   </TableCell>
                 </TableRow>
               );
@@ -93,10 +93,10 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
                 </div>
               </div>
               <div
-                className={`font-bold ${catType === CATEGORY_TYPES.EXPENSE ? 'text-red-500' : 'text-emerald-500'}`}
+                className={`font-bold ${getAmountColorClass(catType || '')}`}
+                dir="ltr"
               >
-                {catType === CATEGORY_TYPES.EXPENSE ? '-' : '+'}
-                {`₪${(t.amount || 0).toLocaleString()}`}
+                {formatCurrency(catType === CATEGORY_TYPES.EXPENSE ? -t.amount : t.amount, true)}
               </div>
             </div>
           );

@@ -7,6 +7,7 @@ import { ContractDialog } from './ContractDialog';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 
@@ -37,8 +38,8 @@ export function ContractsTab({ contracts }: { contracts: RecurringFlowRow[] }) {
           </CardTitle>
           <CardDescription>
             סך עלות חודשית מוערכת:{' '}
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-              ₪{totalCost.toLocaleString()}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100" dir="ltr">
+              {formatCurrency(totalCost)}
             </span>
           </CardDescription>
         </div>
@@ -70,8 +71,8 @@ export function ContractsTab({ contracts }: { contracts: RecurringFlowRow[] }) {
                     </span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="font-semibold text-rose-600">
-                      ₪{Number(contract.amount).toLocaleString()}
+                    <span className={`font-semibold ${getAmountColorClass('expense')}`} dir="ltr">
+                      {formatCurrency(-Number(contract.amount), true)}
                     </span>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ContractDialog contractToEdit={contract} />

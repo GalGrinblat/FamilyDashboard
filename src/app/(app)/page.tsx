@@ -9,9 +9,9 @@ import {
   Wrench,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { Database } from '@/types/database.types';
 import { CATEGORY_TYPES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 import Link from 'next/link';
 
 import {
@@ -19,19 +19,9 @@ import {
   AssetSchema,
   TransactionSchema,
   ReminderSchema,
-  type TransactionRef,
-  type ReminderRef,
 } from '@/lib/schemas';
 import { z } from 'zod';
 
-// Helper function to format currency
-const formatILS = (amount: number) => {
-  return new Intl.NumberFormat('he-IL', {
-    style: 'currency',
-    currency: 'ILS',
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
 
 const getTypeIcon = (type: string) => {
   switch (type) {
@@ -129,7 +119,7 @@ export default async function Home() {
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatILS(netWorth)}</div>
+            <div className="text-2xl font-bold" dir="ltr">{formatCurrency(netWorth)}</div>
             <p className="text-xs text-muted-foreground mt-1">סה״כ נכסים וחסכונות</p>
           </CardContent>
         </Card>
@@ -138,11 +128,11 @@ export default async function Home() {
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">הכנסות החודש</CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-emerald-500" />
+            <ArrowUpRight className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-500">
-              {formatILS(monthlyIncome)}
+            <div className={`text-2xl font-bold ${getAmountColorClass('income')}`} dir="ltr">
+              {formatCurrency(monthlyIncome)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
@@ -154,11 +144,11 @@ export default async function Home() {
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">הוצאות החודש</CardTitle>
-            <ArrowDownRight className="h-4 w-4 text-rose-500" />
+            <ArrowDownRight className="h-4 w-4 text-rose-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-rose-600 dark:text-rose-500">
-              {formatILS(monthlyBurnRate)}
+            <div className={`text-2xl font-bold ${getAmountColorClass('expense')}`} dir="ltr">
+              {formatCurrency(-monthlyBurnRate, true)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
@@ -174,9 +164,9 @@ export default async function Home() {
           </CardHeader>
           <CardContent>
             <div
-              className={`text-2xl font-bold ${cashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'}`}
+              className={`text-2xl font-bold ${getAmountColorClass(cashFlow >= 0 ? 'income' : 'expense')}`}
             >
-              <span dir="ltr">{formatILS(cashFlow)}</span>
+              <span dir="ltr">{formatCurrency(cashFlow)}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">הכנסות מול הוצאות בפועל</p>
           </CardContent>

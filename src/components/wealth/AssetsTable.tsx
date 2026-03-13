@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ASSET_TYPES, ASSET_TYPE_LABELS, AssetType } from '@/lib/constants';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type AssetRow = Database['public']['Tables']['assets']['Row'];
 
@@ -59,8 +60,8 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
           </CardTitle>
           <CardDescription>
             הערכת שווי נכסים כוללת:{' '}
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
-              ₪{totalValue.toLocaleString()}
+            <span className={`font-semibold ${getAmountColorClass('income')}`} dir="ltr">
+              {formatCurrency(totalValue)}
             </span>
           </CardDescription>
         </div>
@@ -95,11 +96,14 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                               </span>
                             )}
                             {(asset.metadata as RealEstateMetadata)?.monthly_rent && (
-                              <span className="text-[10px] text-emerald-600 font-medium">
-                                שכירות: ₪
-                                {Number(
-                                  (asset.metadata as RealEstateMetadata).monthly_rent,
-                                ).toLocaleString()}
+                              <span
+                                className={`text-[10px] font-medium ${getAmountColorClass('income')}`}
+                                dir="ltr"
+                              >
+                                שכירות:{' '}
+                                {formatCurrency(
+                                  Number((asset.metadata as RealEstateMetadata).monthly_rent),
+                                )}
                               </span>
                             )}
                           </div>
@@ -112,8 +116,11 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                         </span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-semibold text-emerald-600">
-                          ₪{Number(asset.estimated_value).toLocaleString()}
+                        <span
+                          className={`font-semibold ${getAmountColorClass('income')}`}
+                          dir="ltr"
+                        >
+                          {formatCurrency(Number(asset.estimated_value))}
                         </span>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <AssetDialog assetToEdit={asset} />

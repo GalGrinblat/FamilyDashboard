@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pencil, Link as LinkIcon } from 'lucide-react';
 import { upsertMonthlyOverride, getMonthlyBalanceData } from '../actions';
 import { Database } from '@/types/database.types';
 import {
@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Pencil } from 'lucide-react';
 import {
   CATEGORY_TYPES,
   CATEGORY_DOMAINS,
@@ -25,7 +24,7 @@ import {
   CategoryDomain,
   ACCOUNT_TYPES,
 } from '@/lib/constants';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type Account = Database['public']['Tables']['accounts']['Row'];
 type Transaction = Database['public']['Tables']['transactions']['Row'];
@@ -107,6 +106,8 @@ export function SpecificMonthTab() {
     isActual: boolean; // boolean if it happened or if it's expected
     originalRecurringId?: string; // used for inline override
     domain?: string | null;
+    asset_id?: string | null;
+    policy_id?: string | null;
   }
 
   const timeline: TimelineItem[] = [];
@@ -136,6 +137,8 @@ export function SpecificMonthTab() {
         isActual: false,
         originalRecurringId: flow.id,
         domain: flow.domain,
+        asset_id: flow.asset_id,
+        policy_id: flow.policy_id,
       });
     });
 
@@ -237,7 +240,7 @@ export function SpecificMonthTab() {
           </CardHeader>
           <CardContent>
             <div
-              className={`text-2xl font-bold ${endBalance < 0 ? 'text-red-600' : 'text-emerald-600'}`}
+              className={`text-2xl font-bold ${getAmountColorClass(endBalance < 0 ? 'expense' : 'income')}`}
             >
               <span dir="ltr">{formatCurrency(endBalance)}</span>
             </div>
@@ -265,6 +268,11 @@ export function SpecificMonthTab() {
                   </div>
                   <div className="flex-1 font-medium text-sm flex items-center gap-2">
                     {item.title}
+                    {(item.asset_id || item.policy_id) && (
+                      <span title="תזרים מנוהל אוטומטית">
+                        <LinkIcon className="h-3 w-3 text-zinc-400" />
+                      </span>
+                    )}
                     {item.isActual && (
                       <span className="mr-2 text-xs bg-muted px-1 rounded">בוצע</span>
                     )}
@@ -274,9 +282,7 @@ export function SpecificMonthTab() {
                       </span>
                     )}
                   </div>
-                  <div
-                    className={`text-sm font-bold ${item.type === CATEGORY_TYPES.INCOME ? 'text-emerald-600' : 'text-rose-600'}`}
-                  >
+                  <div className={`text-sm font-bold ${getAmountColorClass(item.type)}`}>
                     <span dir="ltr">
                       {formatCurrency(
                         item.type === CATEGORY_TYPES.EXPENSE ? -item.amount : item.amount,

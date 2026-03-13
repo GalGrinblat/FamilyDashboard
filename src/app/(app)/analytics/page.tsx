@@ -4,6 +4,7 @@ import { CashFlowTrendChart } from '@/components/analytics/CashFlowTrendChart';
 import { BudgetVsActual } from '@/components/analytics/BudgetVsActual';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3 } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 export default async function AnalyticsPage() {
   const { transactions, recurringFlows, currentNetWorth } = await getAnalyticsData();
@@ -48,7 +49,7 @@ export default async function AnalyticsPage() {
                 className="text-5xl font-black text-indigo-700 dark:text-indigo-300 mb-2"
                 dir="ltr"
               >
-                ₪{currentNetWorth.toLocaleString()}
+                {formatCurrency(currentNetWorth)}
               </span>
               <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 max-w-[250px] leading-relaxed">
                 שווי נקי נוכחי מבוסס על יתרות זכות בעו״ש ושווי מוערך של דירות / רכבים והשקעות.

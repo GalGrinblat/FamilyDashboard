@@ -8,6 +8,7 @@ import { MaintenanceLogEntry, AssetMetadata } from '@/types/maintenance';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type AssetRow = Database['public']['Tables']['assets']['Row'];
 
@@ -42,10 +43,10 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
   };
 
   const typeIcons: Record<string, React.ReactNode> = {
-    garage: <Wrench className="h-4 w-4 text-emerald-500" />,
-    test: <CarIcon className="h-4 w-4 text-blue-500" />,
-    insurance: <ShieldCheck className="h-4 w-4 text-indigo-500" />,
-    repair: <Wrench className="h-4 w-4 text-red-500" />,
+    garage: <Wrench className="h-4 w-4 text-emerald-600" />,
+    test: <CarIcon className="h-4 w-4 text-indigo-600" />,
+    insurance: <ShieldCheck className="h-4 w-4 text-emerald-600" />,
+    repair: <Wrench className="h-4 w-4 text-rose-600" />,
     other: <ClipboardList className="h-4 w-4 text-zinc-500" />,
   };
 
@@ -107,8 +108,8 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="font-semibold">
-                    {log.cost ? `₪${Number(log.cost).toLocaleString()}` : ''}
+                  <span className={`font-semibold ${getAmountColorClass('expense')}`} dir="ltr">
+                    {log.cost ? formatCurrency(-Number(log.cost), true) : ''}
                   </span>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button

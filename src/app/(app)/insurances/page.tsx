@@ -4,7 +4,6 @@ import { Shield, HeartPulse, Home, Car as CarIcon, Plus } from 'lucide-react';
 import { DomainTransactionsTab } from '@/components/transactions/DomainTransactionsTab';
 import { CATEGORY_DOMAINS, INSURANCE_TYPES } from '@/lib/constants';
 import { createClient } from '@/lib/supabase/server';
-import { PolicyWithAsset } from '@/types/insurance';
 import { PolicyDialog } from '@/components/insurances/PolicyDialog';
 import { PolicyCard } from '@/components/insurances/PolicyCard';
 import { Button } from '@/components/ui/button';

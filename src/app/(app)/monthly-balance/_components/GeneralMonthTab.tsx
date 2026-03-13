@@ -11,7 +11,7 @@ import {
   CategoryDomain,
   FREQUENCY_TYPES,
 } from '@/lib/constants';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getAmountColorClass, getBadgeColorClass } from '@/lib/utils';
 
 type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'];
 
@@ -87,19 +87,19 @@ export function GeneralMonthTab() {
                     <div className="flex items-center gap-2">
                       <span>{inc.name}</span>
                       {inc.domain && inc.domain !== CATEGORY_DOMAINS.GENERAL && (
-                        <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
+                        <span className={`text-xs px-1.5 py-0.5 rounded-md ${getBadgeColorClass('income')}`}>
                           {CATEGORY_DOMAIN_SHORT_LABELS[inc.domain as CategoryDomain] || inc.domain}
                         </span>
                       )}
                     </div>
-                    <span dir="ltr" className="font-bold text-emerald-600">
+                    <span dir="ltr" className={`font-bold ${getAmountColorClass('income')}`}>
                       {formatCurrency(Number(inc.amount))}
                     </span>
                   </div>
                 ))}
-                <div className="flex justify-between items-center font-bold pt-2 mt-2">
+                <div className="flex justify-between items-center font-bold pt-2 mt-2 border-t">
                   <span>סה״כ הכנסות</span>
-                  <span dir="ltr" className="text-emerald-600">
+                  <span dir="ltr" className={getAmountColorClass('income')}>
                     {formatCurrency(totalIncome)}
                   </span>
                 </div>
@@ -147,8 +147,8 @@ export function GeneralMonthTab() {
                                   ''
                                 )}
                               </span>
-                              <span dir="ltr" className="text-rose-500 font-medium">
-                                {formatCurrency(Number(exp.amount))}
+                              <span dir="ltr" className={`font-medium ${getAmountColorClass('expense')}`}>
+                                {formatCurrency(-Number(exp.amount), true)}
                               </span>
                             </div>
                           ))}
@@ -163,8 +163,8 @@ export function GeneralMonthTab() {
                 <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-2">
                   <div className="flex justify-between items-center font-bold text-lg">
                     <span>סה״כ הוצאות/תקציב צפוי</span>
-                    <span dir="ltr" className="text-rose-600">
-                      {formatCurrency(totalExpense)}
+                    <span dir="ltr" className={getAmountColorClass('expense')}>
+                      {formatCurrency(-totalExpense, true)}
                     </span>
                   </div>
                 </div>
@@ -186,11 +186,7 @@ export function GeneralMonthTab() {
             <div className="text-4xl font-extrabold flex flex-col items-center justify-center py-6 gap-2">
               <span
                 dir="ltr"
-                className={
-                  totalIncome - totalExpense >= 0
-                    ? 'text-emerald-600 dark:text-emerald-500'
-                    : 'text-rose-600 dark:text-rose-500'
-                }
+                className={getAmountColorClass(totalIncome - totalExpense >= 0 ? 'income' : 'expense')}
               >
                 {formatCurrency(totalIncome - totalExpense)}
               </span>
