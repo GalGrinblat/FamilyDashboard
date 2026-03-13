@@ -23,18 +23,22 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const supabase = await createClient();
-  const { data: rawCategories } = await supabase
-    .from('categories')
-    .select('id, name_he, domain')
-    .order('name_he', { ascending: true });
+  
+  const [
+    { data: rawCategories },
+    { data: rawAccounts }
+  ] = await Promise.all([
+    supabase
+      .from('categories')
+      .select('id, name_he, domain')
+      .order('name_he', { ascending: true }),
+    supabase
+      .from('accounts')
+      .select('id, name')
+      .order('name', { ascending: true })
+  ]);
 
   const categories = rawCategories || [];
-
-  const { data: rawAccounts } = await supabase
-    .from('accounts')
-    .select('id, name')
-    .order('name', { ascending: true });
-
   const accounts = rawAccounts || [];
 
   return (

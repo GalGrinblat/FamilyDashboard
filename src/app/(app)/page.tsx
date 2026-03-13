@@ -12,12 +12,15 @@ import { CATEGORY_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-type AccountRef = Pick<Database['public']['Tables']['accounts']['Row'], 'current_balance'>
-type AssetRef = Pick<Database['public']['Tables']['assets']['Row'], 'estimated_value'>
-type TransactionRef = Pick<Database['public']['Tables']['transactions']['Row'], 'amount'> & {
-  categories: Pick<Database['public']['Tables']['categories']['Row'], 'type'> | Pick<Database['public']['Tables']['categories']['Row'], 'type'>[] | null
-}
-type ReminderRef = Database['public']['Tables']['reminders']['Row']
+import { 
+  AccountSchema, 
+  AssetSchema, 
+  TransactionSchema, 
+  ReminderSchema, 
+  type TransactionRef, 
+  type ReminderRef 
+} from "@/lib/schemas"
+import { z } from "zod"
 
 // Helper function to format currency
 const formatILS = (amount: number) => {
@@ -36,65 +39,66 @@ const getTypeIcon = (type: string) => {
 export default async function Home() {
   const supabase = await createClient()
 
-  // 1. Calculate Net Worth (Accounts balances + Assets estimated values)
-  const { data: accountsRaw } = await supabase.from('accounts').select('current_balance')
-  const { data: assetsRaw } = await supabase.from('assets').select('estimated_value').eq('status', 'active')
-
-  const accounts = accountsRaw as AccountRef[] | null
-  const assets = assetsRaw as AssetRef[] | null
-
-  const totalBalance = accounts?.reduce((acc, curr) => acc + (curr.current_balance || 0), 0) || 0
-  const totalAssetsValue = assets?.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0) || 0
-  const netWorth = totalBalance + totalAssetsValue
-
-  // 2. Calculate Monthly Burn Rate (Sum of expense transactions for the current month)
+  // 1. Fetch data in parallel
   const startOfMonth = new Date()
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
-  const { data: transactionsData } = await supabase
-    .from('transactions')
-    .select(`
-      amount,
-      categories ( type )
-    `)
-    .gte('date', startOfMonth.toISOString())
+  const in30Days = new Date()
+  in30Days.setDate(in30Days.getDate() + 30)
 
-  const transactions = transactionsData as TransactionRef[] | null
+  const [
+    { data: accountsRaw },
+    { data: assetsRaw },
+    { data: transactionsRaw },
+    { data: remindersRaw }
+  ] = await Promise.all([
+    supabase.from('accounts').select('current_balance'),
+    supabase.from('assets').select('estimated_value').eq('status', 'active'),
+    supabase.from('transactions')
+      .select(`
+        amount,
+        categories ( type )
+      `)
+      .gte('date', startOfMonth.toISOString()),
+    supabase.from('reminders')
+      .select('*')
+      .eq('is_completed', false)
+      .lte('due_date', in30Days.toISOString())
+      .order('due_date', { ascending: true })
+      .limit(5)
+  ])
 
-  const monthlyBurnRate = transactions?.reduce((acc, curr) => {
+  // 2. Process results with Zod validation
+  const accounts = z.array(AccountSchema).parse(accountsRaw || [])
+  const assets = z.array(AssetSchema).parse(assetsRaw || [])
+
+  const totalBalance = accounts.reduce((acc, curr) => acc + (curr.current_balance || 0), 0)
+  const totalAssetsValue = assets.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0)
+  const netWorth = totalBalance + totalAssetsValue
+
+  const transactions = z.array(TransactionSchema).parse(transactionsRaw || [])
+
+  const monthlyBurnRate = transactions.reduce((acc, curr) => {
     const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
 
     if (catType === CATEGORY_TYPES.EXPENSE) {
       return acc + (curr.amount || 0)
     }
     return acc
-  }, 0) || 0
+  }, 0)
 
-  const monthlyIncome = transactions?.reduce((acc, curr) => {
+  const monthlyIncome = transactions.reduce((acc, curr) => {
     const catType = Array.isArray(curr.categories) ? curr.categories[0]?.type : curr.categories?.type
 
     if (catType === CATEGORY_TYPES.INCOME) {
       return acc + (curr.amount || 0)
     }
     return acc
-  }, 0) || 0
+  }, 0)
 
   const cashFlow = monthlyIncome - monthlyBurnRate
-
-  // 3. Fetch Urgent Reminders (Due within next 30 days)
-  const in30Days = new Date()
-  in30Days.setDate(in30Days.getDate() + 30)
-
-  const { data } = await supabase
-    .from('reminders')
-    .select('*')
-    .eq('is_completed', false)
-    .lte('due_date', in30Days.toISOString())
-    .order('due_date', { ascending: true })
-    .limit(5)
-
-  const reminders = (data as ReminderRef[]) || []
+  const reminders = z.array(ReminderSchema).parse(remindersRaw || [])
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
