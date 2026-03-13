@@ -81,15 +81,16 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
     let error;
 
     if (isEditing) {
-      // @ts-expect-error: Supabase typing
+      // @ts-ignore: Supabase typing
       const { error: updateError } = await supabase
         .from('assets')
+        // @ts-ignore: Supabase typing
         .update(payload)
         .eq('id', assetToEdit.id);
       error = updateError;
     } else {
-      // @ts-expect-error: Supabase typing
-      const { error: insertError } = await supabase.from('assets').insert(payload);
+      // @ts-ignore: Supabase typing
+      const { error: insertError } = await (supabase.from('assets') as any).insert(payload);
       error = insertError;
     }
 

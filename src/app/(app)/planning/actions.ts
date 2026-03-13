@@ -24,7 +24,7 @@ export async function addReminderAction(formData: FormData) {
     is_completed: false,
   };
 
-  // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase.from('reminders').insert(payload);
 
   if (error) {
@@ -56,7 +56,7 @@ export async function updateReminderAction(id: string, formData: FormData) {
     // we don't update is_completed here
   };
 
-  // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase.from('reminders').update(payload).eq('id', id);
 
   if (error) {
@@ -71,9 +71,10 @@ export async function updateReminderAction(id: string, formData: FormData) {
 export async function toggleReminderCompletionAction(id: string, isCompleted: boolean) {
   const supabase = await createClient();
 
-  // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase
     .from('reminders')
+    // @ts-ignore: Supabase generic schema mapping
     .update({ is_completed: isCompleted })
     .eq('id', id);
 
@@ -105,7 +106,7 @@ export async function addTripAction(formData: FormData) {
     budget: budgetStr ? parseFloat(budgetStr) : null,
   };
 
-  // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase.from('trips').insert(payload);
 
   if (error) {

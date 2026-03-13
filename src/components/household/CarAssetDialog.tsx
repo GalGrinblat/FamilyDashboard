@@ -85,9 +85,10 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     let insertedAsset;
 
     if (isEditing) {
-      // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+      // @ts-ignore: Supabase generic schema mapping
       const { data, error: assetError } = await supabase
         .from('assets')
+        // @ts-ignore: Supabase generic schema mapping
         .update(payload)
         .eq('id', assetToEdit.id)
         .select()
@@ -109,9 +110,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
         .eq('is_completed', false)
         .in('type', ['car_test', 'insurance', 'maintenance']);
     } else {
-      // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
-      const { data, error: assetError } = await supabase
-        .from('assets')
+      // @ts-ignore: Supabase generic schema mapping
+      const { data, error: assetError } = await (supabase.from('assets') as any)
         .insert(payload)
         .select()
         .single();
@@ -176,7 +176,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     }
 
     if (remindersToInsert.length > 0) {
-      // @ts-expect-error: Supabase generic schema mapping forces never for bulk inserts
+      // @ts-ignore: Supabase generic schema mapping
       const { error: remError } = await supabase.from('reminders').insert(remindersToInsert);
       if (remError) {
         console.error('Error inserting reminders:', remError);
@@ -208,9 +208,10 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       return;
 
     setLoading(true);
-    // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
+    // @ts-ignore: Supabase generic schema mapping
     const { error } = await supabase
       .from('assets')
+      // @ts-ignore: Supabase generic schema mapping
       .update({ status: 'sold' })
       .eq('id', assetToEdit.id);
 

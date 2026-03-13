@@ -94,9 +94,7 @@ export default async function Home() {
   const transactions = z.array(TransactionSchema).parse(transactionsRaw || []);
 
   const monthlyBurnRate = transactions.reduce((acc, curr) => {
-    const catType = Array.isArray(curr.categories)
-      ? curr.categories[0]?.type
-      : curr.categories?.type;
+    const catType = curr.categories?.type;
 
     if (catType === CATEGORY_TYPES.EXPENSE) {
       return acc + (curr.amount || 0);
@@ -105,9 +103,7 @@ export default async function Home() {
   }, 0);
 
   const monthlyIncome = transactions.reduce((acc, curr) => {
-    const catType = Array.isArray(curr.categories)
-      ? curr.categories[0]?.type
-      : curr.categories?.type;
+    const catType = curr.categories?.type;
 
     if (catType === CATEGORY_TYPES.INCOME) {
       return acc + (curr.amount || 0);

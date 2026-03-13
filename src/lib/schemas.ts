@@ -39,22 +39,15 @@ export const TransactionSchema = z.object({
   total_installments: z.number().nullable(),
   asset_id: z.string().nullable(),
   categories: z
-    .union([
-      z.object({
-        name_he: z.string().optional(),
-        name_en: z.string().optional(),
-        type: z.string(),
-        domain: z.string().optional(),
-      }),
-      z.array(
-        z.object({
-          name_he: z.string().optional(),
-          name_en: z.string().optional(),
-          type: z.string(),
-          domain: z.string().optional(),
-        }),
-      ),
-    ])
+    .preprocess((val) => {
+      if (Array.isArray(val)) return val[0];
+      return val;
+    }, z.object({
+      name_he: z.string().optional(),
+      name_en: z.string().optional(),
+      type: z.string(),
+      domain: z.string().optional(),
+    }).nullable())
     .nullable()
     .default(null),
   metadata: z.any().nullable(),
@@ -79,7 +72,20 @@ export const PolicySchema = z.object({
   assets: AssetSchema.nullable().default(null),
 });
 
+export const ReminderSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  due_date: z.string(),
+  start_date: z.string().nullable(),
+  type: z.string(),
+  is_completed: z.boolean().nullable(),
+  asset_id: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
 export type AccountRef = z.infer<typeof AccountSchema>;
 export type AssetRef = z.infer<typeof AssetSchema>;
 export type TransactionRef = z.infer<typeof TransactionSchema>;
 export type PolicyRef = z.infer<typeof PolicySchema>;
+export type ReminderRef = z.infer<typeof ReminderSchema>;

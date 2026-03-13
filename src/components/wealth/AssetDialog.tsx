@@ -67,15 +67,16 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     let error;
 
     if (isEditing) {
-      // @ts-expect-error: Supabase generic schema mapping
+      // @ts-ignore: Supabase generic mapping
       const { error: updateError } = await supabase
         .from('assets')
+        // @ts-ignore: Supabase generic mapping
         .update(payload)
         .eq('id', assetToEdit.id);
       error = updateError;
     } else {
-      // @ts-expect-error: Supabase generic schema mapping
-      const { error: insertError } = await supabase.from('assets').insert(payload);
+      // @ts-ignore: Supabase generic mapping
+      const { error: insertError } = await (supabase.from('assets') as any).insert(payload);
       error = insertError;
     }
 

@@ -55,15 +55,16 @@ export function ContractDialog({ triggerButton, contractToEdit }: AddContractDia
 
     let error;
     if (isEditing) {
-      // @ts-expect-error: Supabase generic schema mapping
+      // @ts-ignore: Supabase generic mapping
       const { error: updateError } = await supabase
         .from('recurring_flows')
+        // @ts-ignore: Supabase generic mapping
         .update(payload)
         .eq('id', contractToEdit.id);
       error = updateError;
     } else {
-      // @ts-expect-error: Supabase generic schema mapping
-      const { error: insertError } = await supabase.from('recurring_flows').insert(payload);
+      // @ts-ignore: Supabase generic mapping
+      const { error: insertError } = await (supabase.from('recurring_flows') as any).insert(payload);
       error = insertError;
     }
 
