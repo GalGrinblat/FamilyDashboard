@@ -100,7 +100,7 @@ function PolicyForm({
   const [policyNumber, setPolicyNumber] = useState(policy?.policy_number || '');
   const [assetId, setAssetId] = useState(policy?.asset_id || 'none');
   const [file, setFile] = useState<File | null>(null);
-  const [assets, setAssets] = useState<Database['public']['Tables']['assets']['Row'][]>([]);
+  const [assets, setAssets] = useState<Pick<Database['public']['Tables']['assets']['Row'], 'id' | 'name' | 'type' | 'metadata'>[]>([]);
 
   // Reset subtype when primary type changes
   useEffect(() => {

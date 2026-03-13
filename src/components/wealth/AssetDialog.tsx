@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,10 +26,12 @@ import {
 import { Plus, Pencil } from 'lucide-react';
 import { ASSET_TYPES, ASSET_TYPE_LABELS } from '@/lib/constants';
 
-import { Database } from '@/types/database.types';
+import { Database, Json } from '@/types/database.types';
 import { AssetMetadata, RealEstateMetadata } from '@/types/wealth';
 
 type AssetRow = Database['public']['Tables']['assets']['Row'];
+type AssetInsert = Database['public']['Tables']['assets']['Insert'];
+type AssetUpdate = Database['public']['Tables']['assets']['Update'];
 
 interface AssetDialogProps {
   triggerButton?: React.ReactNode;
@@ -49,37 +52,38 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     assetToEdit?.estimated_value?.toString() || '',
   );
   const [metadata, setMetadata] = useState<AssetMetadata>(
-    (assetToEdit?.metadata as AssetMetadata) || {},
+    (assetToEdit?.metadata as AssetMetadata) || ({} as AssetMetadata),
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
+    const payload: AssetInsert = {
       name,
       type,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
       status: 'active',
-      metadata: type === ASSET_TYPES.REAL_ESTATE ? metadata : null,
+      metadata: (type === ASSET_TYPES.REAL_ESTATE ? (metadata as Json) : null),
     };
 
     let error;
     let savedAssetId = assetToEdit?.id;
 
     if (isEditing) {
-      // @ts-ignore: Supabase generic mapping
       const { error: updateError } = await supabase
         .from('assets')
-        // @ts-ignore: Supabase generic mapping
         .update(payload)
         .eq('id', assetToEdit.id);
       error = updateError;
     } else {
-      // @ts-ignore: Supabase generic mapping
-      const { data, error: insertError } = await (supabase.from('assets') as any).insert(payload).select('id').single();
+      const { data, error: insertError } = await supabase
+        .from('assets')
+        .insert(payload)
+        .select()
+        .single();
       error = insertError;
-      if (data) savedAssetId = (data as any).id;
+      if (data) savedAssetId = data.id;
     }
 
     if (!error && savedAssetId) {
@@ -225,6 +229,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
               <Input
                 id="leasing"
                 type="number"
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 value={(metadata as any)?.leasing_payment || ''}
                 onChange={(e) => setMetadata({ ...metadata, leasing_payment: e.target.value })}
                 className="col-span-3"
@@ -244,53 +249,60 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 }
 
 // Helper to sync recurring flows
-async function syncAssetFlows(supabase: any, assetId: string, assetName: string, metadata: any, type: string) {
+async function syncAssetFlows(
+  supabase: SupabaseClient<Database>,
+  assetId: string,
+  assetName: string,
+  metadata: AssetMetadata,
+  type: string,
+) {
+  if (!metadata) return;
   const flowsToUpsert = [];
 
   if (type === ASSET_TYPES.REAL_ESTATE) {
-    if (metadata.monthly_rent && parseFloat(metadata.monthly_rent) > 0) {
+    if (metadata.monthly_rent && parseFloat(metadata.monthly_rent.toString()) > 0) {
       flowsToUpsert.push({
         asset_id: assetId,
         name: `${assetName} (שכירות)`,
-        amount: parseFloat(metadata.monthly_rent),
-        type: 'income',
-        frequency: 'monthly',
-        domain: 'housing',
-        is_active: true
-      });
-    }
-    if (metadata.mortgage_payment && parseFloat(metadata.mortgage_payment) > 0) {
-      flowsToUpsert.push({
-        asset_id: assetId,
-        name: `${assetName} (משכנתא)`,
-        amount: parseFloat(metadata.mortgage_payment),
+        amount: parseFloat(metadata.monthly_rent.toString()),
         type: 'expense',
         frequency: 'monthly',
         domain: 'housing',
-        is_active: true
+        is_active: true,
+      });
+    }
+    if (metadata.mortgage_payment && parseFloat(metadata.mortgage_payment.toString()) > 0) {
+      flowsToUpsert.push({
+        asset_id: assetId,
+        name: `${assetName} (משכנתא)`,
+        amount: parseFloat(metadata.mortgage_payment.toString()),
+        type: 'expense',
+        frequency: 'monthly',
+        domain: 'housing',
+        is_active: true,
       });
     }
   }
 
   if (type === ASSET_TYPES.VEHICLE) {
-    if (metadata.leasing_payment && parseFloat(metadata.leasing_payment) > 0) {
+    if (metadata.leasing_payment && parseFloat(metadata.leasing_payment.toString()) > 0) {
       flowsToUpsert.push({
         asset_id: assetId,
         name: `${assetName} (ליסינג/מימון)`,
-        amount: parseFloat(metadata.leasing_payment),
+        amount: parseFloat(metadata.leasing_payment.toString()),
         type: 'expense',
         frequency: 'monthly',
         domain: 'transportation',
-        is_active: true
+        is_active: true,
       });
     }
   }
 
   // Delete existing flows for this asset that are not in the new list
   // (Simplified: we just delete and re-insert or upsert by name/asset_id)
-  // For safety, let's use a more robust upsert if we had a unique constraint, 
+  // For safety, let's use a more robust upsert if we had a unique constraint,
   // but here we'll just manage them manually.
-  
+
   for (const flow of flowsToUpsert) {
     const { data: existing } = await supabase
       .from('recurring_flows')

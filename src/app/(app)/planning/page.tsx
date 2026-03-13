@@ -179,7 +179,7 @@ export default async function PlanningPage() {
     supabase.from('trips').select('*').order('start_date', { ascending: true }),
   ]);
 
-  const reminders = (remindersData as ReminderRowWithAsset[]) || [];
+  const reminders = (remindersData as unknown as ReminderRowWithAsset[]) || [];
   const trips = (tripsData as TripRow[]) || [];
 
   return (

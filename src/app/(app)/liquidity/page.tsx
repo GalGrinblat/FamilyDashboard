@@ -28,7 +28,7 @@ export default async function LiquidityPage() {
     .select('*, accounts(name)')
     .order('created_at', { ascending: false });
 
-  const flows = (recurringFlows as FlowRow[]) || [];
+  const flows = (recurringFlows as unknown as FlowRow[]) || [];
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

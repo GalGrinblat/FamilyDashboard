@@ -110,14 +110,12 @@ export function RecurringFlowDialog({
     if (isEditing && flowToEdit) {
       const { error: updateError } = await supabase
         .from('recurring_flows')
-        // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .update(payload)
         .eq('id', flowToEdit.id);
       error = updateError;
     } else {
       const { error: insertError } = await supabase
         .from('recurring_flows')
-        // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .insert(payload);
       error = insertError;
     }

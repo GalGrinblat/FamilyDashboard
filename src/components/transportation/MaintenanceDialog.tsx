@@ -66,15 +66,14 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
       mileage: mileage ? parseInt(mileage) : null,
     };
 
-    const payload = {
+    const payload: Database['public']['Tables']['assets']['Update'] = {
       metadata: {
         ...metadata,
         maintenance_log: [...existingLogs, newLogEntry],
         last_service_km: mileage ? parseInt(mileage) : metadata.last_service_km,
-      },
+      } as unknown as Database['public']['Tables']['assets']['Update']['metadata'],
     };
 
-    // @ts-expect-error: Supabase generic schema mapping
     const { error } = await supabase.from('assets').update(payload).eq('id', carId);
 
     setLoading(false);

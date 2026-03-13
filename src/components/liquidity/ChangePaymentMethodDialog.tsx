@@ -54,7 +54,6 @@ export function ChangePaymentMethodDialog({
     // Create a new reminder
     const { error } = await supabase
       .from('reminders')
-      // @ts-expect-error: Supabase TS
       .insert({
         title: `החלפת אמצעי תשלום עבור ${flow.name} ל-${targetAccountName}`,
         type: 'finance',

@@ -33,7 +33,7 @@ export async function getAnalyticsData() {
     .gte('date', sixMonthsAgo.toISOString())
     .order('date', { ascending: true });
 
-  const transactions = (rawTransactions as TransactionWithCategory[]) || [];
+  const transactions = (rawTransactions as unknown as TransactionWithCategory[]) || [];
 
   // Fetch recurring flows for budget vs actual
   const { data: rawFlows } = await supabase

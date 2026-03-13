@@ -109,7 +109,6 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
     if (editingCategory) {
       const { data, error } = await supabase
         .from('categories')
-        // @ts-expect-error: dynamic insert
         .update(payload)
         .eq('id', editingCategory.id)
         .select()
@@ -125,7 +124,6 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
     } else {
       const { data, error } = await supabase
         .from('categories')
-        // @ts-expect-error: dynamic insert
         .insert(payload)
         .select()
         .single();

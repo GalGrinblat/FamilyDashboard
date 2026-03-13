@@ -40,7 +40,6 @@ export async function addPolicyAction(formData: FormData) {
     document_url: documentUrl,
   };
 
-  // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
   const { error } = await supabase.from('policies').insert(payload);
 
   if (error) {
@@ -49,7 +48,8 @@ export async function addPolicyAction(formData: FormData) {
   }
 
   // Sync with recurring_flows
-  const { data: newPolicy } = await (supabase.from('policies') as any)
+  const { data: newPolicy } = await supabase
+    .from('policies')
     .select('id')
     .eq('name', name)
     .eq('provider', provider)
@@ -58,7 +58,13 @@ export async function addPolicyAction(formData: FormData) {
     .single();
 
   if (newPolicy) {
-    await syncPolicyToFlow(supabase, (newPolicy as any).id, name, payload.premium_amount, premiumFrequency);
+    await syncPolicyToFlow(
+      supabase,
+      newPolicy.id,
+      name,
+      payload.premium_amount,
+      premiumFrequency,
+    );
   }
 
   revalidatePath('/insurances');
@@ -101,7 +107,6 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     document_url: documentUrl,
   };
 
-  // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
   const { error } = await supabase.from('policies').update(payload).eq('id', id);
 
   if (error) {
@@ -116,7 +121,13 @@ export async function updatePolicyAction(id: string, formData: FormData) {
   return { success: true };
 }
 
-async function syncPolicyToFlow(supabase: any, policyId: string, policyName: string, amount: number, frequency: string) {
+async function syncPolicyToFlow(
+  supabase: Awaited<ReturnType<typeof import('@/lib/supabase/server').createClient>>,
+  policyId: string,
+  policyName: string,
+  amount: number,
+  frequency: string,
+) {
   const flowPayload = {
     policy_id: policyId,
     name: `ביטוח: ${policyName}`,
@@ -124,7 +135,7 @@ async function syncPolicyToFlow(supabase: any, policyId: string, policyName: str
     type: 'expense',
     frequency: frequency === 'yearly' ? 'yearly' : 'monthly',
     domain: 'insurances',
-    is_active: true
+    is_active: true,
   };
 
   const { data: existing } = await supabase

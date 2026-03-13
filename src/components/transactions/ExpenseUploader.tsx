@@ -23,7 +23,7 @@ export function ExpenseUploader({
   const [isClassifying, setIsClassifying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [classifiedRows, setClassifiedRows] = useState<ClassifiedTransactionRow[] | null>(null);
-  const [activeAssets, setActiveAssets] = useState<{ id: string; name: string; domain?: string }[]>(
+  const [activeAssets, setActiveAssets] = useState<{ id: string; name: string }[]>(
     [],
   );
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
@@ -33,7 +33,7 @@ export function ExpenseUploader({
     const fetchAssets = async () => {
       const { data } = await supabase
         .from('assets')
-        .select('id, name, domain')
+        .select('id, name')
         .eq('status', 'active');
       if (data) setActiveAssets(data);
     };

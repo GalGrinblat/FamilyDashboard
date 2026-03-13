@@ -185,7 +185,7 @@ export default async function TransportationPage() {
 
   // Process accumulated transactions
   const cars: CarAssetWithCost[] = (assetsData || []).map((rawCar) => {
-    const car = rawCar as AssetRow & { transactions?: { amount: number | null }[] | null };
+    const car = rawCar as unknown as AssetRow & { transactions?: { amount: number | null }[] | null };
     const total = (car.transactions || []).reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
     return {
       ...car,

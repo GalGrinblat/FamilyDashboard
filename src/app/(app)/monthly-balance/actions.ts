@@ -68,7 +68,6 @@ export async function upsertMonthlyOverride(
 
   const { error } = await supabase
     .from('monthly_overrides')
-    // @ts-expect-error: Supabase generic schema mapping forces never on incomplete descriptors
     .upsert(
       {
         month_year,

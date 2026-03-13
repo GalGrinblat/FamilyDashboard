@@ -76,14 +76,12 @@ export function AccountDialog({
     if (isEditing && accountToEdit) {
       const { error: updateError } = await supabase
         .from('accounts')
-        // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .update(payload)
         .eq('id', accountToEdit.id);
       error = updateError;
     } else {
       const { error: insertError } = await supabase
         .from('accounts')
-        // @ts-expect-error: Supabase TS inference resolves to never for manually added tables
         .insert(payload);
       error = insertError;
     }

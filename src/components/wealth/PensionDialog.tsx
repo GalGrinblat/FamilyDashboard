@@ -15,14 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
+import { ASSET_TYPES } from '@/lib/constants';
 
 import { Database } from '@/types/database.types';
 
@@ -35,29 +29,14 @@ interface PensionDialogProps {
 
 export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps) {
   const [open, setOpen] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   const isEditing = !!assetToEdit;
-  const metadata = (assetToEdit?.metadata as Record<string, unknown>) || {};
-
   const [name, setName] = useState(assetToEdit?.name || '');
-  const [pensionType, setPensionType] = useState(
-    ((metadata as Record<string, unknown>).pension_type as string) || 'pension_fund',
-  );
   const [estimatedValue, setEstimatedValue] = useState(
     assetToEdit?.estimated_value?.toString() || '',
-  );
-  const [employerPercent, setEmployerPercent] = useState(
-    metadata.employer_percent?.toString() || '',
-  );
-  const [employeePercent, setEmployeePercent] = useState(
-    metadata.employee_percent?.toString() || '',
-  );
-  const [severancePercent, setSeverancePercent] = useState(
-    metadata.severance_percent?.toString() || '',
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,51 +45,34 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
 
     const payload = {
       name,
-      type: 'pension',
+      type: ASSET_TYPES.PENSION,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
       status: 'active',
-      metadata: {
-        ...metadata,
-        pension_type: pensionType,
-        employer_percent: employerPercent ? parseFloat(employerPercent) : null,
-        employee_percent: employeePercent ? parseFloat(employeePercent) : null,
-        severance_percent: severancePercent ? parseFloat(severancePercent) : null,
-      },
+      metadata: {},
     };
 
     let error;
 
-    if (isEditing) {
-      // @ts-ignore: Supabase typing
+    if (isEditing && assetToEdit) {
       const { error: updateError } = await supabase
         .from('assets')
-        // @ts-ignore: Supabase typing
         .update(payload)
         .eq('id', assetToEdit.id);
       error = updateError;
     } else {
-      // @ts-ignore: Supabase typing
-      const { error: insertError } = await (supabase.from('assets') as any).insert(payload);
+      const { error: insertError } = await supabase.from('assets').insert(payload);
       error = insertError;
     }
 
-    setLoading(false);
-
     if (error) {
-      console.error('Error saving pension:', error);
-      alert(isEditing ? 'שגיאה בעדכון הקופה' : 'שגיאה בהוספת הקופה');
+      console.error('Error saving pension asset:', error);
+      alert('שגיאה בשמירת הקרן');
+      setLoading(false);
       return;
     }
 
+    setLoading(false);
     setOpen(false);
-    if (!isEditing) {
-      setName('');
-      setPensionType('pension_fund');
-      setEstimatedValue('');
-      setEmployerPercent('');
-      setEmployeePercent('');
-      setSeverancePercent('');
-    }
     router.refresh();
   };
 
@@ -118,59 +80,36 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
-          <Button variant={isEditing ? 'ghost' : 'default'} size={isEditing ? 'icon' : 'default'}>
-            {isEditing ? (
-              <Pencil className="h-4 w-4" />
-            ) : (
-              <>
-                <Plus className="ml-2 h-4 w-4" /> קופה חדשה
-              </>
-            )}
+          <Button variant="outline" size="sm">
+            {isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="ml-2 h-4 w-4" />}
+            {isEditing ? '' : 'הוסף קרן/קופה'}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'עריכת קופת פנסיה/גמל' : 'הוספת קופת פנסיה/גמל'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'עריכת קרן פנסיה/השתלמות' : 'הוספת קרן פנסיה/השתלמות'}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? 'עדכן את יתרת הקופה ואחוזי ההפרשה.'
-              : 'הוסף קרן פנסיה, ביטוח מנהלים או קרן השתלמות למעקב סך החסכונות.'}
+            הזן את שם הקרן והיתרה העדכנית כפי שמופיעה בדוח הרבעוני או באתר הקופה.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right whitespace-nowrap">
-              שם הקופה/קרן
+            <Label htmlFor="name" className="text-right">
+              שם הקופה
             </Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="col-span-3"
-              placeholder="למשל: מקפת קלסיק, אלטשולר שחם"
+              placeholder="למשל: אלטשולר שחם פנסיה"
               required
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="pensionType" className="text-right">
-              סוג
-            </Label>
-            <Select value={pensionType} onValueChange={setPensionType}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="בחר סוג קופה" />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                <SelectItem value="pension_fund">קרן פנסיה</SelectItem>
-                <SelectItem value="managers_insurance">ביטוח מנהלים</SelectItem>
-                <SelectItem value="study_fund">קרן השתלמות</SelectItem>
-                <SelectItem value="provident_fund">קופת גמל</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="value" className="text-right">
-              צבירה נוכחית
+              יתרה עדכנית
             </Label>
             <Input
               id="value"
@@ -179,54 +118,11 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
               onChange={(e) => setEstimatedValue(e.target.value)}
               className="col-span-3"
               placeholder="₪"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="employeePercent" className="text-right text-xs whitespace-nowrap">
-              הפרשת עובד (%)
-            </Label>
-            <Input
-              id="employeePercent"
-              type="number"
-              step="0.01"
-              value={employeePercent}
-              onChange={(e) => setEmployeePercent(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: 6.0"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="employerPercent" className="text-right text-xs whitespace-nowrap">
-              הפרשת מעסיק (%)
-            </Label>
-            <Input
-              id="employerPercent"
-              type="number"
-              step="0.01"
-              value={employerPercent}
-              onChange={(e) => setEmployerPercent(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: 6.5"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="severancePercent" className="text-right text-xs whitespace-nowrap">
-              הפרשת פיצויים (%)
-            </Label>
-            <Input
-              id="severancePercent"
-              type="number"
-              step="0.01"
-              value={severancePercent}
-              onChange={(e) => setSeverancePercent(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: 8.33"
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'שמור פריט' : 'הוסף קופה'}
+            <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700">
+              {loading ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף לנכסים'}
             </Button>
           </DialogFooter>
         </form>

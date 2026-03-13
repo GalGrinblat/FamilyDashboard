@@ -32,7 +32,6 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
         maintenance_log: newLogs,
       } as unknown as Database['public']['Tables']['assets']['Update']['metadata'],
     };
-    // @ts-expect-error: Supabase generic schema mapping forces never on incomplete json columns
     const { error } = await supabase.from('assets').update(payload).eq('id', carId);
     if (error) {
       console.error(error);

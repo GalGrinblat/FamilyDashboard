@@ -33,7 +33,6 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
   const supabase = createClient();
 
   // Form State
-  // Form State (seeded if editing)
   const isEditing = !!assetToEdit;
   const [metadata] = useState<Record<string, unknown>>(
     (assetToEdit?.metadata as Record<string, unknown>) || {},
@@ -83,45 +82,42 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     };
 
     let insertedAsset;
+    let error;
 
     if (isEditing) {
-      // @ts-ignore: Supabase generic schema mapping
-      const { data, error: assetError } = await supabase
+      const { data, error: updateError } = await supabase
         .from('assets')
-        // @ts-ignore: Supabase generic schema mapping
         .update(payload)
         .eq('id', assetToEdit.id)
         .select()
         .single();
-      if (assetError || !data) {
-        console.error('Error updating car asset:', assetError);
-        alert('שגיאה בעדכון הרכב');
-        setLoading(false);
-        return;
-      }
+      error = updateError;
       insertedAsset = data;
+    } else {
+      const { data, error: insertError } = await supabase
+        .from('assets')
+        .insert(payload)
+        .select()
+        .single();
+      error = insertError;
+      insertedAsset = data;
+    }
 
-      // In an editing scenario, to prevent duplicate reminders, we would ideally wipe the old uncompleted ones or UPSERT them.
-      // For simplicity in this version, we'll clear out pending auto-generated reminders for this asset and recreate them.
+    if (error || !insertedAsset) {
+      console.error('Error saving car asset:', error);
+      alert('שגיאה בשמירת הרכב');
+      setLoading(false);
+      return;
+    }
+
+    // In an editing scenario, to prevent duplicate reminders, we would ideally wipe the old uncompleted ones or UPSERT them.
+    if (isEditing && assetToEdit) {
       await supabase
         .from('reminders')
         .delete()
         .eq('asset_id', assetToEdit.id)
         .eq('is_completed', false)
         .in('type', ['car_test', 'insurance', 'maintenance']);
-    } else {
-      // @ts-ignore: Supabase generic schema mapping
-      const { data, error: assetError } = await (supabase.from('assets') as any)
-        .insert(payload)
-        .select()
-        .single();
-      if (assetError || !data) {
-        console.error('Error inserting car asset:', assetError);
-        alert('שגיאה בהוספת הרכב');
-        setLoading(false);
-        return;
-      }
-      insertedAsset = data;
     }
 
     const assetId = (insertedAsset as AssetRow).id;
@@ -136,7 +132,6 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       if (nextTest < today) {
         nextTest.setFullYear(today.getFullYear() + 1);
       }
-      // 1 month prior
       nextTest.setMonth(nextTest.getMonth() - 1);
       remindersToInsert.push({
         title: `טסט שנתי: ${name}`,
@@ -148,7 +143,6 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
 
     if (insuranceEndDate) {
       const insDate = new Date(insuranceEndDate as string);
-      // 1 month prior
       insDate.setMonth(insDate.getMonth() - 1);
       remindersToInsert.push({
         title: `חידוש ביטוח: ${name}`,
@@ -166,7 +160,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     if (baseServiceDate) {
       const nextService = new Date(baseServiceDate);
       nextService.setFullYear(nextService.getFullYear() + 1);
-      nextService.setDate(nextService.getDate() - 7); // 1 week prior
+      nextService.setDate(nextService.getDate() - 7);
       remindersToInsert.push({
         title: `טיפול תקופתי: ${name}`,
         due_date: nextService.toISOString().split('T')[0],
@@ -176,7 +170,6 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     }
 
     if (remindersToInsert.length > 0) {
-      // @ts-ignore: Supabase generic schema mapping
       const { error: remError } = await supabase.from('reminders').insert(remindersToInsert);
       if (remError) {
         console.error('Error inserting reminders:', remError);
@@ -184,17 +177,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     }
 
     setLoading(false);
-
     setOpen(false);
-    // Reset form
-    setName('');
-    setEstimatedValue('');
-    setLicensePlate('');
-    setRegistrationDate('');
-    setInsuranceEndDate('');
-    setLastServiceDate('');
-    setLastServiceKm('');
-    // Refresh the page data
     router.refresh();
   };
 
@@ -208,10 +191,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       return;
 
     setLoading(true);
-    // @ts-ignore: Supabase generic schema mapping
     const { error } = await supabase
       .from('assets')
-      // @ts-ignore: Supabase generic schema mapping
       .update({ status: 'sold' })
       .eq('id', assetToEdit.id);
 
@@ -348,7 +329,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
                 סמן רכב כנמכר
               </Button>
             ) : (
-              <div /> // Spacer
+              <div />
             )}
             <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700">
               {loading ? 'שומר...' : isEditing ? 'עדכן את פרטי הרכב' : 'הוסף רכב כנכס'}

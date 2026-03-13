@@ -70,7 +70,6 @@ export function HouseholdItemDialog({
       warranty_expiry: warrantyExpiry || null,
     };
 
-    // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
     const { error } = await supabase.from('household_items').insert(payload);
 
     setLoading(false);

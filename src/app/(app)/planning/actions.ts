@@ -2,6 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { Database } from '@/types/database.types';
+
+type ReminderInsert = Database['public']['Tables']['reminders']['Insert'];
+type ReminderUpdate = Database['public']['Tables']['reminders']['Update'];
+type TripInsert = Database['public']['Tables']['trips']['Insert'];
 
 export async function addReminderAction(formData: FormData) {
   const supabase = await createClient();
@@ -16,7 +21,7 @@ export async function addReminderAction(formData: FormData) {
 
   const startDate = formData.get('start_date') as string;
 
-  const payload = {
+  const payload: ReminderInsert = {
     title,
     type,
     due_date: dueDate,
@@ -24,7 +29,6 @@ export async function addReminderAction(formData: FormData) {
     is_completed: false,
   };
 
-  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase.from('reminders').insert(payload);
 
   if (error) {
@@ -48,7 +52,7 @@ export async function updateReminderAction(id: string, formData: FormData) {
     return { error: 'חובה למלא כותרת, סוג ותאריך יעד' };
   }
 
-  const payload = {
+  const payload: ReminderUpdate = {
     title,
     type,
     due_date: dueDate,
@@ -56,7 +60,6 @@ export async function updateReminderAction(id: string, formData: FormData) {
     // we don't update is_completed here
   };
 
-  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase.from('reminders').update(payload).eq('id', id);
 
   if (error) {
@@ -71,12 +74,8 @@ export async function updateReminderAction(id: string, formData: FormData) {
 export async function toggleReminderCompletionAction(id: string, isCompleted: boolean) {
   const supabase = await createClient();
 
-  // @ts-ignore: Supabase generic schema mapping
-  const { error } = await supabase
-    .from('reminders')
-    // @ts-ignore: Supabase generic schema mapping
-    .update({ is_completed: isCompleted })
-    .eq('id', id);
+  const payload: ReminderUpdate = { is_completed: isCompleted };
+  const { error } = await supabase.from('reminders').update(payload).eq('id', id);
 
   if (error) {
     console.error('Error toggling completion:', error);
@@ -99,14 +98,13 @@ export async function addTripAction(formData: FormData) {
     return { error: 'שם החופשה הינו חובה' };
   }
 
-  const payload = {
+  const payload: TripInsert = {
     name,
     start_date: startDate || null,
     end_date: endDate || null,
     budget: budgetStr ? parseFloat(budgetStr) : null,
   };
 
-  // @ts-ignore: Supabase generic schema mapping
   const { error } = await supabase.from('trips').insert(payload);
 
   if (error) {

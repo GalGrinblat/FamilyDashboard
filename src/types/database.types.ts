@@ -34,6 +34,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       assets: {
         Row: {
@@ -69,6 +70,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       categories: {
         Row: {
@@ -104,6 +106,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       household_items: {
         Row: {
@@ -142,6 +145,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       merchant_mappings: {
         Row: {
@@ -165,6 +169,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       monthly_overrides: {
         Row: {
@@ -191,6 +196,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       policies: {
         Row: {
@@ -238,6 +244,7 @@ export interface Database {
           document_url?: string | null;
           subtype?: string | null;
         };
+        Relationships: [];
       };
       recurring_flows: {
         Row: {
@@ -291,6 +298,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       reminders: {
         Row: {
@@ -326,6 +334,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       transactions: {
         Row: {
@@ -382,6 +391,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       trips: {
         Row: {
@@ -411,6 +421,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
     };
     Views: {

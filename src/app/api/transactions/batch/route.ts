@@ -36,7 +36,6 @@ export async function POST(req: Request) {
           // Try to insert
           const { data: newCat, error: catError } = await supabase
             .from('categories')
-            // @ts-expect-error: Supabase generic schema mapping forces never on incomplete descriptors
             .insert({
               name_he: row.suggested_new_category.name_he,
               name_en: row.suggested_new_category.name_en || row.suggested_new_category.name_he,
@@ -72,7 +71,6 @@ export async function POST(req: Request) {
     // Insert new transactions into the ledger
     const { error: txError } = await supabase
       .from('transactions')
-      // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
       .insert(newTransactions);
 
     if (txError) {
@@ -97,7 +95,6 @@ export async function POST(req: Request) {
     if (mappingsToLearn.length > 0) {
       await supabase
         .from('merchant_mappings')
-        // @ts-expect-error: Supabase generic schema mapping forces never on incomplete table descriptors
         .insert(mappingsToLearn);
     }
 
