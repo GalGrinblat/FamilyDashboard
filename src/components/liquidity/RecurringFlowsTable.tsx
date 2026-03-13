@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Link } from 'lucide-react';
 import { Database } from '@/types/database.types';
 import {
   CATEGORY_TYPES,
@@ -85,7 +85,16 @@ export function RecurringFlowsTable({
                     {flow.type === 'income' ? 'הכנסה' : 'הוצאה'}
                   </span>
                 </TableCell>
-                <TableCell className="font-medium">{flow.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-1">
+                    {flow.name}
+                    {(flow.asset_id || flow.policy_id) && (
+                      <span title="תזרים מנוהל אוטומטית">
+                        <Link className="h-3 w-3 text-zinc-400" />
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-zinc-500">{flow.accounts?.name || '-'}</TableCell>
                 <TableCell>
                   {flow.frequency === FREQUENCY_TYPES.MONTHLY

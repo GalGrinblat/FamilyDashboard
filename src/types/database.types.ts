@@ -252,6 +252,8 @@ export interface Database {
           end_date: string | null;
           domain: string | null;
           is_active: boolean | null;
+          asset_id: string | null;
+          policy_id: string | null;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -267,6 +269,8 @@ export interface Database {
           end_date?: string | null;
           domain?: string | null;
           is_active?: boolean | null;
+          asset_id?: string | null;
+          policy_id?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -282,6 +286,8 @@ export interface Database {
           end_date?: string | null;
           domain?: string | null;
           is_active?: boolean | null;
+          asset_id?: string | null;
+          policy_id?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };

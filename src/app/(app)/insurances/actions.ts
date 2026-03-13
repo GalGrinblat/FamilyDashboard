@@ -48,6 +48,19 @@ export async function addPolicyAction(formData: FormData) {
     return { error: 'שגיאה בהוספת הפוליסה' };
   }
 
+  // Sync with recurring_flows
+  const { data: newPolicy } = await (supabase.from('policies') as any)
+    .select('id')
+    .eq('name', name)
+    .eq('provider', provider)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (newPolicy) {
+    await syncPolicyToFlow(supabase, (newPolicy as any).id, name, payload.premium_amount, premiumFrequency);
+  }
+
   revalidatePath('/insurances');
   return { success: true };
 }
@@ -96,6 +109,33 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     return { error: 'שגיאה בעדכון הפוליסה' };
   }
 
+  // Sync with recurring_flows
+  await syncPolicyToFlow(supabase, id, name, payload.premium_amount, premiumFrequency);
+
   revalidatePath('/insurances');
   return { success: true };
+}
+
+async function syncPolicyToFlow(supabase: any, policyId: string, policyName: string, amount: number, frequency: string) {
+  const flowPayload = {
+    policy_id: policyId,
+    name: `ביטוח: ${policyName}`,
+    amount: amount,
+    type: 'expense',
+    frequency: frequency === 'yearly' ? 'yearly' : 'monthly',
+    domain: 'insurances',
+    is_active: true
+  };
+
+  const { data: existing } = await supabase
+    .from('recurring_flows')
+    .select('id')
+    .eq('policy_id', policyId)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase.from('recurring_flows').update(flowPayload).eq('id', existing.id);
+  } else {
+    await supabase.from('recurring_flows').insert(flowPayload);
+  }
 }

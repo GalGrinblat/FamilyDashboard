@@ -123,6 +123,8 @@ CREATE TABLE recurring_flows (
   end_date date,
   domain text NOT NULL DEFAULT 'general',
   is_active boolean NOT NULL DEFAULT true,
+  asset_id uuid REFERENCES assets(id) ON DELETE CASCADE,
+  policy_id uuid REFERENCES policies(id) ON DELETE CASCADE,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now()
 );

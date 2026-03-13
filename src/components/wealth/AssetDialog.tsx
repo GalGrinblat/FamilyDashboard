@@ -65,6 +65,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     };
 
     let error;
+    let savedAssetId = assetToEdit?.id;
 
     if (isEditing) {
       // @ts-ignore: Supabase generic mapping
@@ -76,8 +77,13 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
       error = updateError;
     } else {
       // @ts-ignore: Supabase generic mapping
-      const { error: insertError } = await (supabase.from('assets') as any).insert(payload);
+      const { data, error: insertError } = await (supabase.from('assets') as any).insert(payload).select('id').single();
       error = insertError;
+      if (data) savedAssetId = (data as any).id;
+    }
+
+    if (!error && savedAssetId) {
+      await syncAssetFlows(supabase, savedAssetId, name, metadata, type);
     }
 
     setLoading(false);
@@ -195,7 +201,36 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                   placeholder="₪"
                 />
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="mortgage" className="text-right text-xs">
+                  החזר משכנתא
+                </Label>
+                <Input
+                  id="mortgage"
+                  type="number"
+                  value={(metadata as RealEstateMetadata)?.mortgage_payment || ''}
+                  onChange={(e) => setMetadata({ ...metadata, mortgage_payment: e.target.value })}
+                  className="col-span-3"
+                  placeholder="₪"
+                />
+              </div>
             </>
+          )}
+
+          {type === ASSET_TYPES.VEHICLE && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="leasing" className="text-right text-xs">
+                תשלום ליסינג/הלוואה
+              </Label>
+              <Input
+                id="leasing"
+                type="number"
+                value={(metadata as any)?.leasing_payment || ''}
+                onChange={(e) => setMetadata({ ...metadata, leasing_payment: e.target.value })}
+                className="col-span-3"
+                placeholder="₪"
+              />
+            </div>
           )}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
@@ -206,4 +241,68 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
       </DialogContent>
     </Dialog>
   );
+}
+
+// Helper to sync recurring flows
+async function syncAssetFlows(supabase: any, assetId: string, assetName: string, metadata: any, type: string) {
+  const flowsToUpsert = [];
+
+  if (type === ASSET_TYPES.REAL_ESTATE) {
+    if (metadata.monthly_rent && parseFloat(metadata.monthly_rent) > 0) {
+      flowsToUpsert.push({
+        asset_id: assetId,
+        name: `${assetName} (שכירות)`,
+        amount: parseFloat(metadata.monthly_rent),
+        type: 'income',
+        frequency: 'monthly',
+        domain: 'housing',
+        is_active: true
+      });
+    }
+    if (metadata.mortgage_payment && parseFloat(metadata.mortgage_payment) > 0) {
+      flowsToUpsert.push({
+        asset_id: assetId,
+        name: `${assetName} (משכנתא)`,
+        amount: parseFloat(metadata.mortgage_payment),
+        type: 'expense',
+        frequency: 'monthly',
+        domain: 'housing',
+        is_active: true
+      });
+    }
+  }
+
+  if (type === ASSET_TYPES.VEHICLE) {
+    if (metadata.leasing_payment && parseFloat(metadata.leasing_payment) > 0) {
+      flowsToUpsert.push({
+        asset_id: assetId,
+        name: `${assetName} (ליסינג/מימון)`,
+        amount: parseFloat(metadata.leasing_payment),
+        type: 'expense',
+        frequency: 'monthly',
+        domain: 'transportation',
+        is_active: true
+      });
+    }
+  }
+
+  // Delete existing flows for this asset that are not in the new list
+  // (Simplified: we just delete and re-insert or upsert by name/asset_id)
+  // For safety, let's use a more robust upsert if we had a unique constraint, 
+  // but here we'll just manage them manually.
+  
+  for (const flow of flowsToUpsert) {
+    const { data: existing } = await supabase
+      .from('recurring_flows')
+      .select('id')
+      .eq('asset_id', assetId)
+      .eq('name', flow.name)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from('recurring_flows').update(flow).eq('id', existing.id);
+    } else {
+      await supabase.from('recurring_flows').insert(flow);
+    }
+  }
 }
