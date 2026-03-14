@@ -138,7 +138,9 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           {/* Name */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">שם הנכס</Label>
+            <Label htmlFor="name" className="text-right">
+              שם הנכס
+            </Label>
             <Input
               id="name"
               value={name}
@@ -151,14 +153,18 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 
           {/* Type */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">סוג</Label>
+            <Label htmlFor="type" className="text-right">
+              סוג
+            </Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="בחר סוג נכס" />
               </SelectTrigger>
               <SelectContent dir="rtl">
                 {Object.entries(ASSET_TYPE_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -166,7 +172,9 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 
           {/* Estimated Value */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="value" className="text-right">שווי מעודכן</Label>
+            <Label htmlFor="value" className="text-right">
+              שווי מעודכן
+            </Label>
             <Input
               id="value"
               type="number"
@@ -183,7 +191,9 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
             <>
               {/* Address */}
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right text-xs">כתובת</Label>
+                <Label htmlFor="address" className="text-right text-xs">
+                  כתובת
+                </Label>
                 <Input
                   id="address"
                   value={re?.address || ''}
@@ -200,7 +210,9 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                 </p>
                 <div className="grid gap-3">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent" className="text-right text-xs">סכום חודשי</Label>
+                    <Label htmlFor="rent" className="text-right text-xs">
+                      סכום חודשי
+                    </Label>
                     <Input
                       id="rent"
                       type="number"
@@ -211,23 +223,31 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent-start" className="text-right text-xs">תחילת חוזה</Label>
+                    <Label htmlFor="rent-start" className="text-right text-xs">
+                      תחילת חוזה
+                    </Label>
                     <Input
                       id="rent-start"
                       type="date"
                       value={re?.rent_start_date || ''}
-                      onChange={(e) => setMetadata({ ...metadata, rent_start_date: e.target.value })}
+                      onChange={(e) =>
+                        setMetadata({ ...metadata, rent_start_date: e.target.value })
+                      }
                       className="col-span-3"
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent-end" className="text-right text-xs">סיום חוזה</Label>
+                    <Label htmlFor="rent-end" className="text-right text-xs">
+                      סיום חוזה
+                    </Label>
                     <div className="col-span-3 space-y-1">
                       <Input
                         id="rent-end"
                         type="date"
                         value={re?.rent_end_date || ''}
-                        onChange={(e) => setMetadata({ ...metadata, rent_end_date: e.target.value })}
+                        onChange={(e) =>
+                          setMetadata({ ...metadata, rent_end_date: e.target.value })
+                        }
                       />
                       {re?.rent_end_date && (
                         <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
@@ -246,33 +266,45 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                 </p>
                 <div className="grid gap-3">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage" className="text-right text-xs">החזר חודשי</Label>
+                    <Label htmlFor="mortgage" className="text-right text-xs">
+                      החזר חודשי
+                    </Label>
                     <Input
                       id="mortgage"
                       type="number"
                       value={re?.mortgage_payment || ''}
-                      onChange={(e) => setMetadata({ ...metadata, mortgage_payment: e.target.value })}
+                      onChange={(e) =>
+                        setMetadata({ ...metadata, mortgage_payment: e.target.value })
+                      }
                       className="col-span-3"
                       placeholder="₪"
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage-start" className="text-right text-xs">תחילת משכנתא</Label>
+                    <Label htmlFor="mortgage-start" className="text-right text-xs">
+                      תחילת משכנתא
+                    </Label>
                     <Input
                       id="mortgage-start"
                       type="date"
                       value={re?.mortgage_start_date || ''}
-                      onChange={(e) => setMetadata({ ...metadata, mortgage_start_date: e.target.value })}
+                      onChange={(e) =>
+                        setMetadata({ ...metadata, mortgage_start_date: e.target.value })
+                      }
                       className="col-span-3"
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage-end" className="text-right text-xs">סיום משכנתא</Label>
+                    <Label htmlFor="mortgage-end" className="text-right text-xs">
+                      סיום משכנתא
+                    </Label>
                     <Input
                       id="mortgage-end"
                       type="date"
                       value={re?.mortgage_end_date || ''}
-                      onChange={(e) => setMetadata({ ...metadata, mortgage_end_date: e.target.value })}
+                      onChange={(e) =>
+                        setMetadata({ ...metadata, mortgage_end_date: e.target.value })
+                      }
                       className="col-span-3"
                     />
                   </div>
@@ -284,7 +316,9 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
           {/* Vehicle fields */}
           {type === ASSET_TYPES.VEHICLE && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="leasing" className="text-right text-xs">תשלום ליסינג/הלוואה</Label>
+              <Label htmlFor="leasing" className="text-right text-xs">
+                תשלום ליסינג/הלוואה
+              </Label>
               <Input
                 id="leasing"
                 type="number"

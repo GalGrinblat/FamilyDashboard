@@ -129,7 +129,11 @@ export function RecurringFlowsTable({
             size="icon"
             title={isRetired(flow) ? 'שחזר תזרים' : 'פרוש תזרים'}
             onClick={() => handleToggleRetire(flow)}
-            className={isRetired(flow) ? 'text-emerald-600 hover:text-emerald-700' : 'text-amber-500 hover:text-amber-600'}
+            className={
+              isRetired(flow)
+                ? 'text-emerald-600 hover:text-emerald-700'
+                : 'text-amber-500 hover:text-amber-600'
+            }
           >
             {isRetired(flow) ? (
               <ArchiveRestore className="h-4 w-4" />
@@ -307,7 +311,9 @@ export function RecurringFlowsTable({
                 <div className="flex gap-4 text-xs text-zinc-500 dark:text-zinc-400 px-1">
                   <span>
                     מתאריך:{' '}
-                    {flow.start_date ? new Date(flow.start_date).toLocaleDateString('he-IL') : 'תמיד'}
+                    {flow.start_date
+                      ? new Date(flow.start_date).toLocaleDateString('he-IL')
+                      : 'תמיד'}
                   </span>
                   <span className={expired ? 'text-amber-600 font-medium' : ''}>
                     עד תאריך:{' '}
