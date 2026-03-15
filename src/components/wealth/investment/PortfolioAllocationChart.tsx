@@ -99,7 +99,7 @@ export function PortfolioAllocationChart({ accounts }: PortfolioAllocationChartP
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number) => [formatCurrency(value), '']}
+              formatter={(value) => [formatCurrency(typeof value === 'number' ? value : 0), '']}
               labelFormatter={(label) => label}
             />
             <Legend

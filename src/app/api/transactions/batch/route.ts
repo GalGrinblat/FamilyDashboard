@@ -65,7 +65,7 @@ export async function POST(req: Request) {
       merchant: row.description?.trim() || 'Unknown', // Temporarily same as description
       category_id: row.suggested_category_id || null, // Map the verified string
       asset_id: row.suggested_asset_id || null,
-      account_id: row.account_id || null,
+      account_id: row.account_id || '',
     }));
 
     // Insert new transactions into the ledger

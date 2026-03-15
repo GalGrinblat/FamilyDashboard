@@ -102,8 +102,8 @@ export function PortfolioPerformanceChart({ snapshots }: PortfolioPerformanceCha
               width={48}
             />
             <Tooltip
-              formatter={(value: number, name: string) => [
-                formatCurrency(value),
+              formatter={(value, name) => [
+                formatCurrency(typeof value === 'number' ? value : 0),
                 name === 'value' ? 'שווי שוק' : 'עלות בסיס',
               ]}
               labelFormatter={(label) => label}
