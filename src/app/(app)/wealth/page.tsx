@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import { WealthAccountsTab } from '@/components/wealth/WealthAccountsTab';
 import { AssetsTable } from '@/components/wealth/AssetsTable';
 import { PensionTable } from '@/components/wealth/PensionTable';
+import { InvestmentTab } from '@/components/wealth/investment/InvestmentTab';
+import { RsuTab } from '@/components/wealth/investment/rsu/RsuTab';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { TrendingUp, Briefcase, WalletCards } from 'lucide-react';
+import { TrendingUp, Briefcase, WalletCards, LineChart, Award } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ASSET_TYPES } from '@/lib/constants';
 import { AccountSchema, AssetSchema } from '@/lib/schemas';
@@ -13,40 +15,25 @@ export default async function WealthPage() {
   const supabase = await createClient();
 
   // Fetch all data in parallel
-  const [
-    { data: rawAccounts },
-    { data: rawInvestmentAssets },
-    { data: rawRealEstate },
-    { data: rawPensions },
-  ] = await Promise.all([
-    supabase.from('accounts').select('*').order('name', { ascending: true }),
-    supabase
-      .from('assets')
-      .select('*')
-      .not(
-        'type',
-        'in',
-        `("${ASSET_TYPES.VEHICLE}","${ASSET_TYPES.PENSION}","${ASSET_TYPES.REAL_ESTATE}")`,
-      )
-      .eq('status', 'active')
-      .order('name', { ascending: true }),
-    supabase
-      .from('assets')
-      .select('*')
-      .eq('type', ASSET_TYPES.REAL_ESTATE)
-      .eq('status', 'active')
-      .order('name', { ascending: true }),
-    supabase
-      .from('assets')
-      .select('*')
-      .eq('type', ASSET_TYPES.PENSION)
-      .eq('status', 'active')
-      .order('name', { ascending: true }),
-  ]);
+  const [{ data: rawAccounts }, { data: rawRealEstate }, { data: rawPensions }] = await Promise.all(
+    [
+      supabase.from('accounts').select('*').order('name', { ascending: true }),
+      supabase
+        .from('assets')
+        .select('*')
+        .eq('type', ASSET_TYPES.REAL_ESTATE)
+        .eq('status', 'active')
+        .order('name', { ascending: true }),
+      supabase
+        .from('assets')
+        .select('*')
+        .eq('type', ASSET_TYPES.PENSION)
+        .eq('status', 'active')
+        .order('name', { ascending: true }),
+    ],
+  );
 
-  // Validate and typedata
   const accounts = z.array(AccountSchema).parse(rawAccounts || []);
-  const investmentAssets = z.array(AssetSchema).parse(rawInvestmentAssets || []);
   const realEstateAssets = z.array(AssetSchema).parse(rawRealEstate || []);
   const pensionAssets = z.array(AssetSchema).parse(rawPensions || []);
 
@@ -62,8 +49,8 @@ export default async function WealthPage() {
         <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
           <TabsTrigger value="investments">
             <div className="flex items-center gap-2">
-              <Briefcase className="w-4 h-4" />
-              השקעות (Stocks/Crypto)
+              <LineChart className="w-4 h-4" />
+              השקעות
             </div>
           </TabsTrigger>
           <TabsTrigger value="real_estate">
@@ -78,10 +65,16 @@ export default async function WealthPage() {
               פנסיה, גמל והשתלמות
             </div>
           </TabsTrigger>
+          <TabsTrigger value="rsu">
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              RSU
+            </div>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="investments" className="space-y-4 mt-4">
-          <AssetsTable assets={investmentAssets} />
+        <TabsContent value="investments" className="mt-6">
+          <InvestmentTab />
         </TabsContent>
 
         <TabsContent value="real_estate" className="space-y-4 mt-4">
@@ -90,6 +83,10 @@ export default async function WealthPage() {
 
         <TabsContent value="pension" className="space-y-4 mt-4">
           <PensionTable pensions={pensionAssets} />
+        </TabsContent>
+
+        <TabsContent value="rsu" className="space-y-4 mt-4">
+          <RsuTab />
         </TabsContent>
       </Tabs>
     </div>

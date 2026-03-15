@@ -130,3 +130,81 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   [ACCOUNT_TYPES.CREDIT_CARD]: 'כרטיס אשראי',
   [ACCOUNT_TYPES.INVESTMENT]: 'חיסכון / תיק השקעות',
 };
+
+// ─── Investment Accounts ───────────────────────────────────────────────────
+
+export const INVESTMENT_ACCOUNT_TYPES = {
+  BROKERAGE: 'brokerage',
+  GEMEL_LEHASHKAA: 'gemel_lehashkaa',
+  HISTALMUT: 'histalmut',
+  RSU: 'rsu',
+  OTHER: 'other',
+} as const;
+
+export type InvestmentAccountType =
+  (typeof INVESTMENT_ACCOUNT_TYPES)[keyof typeof INVESTMENT_ACCOUNT_TYPES];
+
+export const INVESTMENT_ACCOUNT_TYPE_LABELS: Record<InvestmentAccountType, string> = {
+  [INVESTMENT_ACCOUNT_TYPES.BROKERAGE]: 'תיק השקעות / ברוקר',
+  [INVESTMENT_ACCOUNT_TYPES.GEMEL_LEHASHKAA]: 'גמל להשקעה',
+  [INVESTMENT_ACCOUNT_TYPES.HISTALMUT]: 'קרן השתלמות',
+  [INVESTMENT_ACCOUNT_TYPES.RSU]: 'RSU (מניות עובד)',
+  [INVESTMENT_ACCOUNT_TYPES.OTHER]: 'אחר',
+};
+
+// ─── Portfolio Holdings ────────────────────────────────────────────────────
+
+export const ASSET_CLASSES = {
+  STOCK: 'stock',
+  ETF: 'etf',
+  CRYPTO: 'crypto',
+  BOND: 'bond',
+  FUND: 'fund',
+  OTHER: 'other',
+} as const;
+
+export type AssetClass = (typeof ASSET_CLASSES)[keyof typeof ASSET_CLASSES];
+
+export const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
+  [ASSET_CLASSES.STOCK]: 'מניה',
+  [ASSET_CLASSES.ETF]: 'קרן סל (ETF)',
+  [ASSET_CLASSES.CRYPTO]: 'קריפטו',
+  [ASSET_CLASSES.BOND]: 'אג״ח',
+  [ASSET_CLASSES.FUND]: 'קרן נאמנות',
+  [ASSET_CLASSES.OTHER]: 'אחר',
+};
+
+// ─── RSU ──────────────────────────────────────────────────────────────────
+
+export const RSU_TAX_TRACKS = {
+  CAPITAL_GAINS: 'capital_gains', // Section 102 — tax on sale; 25% gain if ≥2y from grant
+  INCOME: 'income', // Full FMV taxed as income on sale
+} as const;
+
+export type RsuTaxTrack = (typeof RSU_TAX_TRACKS)[keyof typeof RSU_TAX_TRACKS];
+
+export const RSU_TAX_TRACK_LABELS: Record<RsuTaxTrack, string> = {
+  [RSU_TAX_TRACKS.CAPITAL_GAINS]: 'סעיף 102 — מסלול רווחי הון',
+  [RSU_TAX_TRACKS.INCOME]: 'מסלול הכנסה (לא 102)',
+};
+
+// ─── Portfolio Lots ────────────────────────────────────────────────────────
+
+export const LOT_TYPES = {
+  BUY: 'buy',
+  SELL: 'sell',
+  RSU_VEST: 'rsu_vest',
+  DIVIDEND_REINVEST: 'dividend_reinvest',
+} as const;
+
+export type LotType = (typeof LOT_TYPES)[keyof typeof LOT_TYPES];
+
+// ─── Tax constants (Israeli law) ──────────────────────────────────────────
+
+export const HISTALMUT_MONTHLY_CEILING_ILS = 1571;
+
+export const TAX_RATES = {
+  CAPITAL_GAINS: 0.25, // regular brokerage, gemel (before 60), histalmut above ceiling
+  GEMEL_AFTER_60: 0.15, // gemel for investors aged 60+
+  MARGINAL_INCOME: 0.47, // RSU: income component at vest/sale, and gains < 2y from grant
+} as const;

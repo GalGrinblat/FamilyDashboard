@@ -94,3 +94,97 @@ export type AssetRef = z.infer<typeof AssetSchema>;
 export type TransactionRef = z.infer<typeof TransactionSchema>;
 export type PolicyRef = z.infer<typeof PolicySchema>;
 export type ReminderRef = z.infer<typeof ReminderSchema>;
+
+// ─── Investment schemas ────────────────────────────────────────────────────
+
+export const InvestmentAccountSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  account_type: z.string(),
+  broker: z.string().nullable(),
+  management_fee_percent: z.number().nullable(),
+  is_managed: z.boolean(),
+  current_balance: z.number().nullable(),
+  histalmut_eligible_date: z.string().nullable(),
+  monthly_contribution_ils: z.number().nullable(),
+  is_active: z.boolean(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const PortfolioHoldingSchema = z.object({
+  id: z.string(),
+  investment_account_id: z.string(),
+  ticker: z.string(),
+  asset_class: z.string(),
+  name: z.string().nullable(),
+  currency: z.string(),
+  is_active: z.boolean(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const PortfolioLotSchema = z.object({
+  id: z.string(),
+  holding_id: z.string(),
+  lot_type: z.string(),
+  purchase_date: z.string(),
+  quantity: z.number(),
+  price_per_unit: z.number(),
+  total_cost: z.number().nullable(),
+  fees: z.number().nullable(),
+  related_lot_id: z.string().nullable(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const RsuGrantSchema = z.object({
+  id: z.string(),
+  investment_account_id: z.string(),
+  ticker: z.string(),
+  employer: z.string().nullable(),
+  grant_date: z.string(),
+  total_shares: z.number(),
+  grant_price_usd: z.number().nullable(),
+  cliff_months: z.number().nullable(),
+  vest_frequency_months: z.number().nullable(),
+  shares_per_vest: z.number().nullable(),
+  tax_track: z.string(),
+  is_active: z.boolean(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const RsuVestSchema = z.object({
+  id: z.string(),
+  grant_id: z.string(),
+  vest_date: z.string(),
+  shares_vested: z.number(),
+  fmv_at_vest: z.number(),
+  linked_lot_id: z.string().nullable(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const PortfolioSnapshotSchema = z.object({
+  id: z.string(),
+  investment_account_id: z.string(),
+  snapshot_date: z.string(),
+  total_value_ils: z.number(),
+  total_cost_basis_ils: z.number().nullable(),
+  unrealized_gain_ils: z.number().nullable(),
+  usd_ils_rate: z.number().nullable(),
+  created_at: z.string().nullable(),
+});
+
+export type InvestmentAccountRef = z.infer<typeof InvestmentAccountSchema>;
+export type PortfolioHoldingRef = z.infer<typeof PortfolioHoldingSchema>;
+export type PortfolioLotRef = z.infer<typeof PortfolioLotSchema>;
+export type RsuGrantRef = z.infer<typeof RsuGrantSchema>;
+export type RsuVestRef = z.infer<typeof RsuVestSchema>;
+export type PortfolioSnapshotRef = z.infer<typeof PortfolioSnapshotSchema>;
