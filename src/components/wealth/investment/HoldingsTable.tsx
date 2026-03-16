@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronLeft, Trash2 } from 'lucide-react';
 import { AddLotDialog } from './AddLotDialog';
+import { SellLotDialog } from './SellLotDialog';
 import { formatCurrency } from '@/lib/utils';
 import type { PortfolioHoldingWithLots, StockPrice } from '@/types/investment';
 import type { PortfolioLotRef } from '@/lib/schemas';
@@ -35,17 +36,30 @@ function GainBadge({ percent }: { percent: number }) {
   );
 }
 
-function LotRow({ lot, currency }: { lot: PortfolioLotRef; currency: string }) {
+function LotRow({
+  lot,
+  holdingId,
+  ticker,
+  currency,
+}: {
+  lot: PortfolioLotRef;
+  holdingId: string;
+  ticker: string;
+  currency: string;
+}) {
   const lotTypeLabel: Record<string, string> = {
     buy: 'קנייה',
     sell: 'מכירה',
     rsu_vest: 'RSU',
     dividend_reinvest: 'דיבידנד',
   };
+  const isSell = lot.lot_type === 'sell';
   return (
-    <tr className="text-xs text-muted-foreground border-t border-dashed">
+    <tr className="text-xs text-muted-foreground border-t border-dashed group/lot">
       <td className="py-1 pr-8 pl-2">
-        <span className="text-xs bg-muted/60 px-1.5 py-0.5 rounded">
+        <span
+          className={`text-xs px-1.5 py-0.5 rounded ${isSell ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400' : 'bg-muted/60'}`}
+        >
           {lotTypeLabel[lot.lot_type] ?? lot.lot_type}
         </span>
       </td>
@@ -58,7 +72,19 @@ function LotRow({ lot, currency }: { lot: PortfolioLotRef; currency: string }) {
         {lot.total_cost ? formatPrice(lot.total_cost, currency) : '—'}
       </td>
       <td className="py-1 px-2" />
-      <td className="py-1 px-2" />
+      <td className="py-1 px-2">
+        {!isSell && (
+          <div className="opacity-0 group-hover/lot:opacity-100 transition-opacity">
+            <SellLotDialog
+              holdingId={holdingId}
+              relatedLotId={lot.id}
+              maxQuantity={lot.quantity}
+              ticker={ticker}
+              currency={currency}
+            />
+          </div>
+        )}
+      </td>
     </tr>
   );
 }
@@ -179,7 +205,15 @@ function HoldingRow({
       </tr>
       {/* Lots rows */}
       {expanded &&
-        holding.lots.map((lot) => <LotRow key={lot.id} lot={lot} currency={holding.currency} />)}
+        holding.lots.map((lot) => (
+          <LotRow
+            key={lot.id}
+            lot={lot}
+            holdingId={holding.id}
+            ticker={holding.ticker}
+            currency={holding.currency}
+          />
+        ))}
     </>
   );
 }

@@ -14,57 +14,70 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+import { TrendingDown } from 'lucide-react';
 
-interface AddLotDialogProps {
+interface SellLotDialogProps {
   holdingId: string;
+  relatedLotId: string;
+  maxQuantity: number;
   ticker: string;
   currency: string;
-  triggerButton?: React.ReactNode;
 }
 
-export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: AddLotDialogProps) {
+export function SellLotDialog({
+  holdingId,
+  relatedLotId,
+  maxQuantity,
+  ticker,
+  currency,
+}: SellLotDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   const today = new Date().toISOString().split('T')[0];
-  const [purchaseDate, setPurchaseDate] = useState(today);
-  const [quantity, setQuantity] = useState('');
+  const [saleDate, setSaleDate] = useState(today);
+  const [quantity, setQuantity] = useState(maxQuantity.toString());
   const [pricePerUnit, setPricePerUnit] = useState('');
   const [fees, setFees] = useState('');
 
-  const totalCost =
+  const proceeds =
     quantity && pricePerUnit
-      ? parseFloat(quantity) * parseFloat(pricePerUnit) + (fees ? parseFloat(fees) : 0)
+      ? parseFloat(quantity) * parseFloat(pricePerUnit) - (fees ? parseFloat(fees) : 0)
       : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const qty = parseFloat(quantity);
+    if (qty > maxQuantity) {
+      alert(`לא ניתן למכור יותר מ-${maxQuantity} יחידות מרכישה זו`);
+      return;
+    }
     setLoading(true);
 
     const { error } = await supabase.from('portfolio_lots').insert({
       holding_id: holdingId,
-      lot_type: 'buy',
-      purchase_date: purchaseDate,
-      quantity: parseFloat(quantity),
+      lot_type: 'sell',
+      purchase_date: saleDate,
+      quantity: qty,
       price_per_unit: parseFloat(pricePerUnit),
-      total_cost: totalCost,
+      total_cost: proceeds,
       fees: fees ? parseFloat(fees) : 0,
+      related_lot_id: relatedLotId,
     });
 
     setLoading(false);
 
     if (error) {
-      console.error('Error adding lot:', error);
-      alert('שגיאה בהוספת הרכישה');
+      console.error('Error recording sale:', error);
+      alert('שגיאה בתיעוד המכירה');
       return;
     }
 
     setOpen(false);
-    setPurchaseDate(today);
-    setQuantity('');
+    setSaleDate(today);
+    setQuantity(maxQuantity.toString());
     setPricePerUnit('');
     setFees('');
     router.refresh();
@@ -73,54 +86,61 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {triggerButton || (
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
-            <Plus className="h-3 w-3 ml-1" /> קנייה
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 px-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950"
+        >
+          <TrendingDown className="h-3 w-3 ml-1" />
+          מכר
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>רכישה — {ticker}</DialogTitle>
+          <DialogTitle>מכירה — {ticker}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-date" className="text-right">
-              תאריך
+            <Label htmlFor="sale-date" className="text-right">
+              תאריך מכירה
             </Label>
             <Input
-              id="lot-date"
+              id="sale-date"
               type="date"
-              value={purchaseDate}
-              onChange={(e) => setPurchaseDate(e.target.value)}
+              value={saleDate}
+              onChange={(e) => setSaleDate(e.target.value)}
               className="col-span-3"
               required
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-qty" className="text-right">
+            <Label htmlFor="sale-qty" className="text-right">
               כמות
             </Label>
-            <Input
-              id="lot-qty"
-              type="number"
-              step="any"
-              min="0"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="col-span-3"
-              placeholder="מספר מניות / יחידות"
-              required
-            />
+            <div className="col-span-3 flex flex-col gap-1">
+              <Input
+                id="sale-qty"
+                type="number"
+                step="any"
+                min="0.0001"
+                max={maxQuantity}
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                מקסימום: {maxQuantity.toLocaleString('he-IL', { maximumFractionDigits: 4 })}
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-price" className="text-right">
-              מחיר ליחידה ({currency})
+            <Label htmlFor="sale-price" className="text-right">
+              מחיר מכירה ({currency})
             </Label>
             <Input
-              id="lot-price"
+              id="sale-price"
               type="number"
               step="any"
               min="0"
@@ -133,11 +153,11 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-fees" className="text-right">
+            <Label htmlFor="sale-fees" className="text-right">
               עמלה ({currency})
             </Label>
             <Input
-              id="lot-fees"
+              id="sale-fees"
               type="number"
               step="any"
               min="0"
@@ -148,16 +168,16 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
             />
           </div>
 
-          {totalCost !== null && (
+          {proceeds !== null && (
             <p className="text-sm text-muted-foreground text-left">
-              סה״כ: {currency === 'ILS' ? '₪' : '$'}
-              {totalCost.toLocaleString('he-IL', { maximumFractionDigits: 2 })}
+              תמורה נטו: {currency === 'ILS' ? '₪' : '$'}
+              {proceeds.toLocaleString('he-IL', { maximumFractionDigits: 2 })}
             </p>
           )}
 
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : 'הוסף רכישה'}
+            <Button type="submit" disabled={loading} variant="destructive">
+              {loading ? 'שומר...' : 'תעד מכירה'}
             </Button>
           </DialogFooter>
         </form>
