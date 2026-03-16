@@ -12,11 +12,10 @@ import type {
   PortfolioHoldingWithLots,
   StockPrice,
 } from '@/types/investment';
-import { InvestmentAccountCard } from './InvestmentAccountCard';
 import { PortfolioSummaryKpis } from './PortfolioSummaryKpis';
 import { PortfolioAllocationChart } from './PortfolioAllocationChart';
 import { PortfolioPerformanceChart } from './PortfolioPerformanceChart';
-import { InvestmentAccountDialog } from './InvestmentAccountDialog';
+import { InvestmentAccountTabs } from './InvestmentAccountTabs';
 
 export async function InvestmentTab() {
   const supabase = await createClient();
@@ -160,20 +159,7 @@ export async function InvestmentTab() {
         <PortfolioPerformanceChart snapshots={snapshots} />
       </div>
 
-      <div className="space-y-4">
-        {enrichedAccounts.map((account) => (
-          <InvestmentAccountCard
-            key={account.id}
-            account={account}
-            prices={prices}
-            usdIlsRate={usdIlsRate}
-          />
-        ))}
-      </div>
-
-      <div className="flex justify-center pt-2">
-        <InvestmentAccountDialog />
-      </div>
+      <InvestmentAccountTabs accounts={enrichedAccounts} prices={prices} usdIlsRate={usdIlsRate} />
     </div>
   );
 }
