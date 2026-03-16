@@ -4,6 +4,7 @@ import { RsuGrantSchema, RsuVestSchema } from '@/lib/schemas';
 import type { RsuGrantWithVests, StockPrice } from '@/types/investment';
 import { RsuGrantCard } from './RsuGrantCard';
 import { RsuGrantDialog } from './RsuGrantDialog';
+import { RsuSummaryKpis } from './RsuSummaryKpis';
 
 export async function RsuTab() {
   const supabase = await createClient();
@@ -42,7 +43,10 @@ export async function RsuTab() {
   // Enrich grants with vest data + computed fields
   const enrichedGrants: RsuGrantWithVests[] = grants.map((grant) => {
     const grantVests = vests.filter((v) => v.grant_id === grant.id);
-    const totalVested = grantVests.reduce((sum, v) => sum + v.shares_vested, 0);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const totalVested = grantVests
+      .filter((v) => v.vest_date <= todayStr)
+      .reduce((sum, v) => sum + v.shares_vested, 0);
     const totalRemaining = Math.max(0, grant.total_shares - totalVested);
     const vestingPercent = grant.total_shares > 0 ? (totalVested / grant.total_shares) * 100 : 0;
 
@@ -82,6 +86,8 @@ export async function RsuTab() {
 
   return (
     <div className="space-y-4">
+      <RsuSummaryKpis grants={enrichedGrants} />
+
       {enrichedGrants.map((grant) => (
         <RsuGrantCard key={grant.id} grant={grant} prices={prices} />
       ))}

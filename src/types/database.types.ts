@@ -624,6 +624,8 @@ export type Database = {
       rsu_grants: {
         Row: {
           cliff_months: number | null;
+          cliff_vest_percentage: number | null;
+          cliff_vest_shares: number | null;
           created_at: string | null;
           employer: string | null;
           grant_date: string;
@@ -638,9 +640,12 @@ export type Database = {
           total_shares: number;
           updated_at: string | null;
           vest_frequency_months: number | null;
+          vest_percentage: number | null;
         };
         Insert: {
           cliff_months?: number | null;
+          cliff_vest_percentage?: number | null;
+          cliff_vest_shares?: number | null;
           created_at?: string | null;
           employer?: string | null;
           grant_date: string;
@@ -655,9 +660,12 @@ export type Database = {
           total_shares: number;
           updated_at?: string | null;
           vest_frequency_months?: number | null;
+          vest_percentage?: number | null;
         };
         Update: {
           cliff_months?: number | null;
+          cliff_vest_percentage?: number | null;
+          cliff_vest_shares?: number | null;
           created_at?: string | null;
           employer?: string | null;
           grant_date?: string;
@@ -672,6 +680,7 @@ export type Database = {
           total_shares?: number;
           updated_at?: string | null;
           vest_frequency_months?: number | null;
+          vest_percentage?: number | null;
         };
         Relationships: [
           {
@@ -686,7 +695,6 @@ export type Database = {
       rsu_vests: {
         Row: {
           created_at: string | null;
-          fmv_at_vest: number;
           grant_id: string;
           id: string;
           linked_lot_id: string | null;
@@ -697,7 +705,6 @@ export type Database = {
         };
         Insert: {
           created_at?: string | null;
-          fmv_at_vest: number;
           grant_id: string;
           id?: string;
           linked_lot_id?: string | null;
@@ -708,7 +715,6 @@ export type Database = {
         };
         Update: {
           created_at?: string | null;
-          fmv_at_vest?: number;
           grant_id?: string;
           id?: string;
           linked_lot_id?: string | null;
