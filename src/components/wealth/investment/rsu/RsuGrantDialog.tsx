@@ -32,12 +32,14 @@ interface RsuGrantDialogProps {
   investmentAccountId: string;
   grantToEdit?: RsuGrantRef;
   triggerButton?: React.ReactNode;
+  defaultEmployer?: string;
 }
 
 export function RsuGrantDialog({
   investmentAccountId,
   grantToEdit,
   triggerButton,
+  defaultEmployer,
 }: RsuGrantDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,7 +49,7 @@ export function RsuGrantDialog({
   const isEditing = !!grantToEdit;
 
   const [ticker, setTicker] = useState(grantToEdit?.ticker ?? '');
-  const [employer, setEmployer] = useState(grantToEdit?.employer ?? '');
+  const [employer, setEmployer] = useState(grantToEdit?.employer ?? defaultEmployer ?? '');
   const [grantDate, setGrantDate] = useState(grantToEdit?.grant_date ?? '');
   const [totalShares, setTotalShares] = useState(grantToEdit?.total_shares?.toString() ?? '');
   const [grantPrice, setGrantPrice] = useState(grantToEdit?.grant_price_usd?.toString() ?? '');

@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { RsuGrantSchema, RsuVestSchema } from '@/lib/schemas';
 import { fetchStockPrices } from '@/lib/stock-prices';
 import type { RsuGrantWithVests, StockPrice } from '@/types/investment';
-import { RsuGrantCard } from './RsuGrantCard';
-import { RsuGrantDialog } from './RsuGrantDialog';
 import { RsuSummaryKpis } from './RsuSummaryKpis';
+import { RsuEmployerTabs } from './RsuEmployerTabs';
+import { RsuGrantDialog } from './RsuGrantDialog';
 
 export async function RsuTab() {
   const supabase = await createClient();
@@ -83,13 +83,7 @@ export async function RsuTab() {
     <div className="space-y-4">
       <RsuSummaryKpis grants={enrichedGrants} />
 
-      {enrichedGrants.map((grant) => (
-        <RsuGrantCard key={grant.id} grant={grant} prices={prices} />
-      ))}
-
-      <div className="flex justify-center pt-2">
-        {accountOptions.length > 0 && <RsuGrantDialog investmentAccountId={accountOptions[0].id} />}
-      </div>
+      <RsuEmployerTabs grants={enrichedGrants} prices={prices} accounts={accountOptions} />
     </div>
   );
 }
