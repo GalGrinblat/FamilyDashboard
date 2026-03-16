@@ -12,6 +12,8 @@ import type {
   PortfolioHoldingWithLots,
   StockPrice,
 } from '@/types/investment';
+import { fetchStockPrices } from '@/lib/stock-prices';
+import { savePortfolioSnapshot } from '@/lib/portfolio-snapshot';
 import { PortfolioSummaryKpis } from './PortfolioSummaryKpis';
 import { PortfolioAllocationChart } from './PortfolioAllocationChart';
 import { PortfolioPerformanceChart } from './PortfolioPerformanceChart';
@@ -54,15 +56,9 @@ export async function InvestmentTab() {
 
   if (tickersToFetch.length > 1) {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-      const res = await fetch(`${baseUrl}/api/stock-price?tickers=${tickersToFetch.join(',')}`, {
-        cache: 'no-store',
-      });
-      if (res.ok) {
-        prices = (await res.json()) as Record<string, StockPrice>;
-        if (prices['USDILS=X']?.price) {
-          usdIlsRate = prices['USDILS=X'].price;
-        }
+      prices = await fetchStockPrices(tickersToFetch);
+      if (prices['USDILS=X']?.price) {
+        usdIlsRate = prices['USDILS=X'].price;
       }
     } catch (err) {
       console.warn('Failed to fetch stock prices:', err);
@@ -146,9 +142,8 @@ export async function InvestmentTab() {
     };
   });
 
-  // Fire-and-forget snapshot (no await — don't block render)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-  fetch(`${baseUrl}/api/portfolio/snapshot`, { method: 'POST', cache: 'no-store' }).catch(() => {});
+  // Snapshot: fire-and-forget (we already have all the data, so this is fast)
+  void savePortfolioSnapshot({ accounts, holdings, lots, prices, usdIlsRate });
 
   return (
     <div className="space-y-6">

@@ -24,6 +24,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { ASSET_CLASSES, ASSET_CLASS_LABELS, type AssetClass } from '@/lib/constants';
+import { isValidTicker } from '@/lib/stock-prices';
 
 interface AddHoldingDialogProps {
   investmentAccountId: string;
@@ -57,9 +58,14 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     const normalizedTicker = ticker.toUpperCase().trim();
+    if (!isValidTicker(normalizedTicker)) {
+      alert('סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, TEVA.TA).');
+      return;
+    }
+
+    setLoading(true);
 
     // Check if holding already exists for this ticker in this account
     const { data: existing } = await supabase

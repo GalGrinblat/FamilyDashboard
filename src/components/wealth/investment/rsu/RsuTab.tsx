@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { RsuGrantSchema, RsuVestSchema } from '@/lib/schemas';
+import { fetchStockPrices } from '@/lib/stock-prices';
 import type { RsuGrantWithVests, StockPrice } from '@/types/investment';
 import { RsuGrantCard } from './RsuGrantCard';
 import { RsuGrantDialog } from './RsuGrantDialog';
@@ -28,13 +29,7 @@ export async function RsuTab() {
 
   if (tickers.length > 0) {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-      const res = await fetch(`${baseUrl}/api/stock-price?tickers=${tickers.join(',')}`, {
-        cache: 'no-store',
-      });
-      if (res.ok) {
-        prices = (await res.json()) as Record<string, StockPrice>;
-      }
+      prices = await fetchStockPrices(tickers);
     } catch (err) {
       console.warn('Failed to fetch RSU stock prices:', err);
     }

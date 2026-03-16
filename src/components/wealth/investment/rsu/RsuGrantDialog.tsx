@@ -25,6 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { Plus, Pencil } from 'lucide-react';
 import { RSU_TAX_TRACKS, RSU_TAX_TRACK_LABELS, type RsuTaxTrack } from '@/lib/constants';
 import { generateVestSchedule } from '@/lib/rsu-schedule';
+import { isValidTicker } from '@/lib/stock-prices';
 import type { RsuGrantRef } from '@/lib/schemas';
 
 interface RsuGrantDialogProps {
@@ -110,9 +111,14 @@ export function RsuGrantDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     const normalizedTicker = ticker.toUpperCase().trim();
+    if (!isValidTicker(normalizedTicker)) {
+      alert('סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, MSFT).');
+      return;
+    }
+
+    setLoading(true);
     const grantPriceUsd = grantPrice ? parseFloat(grantPrice) : null;
 
     const payload = {
