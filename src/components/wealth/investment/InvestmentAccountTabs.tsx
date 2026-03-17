@@ -19,7 +19,7 @@ export function InvestmentAccountTabs({
   if (accounts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-12 border rounded-lg bg-muted/20">
-        <p className="text-sm text-muted-foreground">אין חשבונות השקעה. הוסף חשבון כדי להתחיל.</p>
+        <p className="text-lg text-muted-foreground">אין חשבונות השקעה. הוסף חשבון כדי להתחיל.</p>
         <InvestmentAccountDialog />
       </div>
     );
@@ -30,7 +30,7 @@ export function InvestmentAccountTabs({
       <div className="flex items-center justify-between gap-4 mb-4">
         <TabsList className="flex flex-wrap h-auto gap-1 p-1">
           {accounts.map((account) => (
-            <TabsTrigger key={account.id} value={account.id} className="text-sm">
+            <TabsTrigger key={account.id} value={account.id} className="text-lg">
               {account.name}
             </TabsTrigger>
           ))}

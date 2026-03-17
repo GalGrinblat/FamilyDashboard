@@ -55,7 +55,7 @@ export function IncomeSourcesTab({
       </CardHeader>
       <CardContent>
         {incomeFlows.length === 0 ? (
-          <div className="text-sm text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
+          <div className="text-lg text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
             לא הוגדרו מקורות הכנסה.
           </div>
         ) : (
@@ -65,11 +65,11 @@ export function IncomeSourcesTab({
               return (
                 <div
                   key={flow.id}
-                  className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
+                  className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">{flow.name}</span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-base text-muted-foreground">
                       {flow.frequency === FREQUENCY_TYPES.MONTHLY
                         ? 'חודשי'
                         : flow.frequency === FREQUENCY_TYPES.YEARLY

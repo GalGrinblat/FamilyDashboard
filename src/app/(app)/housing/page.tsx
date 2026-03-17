@@ -89,7 +89,7 @@ function ItemsTable({ items }: { items: HouseholdItemRow[] }) {
                 {item.purchase_price ? formatCurrency(item.purchase_price) : '-'}
               </span>
             </div>
-            <div className="flex flex-col gap-1 text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            <div className="flex flex-col gap-1 text-lg text-zinc-600 dark:text-zinc-400 mt-1">
               <div className="flex justify-between">
                 <span>תאריך רכישה:</span>
                 <span>

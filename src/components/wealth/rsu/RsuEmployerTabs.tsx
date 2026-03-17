@@ -34,7 +34,7 @@ export function RsuEmployerTabs({ grants, prices, accounts }: RsuEmployerTabsPro
     <Tabs defaultValue={employerKeys[0]} dir="rtl">
       <TabsList className="flex flex-wrap h-auto gap-1 p-1 mb-4">
         {employerKeys.map((emp) => (
-          <TabsTrigger key={emp} value={emp} className="text-sm">
+          <TabsTrigger key={emp} value={emp} className="text-lg">
             {emp}
           </TabsTrigger>
         ))}

@@ -61,12 +61,12 @@ export function PortfolioAllocationChart({ accounts }: PortfolioAllocationChartP
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium">הקצאת תיק</CardTitle>
+          <CardTitle className="text-lg font-medium">הקצאת תיק</CardTitle>
           <div className="flex gap-1">
             <Button
               variant={view === 'account' ? 'default' : 'outline'}
               size="sm"
-              className="h-7 text-xs px-2"
+              className="h-7 text-base px-2"
               onClick={() => setView('account')}
             >
               לפי חשבון
@@ -74,7 +74,7 @@ export function PortfolioAllocationChart({ accounts }: PortfolioAllocationChartP
             <Button
               variant={view === 'ticker' ? 'default' : 'outline'}
               size="sm"
-              className="h-7 text-xs px-2"
+              className="h-7 text-base px-2"
               onClick={() => setView('ticker')}
             >
               לפי נייר ערך

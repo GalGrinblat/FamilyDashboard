@@ -46,7 +46,7 @@ const NavLinks = ({
         <Link
           key={item.href}
           href={item.href}
-          className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group ${
+          className={`flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-xl transition-all duration-200 group ${
             isActive
               ? 'bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400'
               : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-200'

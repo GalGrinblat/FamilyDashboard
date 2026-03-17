@@ -74,7 +74,7 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+          <Button variant="ghost" size="sm" className="h-7 px-2 text-base">
             <Plus className="h-3 w-3 ml-1" /> קנייה
           </Button>
         )}
@@ -149,7 +149,7 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
           </div>
 
           {totalCost !== null && (
-            <p className="text-sm text-muted-foreground text-left">
+            <p className="text-lg text-muted-foreground text-left">
               סה״כ: {currency === 'ILS' ? '₪' : '$'}
               {totalCost.toLocaleString('he-IL', { maximumFractionDigits: 2 })}
             </p>

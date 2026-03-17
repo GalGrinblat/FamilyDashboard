@@ -14,7 +14,7 @@ export default async function AnalyticsPage() {
       <div className="flex items-center justify-between space-y-2 mb-6">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">דוחות ואנליטיקה</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 text-lg">
             ניתוח נתונים אוטומטי המבוסס על תנועות העו״ש שלך.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default async function AnalyticsPage() {
               >
                 {formatCurrency(currentNetWorth)}
               </span>
-              <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 max-w-[250px] leading-relaxed">
+              <p className="text-lg font-medium text-indigo-600 dark:text-indigo-400 max-w-[250px] leading-relaxed">
                 שווי נקי נוכחי מבוסס על יתרות זכות בעו״ש ושווי מוערך של דירות / רכבים והשקעות.
               </p>
             </CardContent>

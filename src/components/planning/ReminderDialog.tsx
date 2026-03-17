@@ -178,7 +178,7 @@ function ReminderForm({
         />
       </div>
       {errorMsg && (
-        <div className="text-sm font-medium text-destructive mt-2 text-right">{errorMsg}</div>
+        <div className="text-lg font-medium text-destructive mt-2 text-right">{errorMsg}</div>
       )}
       <DialogFooter>
         <Button type="submit" disabled={loading}>

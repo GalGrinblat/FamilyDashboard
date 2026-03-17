@@ -85,8 +85,8 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
               className="flex justify-between items-center p-3 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
             >
               <div className="flex flex-col gap-1">
-                <span className="font-semibold text-sm">{t.description || t.merchant || '-'}</span>
-                <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <span className="font-semibold text-lg">{t.description || t.merchant || '-'}</span>
+                <div className="flex items-center gap-2 text-base text-zinc-500 dark:text-zinc-400">
                   <span>{catName || '-'}</span>
                   <span>•</span>
                   <span>{t.date ? new Date(t.date).toLocaleDateString('he-IL') : '-'}</span>

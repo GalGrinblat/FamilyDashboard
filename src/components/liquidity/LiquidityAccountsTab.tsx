@@ -45,16 +45,16 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
           <CardContent>
             <div className="space-y-4">
               {bankAccounts.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">אין חשבונות בנק מוגדרים.</p>
+                <p className="text-lg text-muted-foreground italic">אין חשבונות בנק מוגדרים.</p>
               ) : (
                 bankAccounts.map((account) => (
                   <div
                     key={account.id}
-                    className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group"
+                    className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group"
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{account.name}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-base text-muted-foreground">
                         עודכן: {new Date(account.updated_at || '').toLocaleDateString('he-IL')}
                       </span>
                     </div>
@@ -93,16 +93,16 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
           <CardContent>
             <div className="space-y-4">
               {creditAccounts.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">אין כרטיסי אשראי מוגדרים.</p>
+                <p className="text-lg text-muted-foreground italic">אין כרטיסי אשראי מוגדרים.</p>
               ) : (
                 creditAccounts.map((account) => (
                   <div
                     key={account.id}
-                    className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group"
+                    className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group"
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{account.name}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-base text-muted-foreground">
                         יום חיוב:{' '}
                         {(account.metadata as { billingDay?: number })?.billingDay || 'לא הוגדר'}
                       </span>

@@ -67,7 +67,7 @@ export async function RsuTab() {
   if (enrichedGrants.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="text-center py-12 text-muted-foreground text-sm">
+        <div className="text-center py-12 text-muted-foreground text-lg">
           אין מענקי RSU פעילים. הוסף מענק ראשון כדי להתחיל.
         </div>
         <div className="flex justify-center">

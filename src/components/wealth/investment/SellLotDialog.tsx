@@ -89,7 +89,7 @@ export function SellLotDialog({
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 px-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950"
+          className="h-6 px-1.5 text-base text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950"
         >
           <TrendingDown className="h-3 w-3 ml-1" />
           מכר
@@ -129,7 +129,7 @@ export function SellLotDialog({
                 onChange={(e) => setQuantity(e.target.value)}
                 required
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 מקסימום: {maxQuantity.toLocaleString('he-IL', { maximumFractionDigits: 4 })}
               </p>
             </div>
@@ -169,7 +169,7 @@ export function SellLotDialog({
           </div>
 
           {proceeds !== null && (
-            <p className="text-sm text-muted-foreground text-left">
+            <p className="text-lg text-muted-foreground text-left">
               תמורה נטו: {currency === 'ILS' ? '₪' : '$'}
               {proceeds.toLocaleString('he-IL', { maximumFractionDigits: 2 })}
             </p>

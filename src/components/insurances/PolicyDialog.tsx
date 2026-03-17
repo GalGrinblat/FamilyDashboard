@@ -197,7 +197,7 @@ function PolicyForm({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4">
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="type" className="text-right text-xs md:text-sm">
+        <Label htmlFor="type" className="text-right text-base md:text-lg">
           סוג הפוליסה
         </Label>
         <Select value={type} onValueChange={(v: InsuranceType) => setType(v)}>
@@ -214,7 +214,7 @@ function PolicyForm({
 
       {subtypeOptions.length > 0 && (
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="subtype" className="text-right text-xs md:text-sm">
+          <Label htmlFor="subtype" className="text-right text-base md:text-lg">
             תת-סוג
           </Label>
           <Select value={subtype} onValueChange={setSubtype}>
@@ -233,7 +233,7 @@ function PolicyForm({
       )}
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="provider" className="text-right text-xs md:text-sm">
+        <Label htmlFor="provider" className="text-right text-base md:text-lg">
           חברת ביטוח
         </Label>
         <Input
@@ -247,7 +247,7 @@ function PolicyForm({
       </div>
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="name" className="text-right text-xs md:text-sm">
+        <Label htmlFor="name" className="text-right text-base md:text-lg">
           שם פוליסה
         </Label>
         <Input
@@ -261,7 +261,7 @@ function PolicyForm({
       </div>
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="premiumAmount" className="text-right text-xs md:text-sm">
+        <Label htmlFor="premiumAmount" className="text-right text-base md:text-lg">
           עלות (₪)
         </Label>
         <Input
@@ -275,7 +275,7 @@ function PolicyForm({
       </div>
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="premiumFrequency" className="text-right text-xs md:text-sm">
+        <Label htmlFor="premiumFrequency" className="text-right text-base md:text-lg">
           תדירות תשלום
         </Label>
         <Select
@@ -293,7 +293,7 @@ function PolicyForm({
       </div>
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="renewalDate" className="text-right text-xs md:text-sm">
+        <Label htmlFor="renewalDate" className="text-right text-base md:text-lg">
           תאריך חידוש
         </Label>
         <Input
@@ -306,7 +306,7 @@ function PolicyForm({
       </div>
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="policyNumber" className="text-right text-xs md:text-sm">
+        <Label htmlFor="policyNumber" className="text-right text-base md:text-lg">
           מספר פוליסה (אופציונלי)
         </Label>
         <Input
@@ -320,7 +320,7 @@ function PolicyForm({
 
       {(type === 'vehicle' || type === 'property') && (
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="asset" className="text-right text-xs md:text-sm">
+          <Label htmlFor="asset" className="text-right text-base md:text-lg">
             שיוך לנכס (אופציונלי)
           </Label>
           <Select value={assetId} onValueChange={(v: string) => setAssetId(v)}>
@@ -349,7 +349,7 @@ function PolicyForm({
       )}
 
       <div className="grid grid-cols-4 items-center gap-4 border-t pt-4">
-        <Label htmlFor="document" className="text-right text-xs md:text-sm">
+        <Label htmlFor="document" className="text-right text-base md:text-lg">
           מסמך הפוליסה
         </Label>
         <div className="col-span-3 space-y-2">
@@ -357,14 +357,14 @@ function PolicyForm({
             id="document"
             type="file"
             onChange={handleFileChange}
-            className="cursor-pointer file:bg-zinc-100 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-2 file:text-sm"
+            className="cursor-pointer file:bg-zinc-100 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-2 file:text-lg"
           />
           {policy?.document_url && (
             <a
               href={policy.document_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-blue-500 hover:underline flex items-center gap-1"
+              className="text-base text-blue-500 hover:underline flex items-center gap-1"
             >
               צפה במסמך קיים
             </a>
@@ -373,7 +373,7 @@ function PolicyForm({
       </div>
 
       {errorMsg && (
-        <div className="text-sm font-medium text-destructive mt-2 text-right">{errorMsg}</div>
+        <div className="text-lg font-medium text-destructive mt-2 text-right">{errorMsg}</div>
       )}
 
       <DialogFooter className="mt-4">

@@ -225,18 +225,18 @@ export function SpecificMonthTab() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">יתרת פתיחה עו״ש</CardTitle>
+            <CardTitle className="text-lg font-medium">יתרת פתיחה עו״ש</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(startBalance)}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {bankAccount ? bankAccount.name : 'אין חשבון מוגדר'}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">יתרת סגירה צפויה</CardTitle>
+            <CardTitle className="text-lg font-medium">יתרת סגירה צפויה</CardTitle>
           </CardHeader>
           <CardContent>
             <div
@@ -244,7 +244,7 @@ export function SpecificMonthTab() {
             >
               <span dir="ltr">{formatCurrency(endBalance)}</span>
             </div>
-            <p className="text-xs text-muted-foreground">בסוף החודש</p>
+            <p className="text-base text-muted-foreground">בסוף החודש</p>
           </CardContent>
         </Card>
       </div>
@@ -256,17 +256,17 @@ export function SpecificMonthTab() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">טוען נתונים...</p>
+            <p className="text-lg text-muted-foreground">טוען נתונים...</p>
           ) : timeline.length === 0 ? (
-            <p className="text-sm text-muted-foreground">אין תנועות צפויות החודש.</p>
+            <p className="text-lg text-muted-foreground">אין תנועות צפויות החודש.</p>
           ) : (
             <div className="space-y-4">
               {timeline.map((item, idx) => (
                 <div key={idx} className="flex items-center border-b pb-2 last:border-0 last:pb-0">
-                  <div className="w-12 text-sm text-muted-foreground font-medium border-l pl-2 ml-2">
+                  <div className="w-12 text-lg text-muted-foreground font-medium border-l pl-2 ml-2">
                     {item.date} בחודש
                   </div>
-                  <div className="flex-1 font-medium text-sm flex items-center gap-2">
+                  <div className="flex-1 font-medium text-lg flex items-center gap-2">
                     {item.title}
                     {(item.asset_id || item.policy_id) && (
                       <span title="תזרים מנוהל אוטומטית">
@@ -274,15 +274,15 @@ export function SpecificMonthTab() {
                       </span>
                     )}
                     {item.isActual && (
-                      <span className="mr-2 text-xs bg-muted px-1 rounded">בוצע</span>
+                      <span className="mr-2 text-base bg-muted px-1 rounded">בוצע</span>
                     )}
                     {!item.isActual && item.domain && item.domain !== CATEGORY_DOMAINS.GENERAL && (
-                      <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
+                      <span className="text-base text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
                         {CATEGORY_DOMAIN_SHORT_LABELS[item.domain as CategoryDomain] || item.domain}
                       </span>
                     )}
                   </div>
-                  <div className={`text-sm font-bold ${getAmountColorClass(item.type)}`}>
+                  <div className={`text-lg font-bold ${getAmountColorClass(item.type)}`}>
                     <span dir="ltr">
                       {formatCurrency(
                         item.type === CATEGORY_TYPES.EXPENSE ? -item.amount : item.amount,

@@ -265,7 +265,7 @@ export function StatementUploadEngine({
           {isParsing ? (
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
-              <p className="text-sm font-medium">המערכת מנתחת ומפצחת את הנתונים...</p>
+              <p className="text-lg font-medium">המערכת מנתחת ומפצחת את הנתונים...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-4">
@@ -274,7 +274,7 @@ export function StatementUploadEngine({
               </div>
               <div className="space-y-1">
                 <p className="text-base font-medium">לחץ לבחירת קובץ או גרור למסגרת</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-lg text-muted-foreground">
                   תמיכה מלאה ב-Excel וב-CSV (לדוגמה: ישראכרט, כאל, לאומי)
                 </p>
               </div>

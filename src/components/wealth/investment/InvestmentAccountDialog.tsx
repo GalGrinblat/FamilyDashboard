@@ -218,7 +218,7 @@ export function InvestmentAccountDialog({
             </Label>
             <div className="col-span-3 flex items-center gap-3">
               <Switch id="is-managed" checked={isManaged} onCheckedChange={setIsManaged} />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-lg text-muted-foreground">
                 {isManaged ? 'מנוהל (בית השקעות קובע)' : 'עצמאי / IRA (אני בוחר ניירות)'}
               </span>
             </div>
@@ -244,12 +244,12 @@ export function InvestmentAccountDialog({
           {/* Histalmut / Gemel contribution */}
           {(isHistalmut || isGemel) && (
             <div className="col-span-4 border-t pt-3 mt-1">
-              <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-3">
+              <p className="text-base font-semibold text-blue-700 dark:text-blue-400 mb-3">
                 📊 פרטי מס
               </p>
               <div className="grid gap-3">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="monthly-contrib" className="text-right text-xs">
+                  <Label htmlFor="monthly-contrib" className="text-right text-base">
                     הפקדה חודשית (₪)
                   </Label>
                   <div className="col-span-3 space-y-1">
@@ -272,7 +272,7 @@ export function InvestmentAccountDialog({
 
                 {isHistalmut && (
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="eligible-date" className="text-right text-xs">
+                    <Label htmlFor="eligible-date" className="text-right text-base">
                       תאריך זכאות (6 שנים)
                     </Label>
                     <div className="col-span-3 space-y-1">

@@ -367,7 +367,7 @@ export function RsuGrantDialog({
           </div>
 
           <Separator />
-          <p className="text-sm font-medium">כמות הבשלה רגילה</p>
+          <p className="text-lg font-medium">כמות הבשלה רגילה</p>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">סוג</Label>
@@ -424,7 +424,7 @@ export function RsuGrantDialog({
                   placeholder="25"
                   required={vestMode === 'percent'}
                 />
-                <span className="text-sm text-muted-foreground">%</span>
+                <span className="text-lg text-muted-foreground">%</span>
               </div>
             </div>
           )}
@@ -499,7 +499,7 @@ export function RsuGrantDialog({
                       onChange={(e) => setCliffVestPercentage(e.target.value)}
                       placeholder="25"
                     />
-                    <span className="text-sm text-muted-foreground">%</span>
+                    <span className="text-lg text-muted-foreground">%</span>
                   </div>
                 </div>
               )}
@@ -508,7 +508,7 @@ export function RsuGrantDialog({
 
           {/* Schedule preview */}
           {!isEditing && schedulePreview && schedulePreview.length > 0 && (
-            <div className="rounded-md bg-muted/40 p-3 text-xs space-y-1">
+            <div className="rounded-md bg-muted/40 p-3 text-base space-y-1">
               <p className="font-medium text-muted-foreground">
                 תצוגה מקדימה — {schedulePreview.length} אירועי הבשלה
               </p>

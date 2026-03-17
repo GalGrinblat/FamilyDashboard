@@ -167,7 +167,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="mileage" className="text-right text-xs">
+            <Label htmlFor="mileage" className="text-right text-base">
               ק״מ (אופציונלי)
             </Label>
             <Input

@@ -82,7 +82,7 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
       </CardHeader>
       <CardContent>
         {allLogs.length === 0 ? (
-          <div className="text-sm text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
+          <div className="text-lg text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
             לא תועדו אירועי תחזוקה.
           </div>
         ) : (
@@ -90,17 +90,17 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
             {allLogs.map((log, index) => (
               <div
                 key={log.id || index}
-                className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
+                className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
               >
                 <div className="flex flex-col">
                   <span className="font-medium flex items-center gap-2">
                     {typeIcons[log.type] || typeIcons['other']}
                     {log.description}
-                    <span className="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full mr-2">
+                    <span className="text-base bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full mr-2">
                       {log.carName}
                     </span>
                   </span>
-                  <div className="text-xs text-muted-foreground flex gap-3 mt-1">
+                  <div className="text-base text-muted-foreground flex gap-3 mt-1">
                     <span>{new Date(log.date).toLocaleDateString('he-IL')}</span>
                     <span>{typeLabels[log.type] || typeLabels['other']}</span>
                     {log.mileage && <span>{Number(log.mileage).toLocaleString()} ק״מ</span>}

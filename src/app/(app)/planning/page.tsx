@@ -77,7 +77,7 @@ function RemindersTable({
               <TableCell className="font-medium">
                 {item.title}
                 {item.assets && item.assets.name && (
-                  <span className="block border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-xs rounded px-1.5 py-0.5 mt-1 w-fit">
+                  <span className="block border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-base rounded px-1.5 py-0.5 mt-1 w-fit">
                     נכס: {item.assets.name}
                   </span>
                 )}
@@ -93,11 +93,11 @@ function RemindersTable({
               <TableCell>{getTypeLabel(item.type)}</TableCell>
               <TableCell>
                 {item.is_completed ? (
-                  <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs px-2 py-1 rounded-full whitespace-nowrap">
+                  <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-base px-2 py-1 rounded-full whitespace-nowrap">
                     הושלם
                   </span>
                 ) : (
-                  <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs px-2 py-1 rounded-full whitespace-nowrap">
+                  <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-base px-2 py-1 rounded-full whitespace-nowrap">
                     ממתין
                   </span>
                 )}

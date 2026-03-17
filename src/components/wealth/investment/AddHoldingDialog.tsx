@@ -210,7 +210,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
           </div>
 
           <Separator />
-          <p className="text-sm font-medium">רכישה ראשונה</p>
+          <p className="text-lg font-medium">רכישה ראשונה</p>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="lot-date" className="text-right">
@@ -277,7 +277,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
           </div>
 
           {totalCost !== null && (
-            <p className="text-sm text-muted-foreground text-left">
+            <p className="text-lg text-muted-foreground text-left">
               סה״כ עלות: {currency === 'ILS' ? '₪' : '$'}
               {totalCost.toLocaleString('he-IL', { maximumFractionDigits: 2 })}
             </p>

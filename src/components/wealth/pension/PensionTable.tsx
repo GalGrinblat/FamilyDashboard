@@ -59,7 +59,7 @@ export function PensionTable({ pensions }: { pensions: AssetRef[] }) {
       </CardHeader>
       <CardContent>
         {pensions.length === 0 ? (
-          <div className="text-sm text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
+          <div className="text-lg text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
             לא הוגדרו קופות פנסיה או גמל.
           </div>
         ) : (
@@ -75,14 +75,14 @@ export function PensionTable({ pensions }: { pensions: AssetRef[] }) {
               return (
                 <div
                   key={pension.id}
-                  className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
+                  className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium flex items-center gap-2">
                       {typeIcons[pType]}
                       {pension.name}
                     </span>
-                    <div className="text-xs text-muted-foreground flex gap-3 mt-1">
+                    <div className="text-base text-muted-foreground flex gap-3 mt-1">
                       <span>{typeLabels[pType]}</span>
                       {(meta.employee_percent || meta.employer_percent) && (
                         <span>

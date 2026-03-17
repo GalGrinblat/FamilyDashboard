@@ -101,7 +101,7 @@ export function BudgetVsActual({
 
             return (
               <div key={item.domain} className="space-y-2">
-                <div className="flex justify-between items-end text-sm">
+                <div className="flex justify-between items-end text-lg">
                   <div className="font-semibold">{item.label}</div>
                   <div className="flex gap-2">
                     <span

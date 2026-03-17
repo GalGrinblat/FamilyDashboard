@@ -46,7 +46,7 @@ interface FlowTableProps {
 
 function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: FlowTableProps) {
   if (flows.length === 0) {
-    return <p className="text-sm text-muted-foreground italic px-2 py-3">אין רשומות.</p>;
+    return <p className="text-lg text-muted-foreground italic px-2 py-3">אין רשומות.</p>;
   }
 
   const renderStatusBadge = (flow: FlowRow) => {
@@ -142,24 +142,24 @@ function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: Fl
                   {renderStatusBadge(flow)}
                 </div>
               </TableCell>
-              <TableCell className="text-zinc-500 text-sm">{flow.accounts?.name || '-'}</TableCell>
-              <TableCell className="text-sm">
+              <TableCell className="text-zinc-500 text-lg">{flow.accounts?.name || '-'}</TableCell>
+              <TableCell className="text-lg">
                 {flow.frequency === FREQUENCY_TYPES.MONTHLY
                   ? 'חודשי'
                   : flow.frequency === FREQUENCY_TYPES.YEARLY
                     ? 'שנתי'
                     : 'שבועי'}
               </TableCell>
-              <TableCell className="text-zinc-500 text-sm">
+              <TableCell className="text-zinc-500 text-lg">
                 {flow.domain
                   ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי'
                   : 'כללי'}
               </TableCell>
-              <TableCell className="text-zinc-500 text-sm">
+              <TableCell className="text-zinc-500 text-lg">
                 {flow.start_date ? new Date(flow.start_date).toLocaleDateString('he-IL') : '-'}
               </TableCell>
               <TableCell
-                className={`text-sm ${expired ? 'text-amber-600 font-medium' : 'text-zinc-500'}`}
+                className={`text-lg ${expired ? 'text-amber-600 font-medium' : 'text-zinc-500'}`}
               >
                 {flow.end_date ? new Date(flow.end_date).toLocaleDateString('he-IL') : '-'}
               </TableCell>
@@ -262,7 +262,7 @@ function MobileCard({ flow, accounts, onDelete, onToggleRetire }: MobileCardProp
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900/50 p-2 rounded-lg">
+      <div className="flex flex-wrap items-center gap-2 text-base text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900/50 p-2 rounded-lg">
         {flow.accounts?.name && (
           <span className="bg-zinc-200/50 dark:bg-zinc-800 px-2 py-0.5 rounded text-zinc-800 dark:text-zinc-300 font-medium">
             {flow.accounts.name}
@@ -284,7 +284,7 @@ function MobileCard({ flow, accounts, onDelete, onToggleRetire }: MobileCardProp
       </div>
 
       {(flow.start_date || flow.end_date) && (
-        <div className="flex gap-4 text-xs text-zinc-500 dark:text-zinc-400 px-1">
+        <div className="flex gap-4 text-base text-zinc-500 dark:text-zinc-400 px-1">
           <span>
             מתאריך:{' '}
             {flow.start_date ? new Date(flow.start_date).toLocaleDateString('he-IL') : 'תמיד'}
@@ -310,7 +310,7 @@ function SectionHeader({
 }) {
   return (
     <div
-      className={`flex items-center justify-between px-4 py-2 rounded-t-lg border-b text-sm font-semibold ${
+      className={`flex items-center justify-between px-4 py-2 rounded-t-lg border-b text-lg font-semibold ${
         type === 'income'
           ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300'
           : 'bg-rose-50 dark:bg-rose-900/20 border-rose-100 dark:border-rose-800/40 text-rose-700 dark:text-rose-300'

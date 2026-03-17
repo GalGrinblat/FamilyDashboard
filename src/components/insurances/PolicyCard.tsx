@@ -48,14 +48,14 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100">{policy.name}</h3>
-            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            <p className="text-lg font-medium text-zinc-500 dark:text-zinc-400">
               {policy.provider}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <span className={`font-bold text-lg ${getAmountColorClass('expense')}`} dir="ltr">
               {formatCurrency(-policy.premium_amount, true)}
-              <span className="text-xs text-zinc-500 font-normal mr-1">
+              <span className="text-base text-zinc-500 font-normal mr-1">
                 {policy.premium_frequency === FREQUENCY_TYPES.YEARLY ? ' / שנה' : ' / חד׳'}
               </span>
             </span>
@@ -71,7 +71,7 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-y-2 mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="grid grid-cols-2 gap-y-2 mt-4 text-lg text-zinc-600 dark:text-zinc-400">
           {policy.policy_number && (
             <div className="flex items-center gap-1.5">
               <Shield className="w-4 h-4 text-zinc-400" />
@@ -86,7 +86,7 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
 
           {subtypeLabel && (
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="font-medium bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-xs truncate">
+              <span className="font-medium bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-base truncate">
                 סוג: {subtypeLabel}
               </span>
             </div>
@@ -102,7 +102,7 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
                 <span className="font-medium ml-1">
                   {new Date(policy.renewal_date).toLocaleDateString('he-IL')}
                 </span>
-                <span className="mr-2 text-xs opacity-90">
+                <span className="mr-2 text-base opacity-90">
                   (
                   {daysUntilRenewal < 0
                     ? `פג תוקף לפני ${Math.abs(daysUntilRenewal)} ימים`
@@ -138,7 +138,7 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
                 className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 hover:underline bg-indigo-50 dark:bg-indigo-900/20 px-2 py-1 rounded"
               >
                 <FileText className="w-4 h-4" />
-                <span className="font-medium text-xs">צפה במסמך הפוליסה</span>
+                <span className="font-medium text-base">צפה במסמך הפוליסה</span>
               </a>
             </div>
           )}

@@ -105,11 +105,11 @@ export function ExpenseUploader({
         <div className="relative space-y-4">
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-sm flex items-center justify-between gap-4">
             <div className="flex-1">
-              <h3 className="font-semibold text-sm">בחר חשבון משויך</h3>
-              <p className="text-xs text-muted-foreground">כל התנועות מהקובץ יקושרו לחשבון זה</p>
+              <h3 className="font-semibold text-lg">בחר חשבון משויך</h3>
+              <p className="text-base text-muted-foreground">כל התנועות מהקובץ יקושרו לחשבון זה</p>
             </div>
             <select
-              className="bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-sm rounded-lg py-2 px-3 w-64 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
+              className="bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-lg rounded-lg py-2 px-3 w-64 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
               value={selectedAccountId}
               onChange={(e) => setSelectedAccountId(e.target.value)}
               dir="rtl"
@@ -138,7 +138,7 @@ export function ExpenseUploader({
                 <div className="bg-white dark:bg-zinc-900 shadow-lg px-8 py-6 rounded-2xl flex flex-col items-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
                   <h3 className="font-semibold text-lg">המנוע החכם סורק את התנועות...</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-lg text-muted-foreground mt-1">
                     מצליב נתונים מול בסיס הנתונים ו-AI
                   </p>
                 </div>

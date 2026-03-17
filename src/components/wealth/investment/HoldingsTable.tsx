@@ -29,7 +29,7 @@ function GainBadge({ percent }: { percent: number }) {
     <Badge
       variant="outline"
       dir="ltr"
-      className={`text-xs font-medium ${isPositive ? 'text-emerald-600 border-emerald-200 bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:bg-emerald-950' : 'text-rose-600 border-rose-200 bg-rose-50 dark:text-rose-400 dark:border-rose-800 dark:bg-rose-950'}`}
+      className={`text-base font-medium ${isPositive ? 'text-emerald-600 border-emerald-200 bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:bg-emerald-950' : 'text-rose-600 border-rose-200 bg-rose-50 dark:text-rose-400 dark:border-rose-800 dark:bg-rose-950'}`}
     >
       {isPositive ? '+' : ''}
       {percent.toFixed(1)}%
@@ -56,10 +56,10 @@ function LotRow({
   };
   const isSell = lot.lot_type === 'sell';
   return (
-    <tr className="text-xs text-muted-foreground border-t border-dashed group/lot">
+    <tr className="text-base text-muted-foreground border-t border-dashed group/lot">
       <td className="py-1 pr-8 pl-2">
         <span
-          className={`text-xs px-1.5 py-0.5 rounded ${isSell ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400' : 'bg-muted/60'}`}
+          className={`text-base px-1.5 py-0.5 rounded ${isSell ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400' : 'bg-muted/60'}`}
         >
           {lotTypeLabel[lot.lot_type] ?? lot.lot_type}
         </span>
@@ -145,28 +145,28 @@ function HoldingRow({
           )}
         </td>
         {/* Ticker */}
-        <td className="py-2 px-2 font-mono font-semibold text-sm">{holding.ticker}</td>
+        <td className="py-2 px-2 font-mono font-semibold text-lg">{holding.ticker}</td>
         {/* Name */}
-        <td className="py-2 px-2 text-sm text-muted-foreground max-w-[120px] truncate">
+        <td className="py-2 px-2 text-lg text-muted-foreground max-w-[120px] truncate">
           {holding.name ?? '—'}
         </td>
         {/* Qty */}
-        <td className="py-2 px-2 text-sm text-left tabular-nums">
+        <td className="py-2 px-2 text-lg text-left tabular-nums">
           {holding.openQuantity.toLocaleString('he-IL', { maximumFractionDigits: 4 })}
         </td>
         {/* Avg cost */}
-        <td className="py-2 px-2 text-sm text-left tabular-nums text-muted-foreground">
+        <td className="py-2 px-2 text-lg text-left tabular-nums text-muted-foreground">
           {formatPrice(holding.avgCostBasis, holding.currency)}
         </td>
         {/* Current price */}
-        <td className="py-2 px-2 text-sm text-left tabular-nums">
+        <td className="py-2 px-2 text-lg text-left tabular-nums">
           {currentPrice !== null ? (
             <span>
               {formatPrice(currentPrice, holding.currency)}
               {price?.changePercent !== null && price?.changePercent !== undefined && (
                 <span
                   dir="ltr"
-                  className={`text-xs mr-1 ${price.changePercent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
+                  className={`text-base mr-1 ${price.changePercent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
                 >
                   ({price.changePercent >= 0 ? '+' : ''}
                   {price.changePercent.toFixed(1)}%)
@@ -174,15 +174,15 @@ function HoldingRow({
               )}
             </span>
           ) : (
-            <span className="text-muted-foreground text-xs">טוען...</span>
+            <span className="text-muted-foreground text-base">טוען...</span>
           )}
         </td>
         {/* Value in ILS */}
-        <td className="py-2 px-2 text-sm text-left tabular-nums font-medium">
+        <td className="py-2 px-2 text-lg text-left tabular-nums font-medium">
           {currentValueIls !== null ? formatCurrency(currentValueIls) : '—'}
         </td>
         {/* Gain */}
-        <td className="py-2 px-2 text-sm text-left">
+        <td className="py-2 px-2 text-lg text-left">
           {unrealizedGainPct !== null ? <GainBadge percent={unrealizedGainPct} /> : '—'}
         </td>
         {/* Actions */}
@@ -223,7 +223,7 @@ function HoldingRow({
 export function HoldingsTable({ holdings, prices, usdIlsRate }: HoldingsTableProps) {
   if (holdings.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-4">
+      <p className="text-lg text-muted-foreground text-center py-4">
         אין ניירות ערך בחשבון זה. הוסף נייר ערך כדי להתחיל.
       </p>
     );
@@ -233,7 +233,7 @@ export function HoldingsTable({ holdings, prices, usdIlsRate }: HoldingsTablePro
     <div className="overflow-x-auto">
       <table className="w-full text-right">
         <thead>
-          <tr className="text-xs text-muted-foreground border-b">
+          <tr className="text-base text-muted-foreground border-b">
             <th className="py-2 pr-3 pl-1 w-6" />
             <th className="py-2 px-2 font-medium">טיקר</th>
             <th className="py-2 px-2 font-medium">שם</th>

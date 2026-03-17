@@ -109,28 +109,28 @@ export default async function Home() {
         {/* Net Worth */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">שווי נקי (Net Worth)</CardTitle>
+            <CardTitle className="text-lg font-medium">שווי נקי (Net Worth)</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold" dir="ltr">
               {formatCurrency(netWorth)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">סה״כ נכסים וחסכונות</p>
+            <p className="text-base text-muted-foreground mt-1">סה״כ נכסים וחסכונות</p>
           </CardContent>
         </Card>
 
         {/* Income */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">הכנסות החודש</CardTitle>
+            <CardTitle className="text-lg font-medium">הכנסות החודש</CardTitle>
             <ArrowUpRight className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${getAmountColorClass('income')}`} dir="ltr">
               {formatCurrency(monthlyIncome)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
             </p>
           </CardContent>
@@ -139,14 +139,14 @@ export default async function Home() {
         {/* Burn Rate */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">הוצאות החודש</CardTitle>
+            <CardTitle className="text-lg font-medium">הוצאות החודש</CardTitle>
             <ArrowDownRight className="h-4 w-4 text-rose-600" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${getAmountColorClass('expense')}`} dir="ltr">
               {formatCurrency(-monthlyBurnRate, true)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
             </p>
           </CardContent>
@@ -155,7 +155,7 @@ export default async function Home() {
         {/* Cash Flow */}
         <Card className="shadow-sm border-zinc-200 dark:border-zinc-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">תזרים חודשי (Cash Flow)</CardTitle>
+            <CardTitle className="text-lg font-medium">תזרים חודשי (Cash Flow)</CardTitle>
             <Wallet className="h-4 w-4 text-indigo-500" />
           </CardHeader>
           <CardContent>
@@ -164,7 +164,7 @@ export default async function Home() {
             >
               <span dir="ltr">{formatCurrency(cashFlow)}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">הכנסות מול הוצאות בפועל</p>
+            <p className="text-base text-muted-foreground mt-1">הכנסות מול הוצאות בפועל</p>
           </CardContent>
         </Card>
       </div>
@@ -210,8 +210,8 @@ export default async function Home() {
                         {getTypeIcon(reminder.type)}
                       </div>
                       <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-none">{reminder.title}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-lg font-medium leading-none">{reminder.title}</p>
+                        <p className="text-lg text-muted-foreground">
                           תאריך יעד: {new Date(reminder.due_date).toLocaleDateString('he-IL')}
                         </p>
                       </div>

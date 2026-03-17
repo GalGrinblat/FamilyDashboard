@@ -174,7 +174,7 @@ export function AccountDialog({
 
           {type === ACCOUNT_TYPES.CREDIT_CARD && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="billingDay" className="text-right text-sm">
+              <Label htmlFor="billingDay" className="text-right text-lg">
                 יום חיוב בחודש
               </Label>
               <Input

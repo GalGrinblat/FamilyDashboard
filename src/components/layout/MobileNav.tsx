@@ -38,7 +38,7 @@ export function MobileNav() {
             key={link.href}
             href={link.href}
             className={cn(
-              'flex flex-col items-center justify-center space-y-1 rounded-lg px-3 py-1 text-xs font-medium transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 min-w-[64px] min-h-[44px]',
+              'flex flex-col items-center justify-center space-y-1 rounded-lg px-3 py-1 text-base font-medium transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 min-w-[64px] min-h-[44px]',
               isActive
                 ? 'text-indigo-600 dark:text-indigo-400'
                 : 'text-zinc-500 dark:text-zinc-400',

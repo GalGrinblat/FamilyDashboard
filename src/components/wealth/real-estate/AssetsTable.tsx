@@ -67,14 +67,14 @@ export function AssetsTable({ assets }: { assets: AssetRef[] }) {
       </CardHeader>
       <CardContent>
         {assets.length === 0 ? (
-          <div className="text-sm text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
+          <div className="text-lg text-muted-foreground py-8 text-center border rounded-md bg-zinc-50 dark:bg-zinc-900/50 mt-4">
             לא הוגדרו נכסים מניבים פיננסיים.
           </div>
         ) : (
           <div className="space-y-6 mt-4">
             {Object.entries(grouped).map(([type, list]) => (
               <div key={type} className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2 text-zinc-800 dark:text-zinc-200 border-b pb-1">
+                <h4 className="text-lg font-semibold flex items-center gap-2 text-zinc-800 dark:text-zinc-200 border-b pb-1">
                   {typeIcons[type] || typeIcons[ASSET_TYPES.OTHER]}
                   {typeLabels[type as AssetType] || typeLabels[ASSET_TYPES.OTHER]}
                 </h4>
@@ -82,7 +82,7 @@ export function AssetsTable({ assets }: { assets: AssetRef[] }) {
                   {list.map((asset) => (
                     <div
                       key={asset.id}
-                      className="flex justify-between items-center text-sm border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group"
+                      className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-2 last:border-0 last:pb-0 group"
                     >
                       <div className="flex flex-col">
                         <span className="font-medium">{asset.name}</span>

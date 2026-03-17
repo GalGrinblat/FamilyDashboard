@@ -83,19 +83,19 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm font-mono">{grant.ticker}</span>
+            <span className="font-semibold text-lg font-mono">{grant.ticker}</span>
             {grant.employer && (
-              <span className="text-xs text-muted-foreground">{grant.employer}</span>
+              <span className="text-base text-muted-foreground">{grant.employer}</span>
             )}
             <Badge
               variant={grant.tax_track === 'capital_gains' ? 'default' : 'secondary'}
-              className="text-xs"
+              className="text-base"
             >
               {taxTrackLabel}
             </Badge>
             <Badge
               variant="outline"
-              className={`text-xs ${isAfter2Years ? 'text-emerald-600 border-emerald-300' : 'text-amber-600 border-amber-300'}`}
+              className={`text-base ${isAfter2Years ? 'text-emerald-600 border-emerald-300' : 'text-amber-600 border-amber-300'}`}
             >
               {isAfter2Years ? '✓' : '⏳'} {taxRateLabel}
             </Badge>
@@ -105,7 +105,7 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
               investmentAccountId={grant.investment_account_id}
               grantToEdit={grant}
               triggerButton={
-                <Button variant="ghost" size="sm" className="h-7 text-xs px-2">
+                <Button variant="ghost" size="sm" className="h-7 text-base px-2">
                   ערוך
                 </Button>
               }
@@ -182,23 +182,23 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
         {expanded && (
           <div className="space-y-4 pt-2 border-t">
             {/* Key metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-lg">
               <div>
-                <p className="text-xs text-muted-foreground">תאריך מענק</p>
+                <p className="text-base text-muted-foreground">תאריך מענק</p>
                 <p>{new Date(grant.grant_date).toLocaleDateString('he-IL')}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">מחיר מענק</p>
+                <p className="text-base text-muted-foreground">מחיר מענק</p>
                 <p>
                   {grant.grant_price_usd != null ? `$${grant.grant_price_usd.toFixed(2)}` : '—'}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">מחיר נוכחי</p>
+                <p className="text-base text-muted-foreground">מחיר נוכחי</p>
                 <p>{currentPrice != null ? `$${currentPrice.toFixed(2)}` : '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">רווח ממענק</p>
+                <p className="text-base text-muted-foreground">רווח ממענק</p>
                 {currentPrice != null && grant.grant_price_usd != null ? (
                   <p
                     className={
@@ -222,9 +222,9 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
             {/* Vest schedule table */}
             {grant.vests.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">אירועי הבשלה</p>
+                <p className="text-base font-medium text-muted-foreground">אירועי הבשלה</p>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
+                  <table className="w-full text-base">
                     <thead>
                       <tr className="text-muted-foreground border-b">
                         <th className="text-right py-1 pr-2 font-normal">תאריך</th>
@@ -294,7 +294,7 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
 
                 {/* Grant-level summary */}
                 {grantVestedGross != null && grantTaxEstimate != null && (
-                  <div className="rounded-md bg-muted/40 p-3 text-xs space-y-1">
+                  <div className="rounded-md bg-muted/40 p-3 text-base space-y-1">
                     <p className="font-medium text-muted-foreground mb-1">
                       סיכום — {totalVestedShares.toLocaleString('he-IL')} מניות שהבשילו
                     </p>

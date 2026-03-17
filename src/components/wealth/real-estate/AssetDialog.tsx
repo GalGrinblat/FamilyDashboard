@@ -191,7 +191,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
             <>
               {/* Address */}
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right text-xs">
+                <Label htmlFor="address" className="text-right text-base">
                   כתובת
                 </Label>
                 <Input
@@ -205,12 +205,12 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 
               {/* --- Rent section --- */}
               <div className="col-span-4 border-t pt-3 mt-1">
-                <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1">
+                <p className="text-base font-semibold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1">
                   📥 שכירות (הכנסה)
                 </p>
                 <div className="grid gap-3">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent" className="text-right text-xs">
+                    <Label htmlFor="rent" className="text-right text-base">
                       סכום חודשי
                     </Label>
                     <Input
@@ -223,7 +223,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent-start" className="text-right text-xs">
+                    <Label htmlFor="rent-start" className="text-right text-base">
                       תחילת חוזה
                     </Label>
                     <Input
@@ -237,7 +237,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent-end" className="text-right text-xs">
+                    <Label htmlFor="rent-end" className="text-right text-base">
                       סיום חוזה
                     </Label>
                     <div className="col-span-3 space-y-1">
@@ -261,12 +261,12 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 
               {/* --- Mortgage section --- */}
               <div className="col-span-4 border-t pt-3 mt-1">
-                <p className="text-xs font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1">
+                <p className="text-base font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1">
                   🏦 משכנתא (הוצאה)
                 </p>
                 <div className="grid gap-3">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage" className="text-right text-xs">
+                    <Label htmlFor="mortgage" className="text-right text-base">
                       החזר חודשי
                     </Label>
                     <Input
@@ -281,7 +281,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage-start" className="text-right text-xs">
+                    <Label htmlFor="mortgage-start" className="text-right text-base">
                       תחילת משכנתא
                     </Label>
                     <Input
@@ -295,7 +295,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage-end" className="text-right text-xs">
+                    <Label htmlFor="mortgage-end" className="text-right text-base">
                       סיום משכנתא
                     </Label>
                     <Input
@@ -316,7 +316,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
           {/* Vehicle fields */}
           {type === ASSET_TYPES.VEHICLE && (
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="leasing" className="text-right text-xs">
+              <Label htmlFor="leasing" className="text-right text-base">
                 תשלום ליסינג/הלוואה
               </Label>
               <Input

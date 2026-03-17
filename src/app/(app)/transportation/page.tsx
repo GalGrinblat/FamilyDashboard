@@ -115,7 +115,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                       {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+                  <div className="flex items-center gap-3 text-lg text-zinc-600 dark:text-zinc-400">
                     <span className="flex items-center gap-1">
                       <span className="font-medium text-zinc-500">מספר רישוי:</span>{' '}
                       {metadata.license_plate || '-'}
@@ -127,7 +127,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                     </span>
                   </div>
                   <div
-                    className={`pt-1 text-sm font-medium ${getAmountColorClass('expense')}`}
+                    className={`pt-1 text-lg font-medium ${getAmountColorClass('expense')}`}
                     dir="ltr"
                   >
                     סך הוצאות מצטבר:{' '}
@@ -145,7 +145,7 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
       {/* Display relevant reminders */}
       {reminders && reminders.length > 0 && (
         <div className="px-4 md:px-6 pb-6">
-          <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-zinc-900 border-b pb-2 dark:text-zinc-100 dark:border-zinc-800">
+          <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 text-zinc-900 border-b pb-2 dark:text-zinc-100 dark:border-zinc-800">
             ראדאר התראות צי רכבים
           </h4>
           <div className="grid gap-2 grid-cols-1 md:grid-cols-2">
@@ -166,8 +166,8 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{r.title}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-lg font-medium">{r.title}</p>
+                  <p className="text-base text-muted-foreground">
                     תאריך יעד: {new Date(r.due_date).toLocaleDateString('he-IL')}
                   </p>
                 </div>

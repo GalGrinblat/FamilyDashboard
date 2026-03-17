@@ -150,7 +150,7 @@ export function SystemSettingsTab() {
                 {customTypes.map((t) => (
                   <div
                     key={t}
-                    className="bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                    className="bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full text-lg flex items-center gap-2"
                   >
                     {t}
                     <button
@@ -167,14 +167,14 @@ export function SystemSettingsTab() {
           </div>
 
           <div className="space-y-4 pt-2 md:pt-0 md:border-r md:pr-6 border-zinc-100 dark:border-zinc-800">
-            <h4 className="font-medium text-sm text-zinc-900 dark:text-zinc-100">
+            <h4 className="font-medium text-lg text-zinc-900 dark:text-zinc-100">
               התראות ותזכורות
             </h4>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-sm font-medium">התראות במייל</Label>
-                <p className="text-xs text-muted-foreground">
+                <Label className="text-lg font-medium">התראות במייל</Label>
+                <p className="text-base text-muted-foreground">
                   קבלת תזכורות תקופתיות לביטוחים וטסטים.
                 </p>
               </div>
@@ -183,8 +183,8 @@ export function SystemSettingsTab() {
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label className="text-sm font-medium">התראות דפדפן (Push)</Label>
-                <p className="text-xs text-muted-foreground">
+                <Label className="text-lg font-medium">התראות דפדפן (Push)</Label>
+                <p className="text-base text-muted-foreground">
                   התראות קופצות במכשיר הנייד או בדפדפן.
                 </p>
               </div>

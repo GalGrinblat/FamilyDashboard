@@ -201,25 +201,25 @@ export function ReviewTransactionsTable({
                   <TableCell className="whitespace-nowrap">
                     {row.date ? new Date(row.date).toLocaleDateString('he-IL') : '-'}
                   </TableCell>
-                  <TableCell className="font-medium text-sm">
+                  <TableCell className="font-medium text-lg">
                     {row.description}
                     {row.is_duplicate && (
                       <span
-                        className={`inline-flex ml-2 items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getBadgeColorClass('expense')}`}
+                        className={`inline-flex ml-2 items-center rounded-md px-2 py-1 text-base font-medium ring-1 ring-inset ${getBadgeColorClass('expense')}`}
                       >
                         כבר קיים במערכת
                       </span>
                     )}
                   </TableCell>
                   <span
-                    className={`font-bold text-sm ${getAmountColorClass(row.amount < 0 ? 'expense' : 'income')}`}
+                    className={`font-bold text-lg ${getAmountColorClass(row.amount < 0 ? 'expense' : 'income')}`}
                     dir="ltr"
                   >
                     {formatCurrency(row.amount, true)}
                   </span>
                   <TableCell>
                     <select
-                      className={`w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer ${
+                      className={`w-full text-lg border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer ${
                         row.suggested_new_category && !row.is_ai_classified
                           ? 'text-purple-600 dark:text-purple-400 font-bold'
                           : row.suggested_new_category
@@ -292,7 +292,7 @@ export function ReviewTransactionsTable({
                   </TableCell>
                   <TableCell>
                     <select
-                      className="w-full text-sm border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer text-zinc-700 dark:text-zinc-300"
+                      className="w-full text-lg border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer text-zinc-700 dark:text-zinc-300"
                       value={row.suggested_asset_id || 'NONE'}
                       onChange={(e) => handleAssetChange(idx, e.target.value)}
                       dir="rtl"
@@ -348,7 +348,7 @@ export function ReviewTransactionsTable({
 
           <div className="space-y-4 py-4 pr-1">
             <div className="space-y-2">
-              <label className="text-sm font-medium">שם הקטגוריה</label>
+              <label className="text-lg font-medium">שם הקטגוריה</label>
               <Input
                 placeholder="לדוגמה: ביטוח בריאות, מסעדות, דלק..."
                 value={newCategoryName}
@@ -360,7 +360,7 @@ export function ReviewTransactionsTable({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">סוג פעילות</label>
+              <label className="text-lg font-medium">סוג פעילות</label>
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"

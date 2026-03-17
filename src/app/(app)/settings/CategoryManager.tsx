@@ -195,17 +195,17 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
             <Tag className="h-5 w-5 text-indigo-500" />
             ניהול קטגוריות
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             הוסף, ערוך או מחק קטגוריות עבור עסקאות הפיננסים שלך.
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             הוסף, ערוך או מחק קטגוריות עבור עסקאות הפיננסים שלך.
           </p>
         </div>
         <div className="flex gap-4 items-center">
           <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg py-1.5 px-3">
             <LayoutList className="w-4 h-4 text-zinc-500" />
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">קבץ לפי:</span>
+            <span className="text-lg font-medium text-zinc-700 dark:text-zinc-300">קבץ לפי:</span>
             <Select value={groupBy} onValueChange={(val: 'domain' | 'none') => setGroupBy(val)}>
               <SelectTrigger className="h-8 border-0 bg-transparent shadow-none w-[120px] focus:ring-0 px-2 pl-6">
                 <SelectValue />
@@ -272,7 +272,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                     <TableRow className="bg-zinc-50/50 dark:bg-zinc-900/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50">
                       <TableCell
                         colSpan={5}
-                        className="py-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100 border-t border-b"
+                        className="py-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100 border-t border-b"
                       >
                         {CATEGORY_DOMAIN_SHORT_LABELS[groupKey as CategoryDomain] || 'כללי'}
                         <span className="text-muted-foreground font-normal mx-2 inline-block">
@@ -287,7 +287,7 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
                       <TableCell className="text-muted-foreground">{category.name_en}</TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${category.type === CATEGORY_TYPES.EXPENSE ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-base font-semibold ${category.type === CATEGORY_TYPES.EXPENSE ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}
                         >
                           {category.type === CATEGORY_TYPES.EXPENSE ? 'הוצאה' : 'הכנסה'}
                         </span>

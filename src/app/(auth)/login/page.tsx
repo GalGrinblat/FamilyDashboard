@@ -29,12 +29,12 @@ function LoginForm() {
       </div>
 
       {error === 'unauthorized_email' && (
-        <div className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md w-full">
+        <div className="text-lg font-medium text-destructive bg-destructive/10 p-3 rounded-md w-full">
           משתמש זה אינו מורשה להיכנס למערכת. פנה למנהל הרשת.
         </div>
       )}
       {error && error !== 'unauthorized_email' && (
-        <div className="text-sm font-medium text-destructive bg-destructive/10 p-3 rounded-md w-full">
+        <div className="text-lg font-medium text-destructive bg-destructive/10 p-3 rounded-md w-full">
           שגיאה בתהליך ההתחברות, אנא נסה שנית.
         </div>
       )}

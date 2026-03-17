@@ -67,14 +67,14 @@ export function PortfolioPerformanceChart({ snapshots }: PortfolioPerformanceCha
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium">ביצועי תיק לאורך זמן</CardTitle>
+          <CardTitle className="text-lg font-medium">ביצועי תיק לאורך זמן</CardTitle>
           <div className="flex gap-1">
             {(['1M', '3M', '1Y', 'ALL'] as Range[]).map((r) => (
               <Button
                 key={r}
                 variant={range === r ? 'default' : 'outline'}
                 size="sm"
-                className="h-7 text-xs px-2"
+                className="h-7 text-base px-2"
                 onClick={() => setRange(r)}
               >
                 {r === 'ALL' ? 'הכל' : r}

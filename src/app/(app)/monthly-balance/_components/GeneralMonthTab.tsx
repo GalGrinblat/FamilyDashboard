@@ -74,21 +74,21 @@ export function GeneralMonthTab() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">טוען נתונים...</p>
+              <p className="text-lg text-muted-foreground">טוען נתונים...</p>
             ) : incomes.length === 0 ? (
-              <p className="text-sm text-muted-foreground">לא נמצאו הכנסות קבועות.</p>
+              <p className="text-lg text-muted-foreground">לא נמצאו הכנסות קבועות.</p>
             ) : (
               <div className="space-y-4">
                 {incomes.map((inc) => (
                   <div
                     key={inc.id}
-                    className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0"
+                    className="flex justify-between items-center text-lg border-b pb-2 last:border-0 last:pb-0"
                   >
                     <div className="flex items-center gap-2">
                       <span>{inc.name}</span>
                       {inc.domain && inc.domain !== CATEGORY_DOMAINS.GENERAL && (
                         <span
-                          className={`text-xs px-1.5 py-0.5 rounded-md ${getBadgeColorClass('income')}`}
+                          className={`text-base px-1.5 py-0.5 rounded-md ${getBadgeColorClass('income')}`}
                         >
                           {CATEGORY_DOMAIN_SHORT_LABELS[inc.domain as CategoryDomain] || inc.domain}
                         </span>
@@ -117,9 +117,9 @@ export function GeneralMonthTab() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <p className="text-sm text-muted-foreground">טוען נתונים...</p>
+              <p className="text-lg text-muted-foreground">טוען נתונים...</p>
             ) : expenses.length === 0 ? (
-              <p className="text-sm text-muted-foreground">לא נמצאו הוצאות קבועות.</p>
+              <p className="text-lg text-muted-foreground">לא נמצאו הוצאות קבועות.</p>
             ) : (
               <div className="space-y-6">
                 {Object.entries(groupedExpenses)
@@ -133,12 +133,12 @@ export function GeneralMonthTab() {
                       CATEGORY_DOMAIN_SHORT_LABELS[domain as CategoryDomain] || domain;
                     return (
                       <div key={domain} className="space-y-2">
-                        <h4 className="font-semibold text-sm border-b border-zinc-100 dark:border-zinc-800 pb-1 text-zinc-800 dark:text-zinc-200">
+                        <h4 className="font-semibold text-lg border-b border-zinc-100 dark:border-zinc-800 pb-1 text-zinc-800 dark:text-zinc-200">
                           {domainLabel}
                         </h4>
                         <div className="space-y-1.5">
                           {domExpenses.map((exp) => (
-                            <div key={exp.id} className="flex justify-between items-center text-sm">
+                            <div key={exp.id} className="flex justify-between items-center text-lg">
                               <span className="text-zinc-600 dark:text-zinc-400">
                                 {exp.name}{' '}
                                 {exp.frequency !== FREQUENCY_TYPES.MONTHLY ? (
@@ -158,7 +158,7 @@ export function GeneralMonthTab() {
                             </div>
                           ))}
                         </div>
-                        <div className="flex justify-between items-center text-xs font-semibold pt-1 text-zinc-500">
+                        <div className="flex justify-between items-center text-base font-semibold pt-1 text-zinc-500">
                           <span>תקציב/צפי נדרש מול התחום:</span>
                           <span dir="ltr">{formatCurrency(domainTotal)}</span>
                         </div>
@@ -198,12 +198,12 @@ export function GeneralMonthTab() {
                 {formatCurrency(totalIncome - totalExpense)}
               </span>
               {totalIncome - totalExpense > 0 && (
-                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
+                <span className="text-base font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
                   Positive Cashflow
                 </span>
               )}
               {totalIncome - totalExpense < 0 && (
-                <span className="text-xs font-medium text-rose-700 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
+                <span className="text-base font-medium text-rose-700 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-3 py-1 rounded-full uppercase tracking-wider">
                   Negative Cashflow
                 </span>
               )}

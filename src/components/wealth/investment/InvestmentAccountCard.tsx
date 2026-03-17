@@ -38,20 +38,20 @@ function TaxBadge({ account, gain }: { account: InvestmentAccountWithHoldings; g
 
     if (!eligible) {
       return (
-        <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
+        <Badge variant="outline" className="text-base text-amber-600 border-amber-300">
           מס 25% על רווחים
         </Badge>
       );
     }
     if (aboveFraction === 0) {
       return (
-        <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-300">
+        <Badge variant="outline" className="text-base text-emerald-600 border-emerald-300">
           פטור ממס
         </Badge>
       );
     }
     return (
-      <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
+      <Badge variant="outline" className="text-base text-amber-600 border-amber-300">
         מס על {(aboveFraction * 100).toFixed(0)}% מהרווחים
       </Badge>
     );
@@ -59,14 +59,14 @@ function TaxBadge({ account, gain }: { account: InvestmentAccountWithHoldings; g
 
   if (account.account_type === 'gemel_lehashkaa') {
     return (
-      <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+      <Badge variant="outline" className="text-base text-blue-600 border-blue-300">
         מס {TAX_RATES.CAPITAL_GAINS * 100}% על רווח
       </Badge>
     );
   }
 
   return (
-    <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+    <Badge variant="outline" className="text-base text-blue-600 border-blue-300">
       מס 25%
     </Badge>
   );
@@ -115,20 +115,20 @@ export function InvestmentAccountCard({ account, prices, usdIlsRate }: Investmen
             </button>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm">{account.name}</span>
-                <Badge variant="secondary" className="text-xs">
+                <span className="font-semibold text-lg">{account.name}</span>
+                <Badge variant="secondary" className="text-base">
                   {typeLabel}
                 </Badge>
                 {account.broker && (
-                  <span className="text-xs text-muted-foreground">{account.broker}</span>
+                  <span className="text-base text-muted-foreground">{account.broker}</span>
                 )}
                 {account.management_fee_percent != null && (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-base text-muted-foreground">
                     דמי ניהול: {account.management_fee_percent}%
                   </span>
                 )}
                 {account.is_managed && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-base">
                     מנוהל
                   </Badge>
                 )}
@@ -143,7 +143,7 @@ export function InvestmentAccountCard({ account, prices, usdIlsRate }: Investmen
               {gain !== 0 && (
                 <div
                   dir="ltr"
-                  className={`text-xs tabular-nums ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}
+                  className={`text-base tabular-nums ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}
                 >
                   {isPositive ? '+' : ''}
                   {formatCurrency(gain)} ({isPositive ? '+' : ''}
@@ -151,7 +151,7 @@ export function InvestmentAccountCard({ account, prices, usdIlsRate }: Investmen
                 </div>
               )}
               {afterTax !== totalValue && (
-                <div className="text-xs text-muted-foreground">
+                <div className="text-base text-muted-foreground">
                   אחרי מס: {formatCurrency(afterTax)}
                 </div>
               )}
@@ -183,7 +183,7 @@ export function InvestmentAccountCard({ account, prices, usdIlsRate }: Investmen
           {account.is_managed ? (
             /* Managed fund: just show balance info */
             <div className="flex items-center justify-between py-2 px-1">
-              <p className="text-sm text-muted-foreground">קרן מנוהלת — יתרה מעודכנת ידנית</p>
+              <p className="text-lg text-muted-foreground">קרן מנוהלת — יתרה מעודכנת ידנית</p>
               <InvestmentAccountDialog
                 accountToEdit={account}
                 triggerButton={
