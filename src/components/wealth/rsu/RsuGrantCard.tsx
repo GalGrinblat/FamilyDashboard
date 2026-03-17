@@ -133,7 +133,7 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
 
       <CardContent className="space-y-3">
         {/* Collapsed summary strip — always visible */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-base">
           <div className="flex gap-1 items-baseline">
             <span className="text-muted-foreground">הבשלה:</span>
             <span className="font-medium tabular-nums" dir="ltr">
