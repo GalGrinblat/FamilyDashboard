@@ -5,23 +5,14 @@ import { BudgetVsActual } from '@/components/analytics/BudgetVsActual';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default async function AnalyticsPage() {
   const { transactions, recurringFlows, currentNetWorth } = await getAnalyticsData();
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2 mb-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">דוחות ואנליטיקה</h2>
-          <p className="text-muted-foreground mt-1 text-lg">
-            ניתוח נתונים אוטומטי המבוסס על תנועות העו״ש שלך.
-          </p>
-        </div>
-        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-full">
-          <BarChart3 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-        </div>
-      </div>
+      <PageHeader title="דוחות ואנליטיקה" icon={BarChart3} description="ניתוח נתונים אוטומטי המבוסס על תנועות העו״ש שלך." />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-2">
         {/* Top Half: Spending Pie & Cash Flow Trend */}

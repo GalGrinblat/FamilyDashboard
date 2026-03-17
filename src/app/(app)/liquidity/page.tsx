@@ -5,6 +5,7 @@ import { RecurringFlowsTable } from '@/components/liquidity/RecurringFlowsTable'
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Scale } from 'lucide-react';
 import { Database } from '@/types/database.types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
@@ -34,23 +35,32 @@ export default async function LiquidityPage() {
     <div className="flex-1 space-y-4 p-8 pt-6">
       <PageHeader title="עו״ש ותזרים נזיל" icon={Scale} />
 
-      <LiquidityAccountsTab accounts={accounts} />
+      <Tabs defaultValue="accounts" className="w-full" dir="rtl">
+        <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
+          <TabsTrigger value="accounts">חשבונות עו״ש</TabsTrigger>
+          <TabsTrigger value="recurring">תזרים קבוע</TabsTrigger>
+        </TabsList>
 
-      <div className="pt-8">
-        <Card className="border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden">
-          <CardHeader className="bg-indigo-50/30 dark:bg-indigo-900/10">
-            <CardTitle className="text-indigo-800 dark:text-indigo-300">
-              תקציב ותזרים קבוע (Recurring Flows)
-            </CardTitle>
-            <CardDescription>
-              ניהול הכנסות והוצאות קבועות המשפיעות על היתרה הצפויה בסוף החודש.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0 sm:p-0 pt-0 sm:pt-0">
-            <RecurringFlowsTable flows={flows} accounts={accounts} />
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="accounts" className="mt-4">
+          <LiquidityAccountsTab accounts={accounts} />
+        </TabsContent>
+
+        <TabsContent value="recurring" className="mt-4">
+          <Card className="border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden">
+            <CardHeader className="bg-indigo-50/30 dark:bg-indigo-900/10">
+              <CardTitle className="text-indigo-800 dark:text-indigo-300">
+                תקציב ותזרים קבוע (Recurring Flows)
+              </CardTitle>
+              <CardDescription>
+                ניהול הכנסות והוצאות קבועות המשפיעות על היתרה הצפויה בסוף החודש.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 sm:p-0 pt-0 sm:pt-0">
+              <RecurringFlowsTable flows={flows} accounts={accounts} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

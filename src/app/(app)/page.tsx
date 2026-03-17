@@ -4,10 +4,12 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   CarFront,
+  Home,
   ShieldCheck,
   Wallet,
   Wrench,
 } from 'lucide-react';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { createClient } from '@/lib/supabase/server';
 import { CATEGORY_TYPES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -100,9 +102,7 @@ export default async function Home() {
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">ראשי</h2>
-      </div>
+      <PageHeader title="ראשי" icon={Home} />
 
       {/* Main KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

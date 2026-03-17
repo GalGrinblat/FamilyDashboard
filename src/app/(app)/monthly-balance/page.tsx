@@ -6,8 +6,8 @@ import { GeneralMonthTab } from './_components/GeneralMonthTab';
 
 export default async function MonthlyBalancePage() {
   return (
-    <Tabs defaultValue="specific" className="space-y-4" dir="rtl">
-      <TabsList>
+    <Tabs defaultValue="specific" className="w-full space-y-4" dir="rtl">
+      <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
         <TabsTrigger value="specific">חודש ספציפי</TabsTrigger>
         <TabsTrigger value="general">חודש כללי</TabsTrigger>
       </TabsList>

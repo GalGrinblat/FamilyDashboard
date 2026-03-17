@@ -90,12 +90,7 @@ export default async function TransactionsPage() {
 
       <Tabs defaultValue="ai_engine" className="w-full mt-4" dir="rtl">
         <TabsList className="flex flex-wrap h-auto w-full justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
-          <TabsTrigger
-            value="ai_engine"
-            className="bg-indigo-600/10 data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
-          >
-            מנוע הוצאות (AI Uploader)
-          </TabsTrigger>
+          <TabsTrigger value="ai_engine">מנוע הוצאות (AI Uploader)</TabsTrigger>
           <TabsTrigger value="income">הכנסות</TabsTrigger>
           <TabsTrigger value="housing">מגורים</TabsTrigger>
           <TabsTrigger value="car">תחבורה</TabsTrigger>
