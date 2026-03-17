@@ -89,13 +89,13 @@ export function AssetsTable({ assets }: { assets: AssetRef[] }) {
                         {asset.type === ASSET_TYPES.REAL_ESTATE && asset.metadata && (
                           <div className="flex flex-col gap-0.5 mt-0.5">
                             {(asset.metadata as RealEstateMetadata)?.address && (
-                              <span className="text-[10px] text-zinc-500">
+                              <span className="text-lg text-zinc-500">
                                 {(asset.metadata as RealEstateMetadata).address}
                               </span>
                             )}
                             {(asset.metadata as RealEstateMetadata)?.monthly_rent && (
                               <span
-                                className={`text-[10px] font-medium ${getAmountColorClass('income')}`}
+                                className={`text-lg font-medium ${getAmountColorClass('income')}`}
                                 dir="ltr"
                               >
                                 שכירות:{' '}
@@ -106,7 +106,7 @@ export function AssetsTable({ assets }: { assets: AssetRef[] }) {
                             )}
                           </div>
                         )}
-                        <span className="text-[10px] text-muted-foreground mt-1">
+                        <span className="text-lg text-muted-foreground mt-1">
                           עודכן לאחרונה:{' '}
                           {new Date(asset.updated_at || asset.created_at || '').toLocaleDateString(
                             'he-IL',

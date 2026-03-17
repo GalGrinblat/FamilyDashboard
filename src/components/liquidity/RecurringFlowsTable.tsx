@@ -52,14 +52,14 @@ function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: Fl
   const renderStatusBadge = (flow: FlowRow) => {
     if (isRetired(flow)) {
       return (
-        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset bg-zinc-100 text-zinc-500 ring-zinc-300/80 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-600/30">
+        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-lg font-medium ring-1 ring-inset bg-zinc-100 text-zinc-500 ring-zinc-300/80 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-600/30">
           פרוש
         </span>
       );
     }
     if (isExpired(flow)) {
       return (
-        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20">
+        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-lg font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20">
           פג תוקף
         </span>
       );
@@ -195,11 +195,11 @@ function MobileCard({ flow, accounts, onDelete, onToggleRetire }: MobileCardProp
   const linked = !!(flow.asset_id || flow.policy_id);
 
   const statusBadge = isRetired(flow) ? (
-    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset bg-zinc-100 text-zinc-500 ring-zinc-300/80 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-600/30">
+    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-lg font-medium ring-1 ring-inset bg-zinc-100 text-zinc-500 ring-zinc-300/80 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-600/30">
       פרוש
     </span>
   ) : expired ? (
-    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20">
+    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-lg font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20">
       פג תוקף
     </span>
   ) : null;

@@ -265,27 +265,27 @@ export function ReviewTransactionsTable({
                       ))}
                     </select>
                     {row.suggested_new_category && !row.is_ai_classified && (
-                      <span className="text-[10px] text-purple-500 flex items-center gap-1 mt-1 font-medium">
+                      <span className="text-lg text-purple-500 flex items-center gap-1 mt-1 font-medium">
                         <PlusCircle className="w-3 h-3" />
                         קטגוריה מותאמת אישית (תיווצר בשמירה)
                       </span>
                     )}
                     {row.suggested_new_category && row.is_ai_classified && (
-                      <span className="text-[10px] text-indigo-500 flex items-center gap-1 mt-1 font-medium">
+                      <span className="text-lg text-indigo-500 flex items-center gap-1 mt-1 font-medium">
                         ✨ בינה מלאכותית מציעה קטגוריה חדשה
                       </span>
                     )}
                     {row.suggested_category_id &&
                       row.is_ai_classified &&
                       !row.suggested_new_category && (
-                        <span className="text-[10px] text-indigo-500 flex items-center gap-1 mt-1">
+                        <span className="text-lg text-indigo-500 flex items-center gap-1 mt-1">
                           ✨ סווג ע״י בינה מלאכותית
                         </span>
                       )}
                     {row.suggested_category_id &&
                       !row.is_ai_classified &&
                       !row.suggested_new_category && (
-                        <span className="text-[10px] text-emerald-600 flex items-center gap-1 mt-1">
+                        <span className="text-lg text-emerald-600 flex items-center gap-1 mt-1">
                           ✓ סווג ע״י המשתמש או מערכת
                         </span>
                       )}

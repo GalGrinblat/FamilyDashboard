@@ -142,7 +142,7 @@ export function GeneralMonthTab() {
                               <span className="text-zinc-600 dark:text-zinc-400">
                                 {exp.name}{' '}
                                 {exp.frequency !== FREQUENCY_TYPES.MONTHLY ? (
-                                  <span className="text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1 rounded">
+                                  <span className="text-lg bg-zinc-100 dark:bg-zinc-800 px-1 rounded">
                                     ({exp.frequency})
                                   </span>
                                 ) : (

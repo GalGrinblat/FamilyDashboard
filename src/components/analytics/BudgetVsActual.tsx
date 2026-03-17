@@ -122,7 +122,7 @@ export function BudgetVsActual({
                   max={100}
                 />
                 {isOverBudget && (
-                  <p className="text-[10px] text-rose-500 text-left">
+                  <p className="text-lg text-rose-500 text-left">
                     חרגת באזור זה ב-₪{(item.actual - item.budget).toLocaleString()}
                   </p>
                 )}
