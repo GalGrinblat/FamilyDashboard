@@ -142,6 +142,7 @@ export function InvestmentAccountCard({ account, prices, usdIlsRate }: Investmen
               <div className="text-base font-bold tabular-nums">{formatCurrency(totalValue)}</div>
               {gain !== 0 && (
                 <div
+                  dir="ltr"
                   className={`text-xs tabular-nums ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}
                 >
                   {isPositive ? '+' : ''}

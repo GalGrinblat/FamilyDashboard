@@ -19,10 +19,17 @@ export function SummaryKpisGrid({ items }: { items: KpiCardConfig[] }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">{item.label}</p>
-                <p className={`text-2xl font-bold tabular-nums ${item.valueClassName ?? ''}`}>
+                <p
+                  dir="ltr"
+                  className={`text-2xl font-bold tabular-nums ${item.valueClassName ?? ''}`}
+                >
                   {item.value}
                 </p>
-                {item.subtitle && <p className="text-xs text-muted-foreground">{item.subtitle}</p>}
+                {item.subtitle && (
+                  <p dir="ltr" className="text-xs text-muted-foreground">
+                    {item.subtitle}
+                  </p>
+                )}
               </div>
               {item.icon}
             </div>

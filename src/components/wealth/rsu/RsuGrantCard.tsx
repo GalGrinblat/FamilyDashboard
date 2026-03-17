@@ -136,11 +136,13 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs">
           <div className="flex gap-1 items-baseline">
             <span className="text-muted-foreground">הבשלה:</span>
-            <span className="font-medium tabular-nums">
+            <span className="font-medium tabular-nums" dir="ltr">
               {totalVestedShares.toLocaleString('he-IL')} /{' '}
               {grant.total_shares.toLocaleString('he-IL')}
             </span>
-            <span className="text-muted-foreground">({vestingPct.toFixed(0)}%)</span>
+            <span className="text-muted-foreground" dir="ltr">
+              ({vestingPct.toFixed(0)}%)
+            </span>
           </div>
           <div className="flex gap-1 items-baseline">
             <span className="text-muted-foreground">מחיר:</span>
@@ -149,6 +151,7 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
             </span>
             {currentPrice != null && grant.grant_price_usd != null && (
               <span
+                dir="ltr"
                 className={`tabular-nums ${currentPrice >= grant.grant_price_usd ? 'text-emerald-600' : 'text-rose-600'}`}
               >
                 ({currentPrice >= grant.grant_price_usd ? '+' : ''}
@@ -201,6 +204,7 @@ export function RsuGrantCard({ grant, prices }: RsuGrantCardProps) {
                     className={
                       currentPrice >= grant.grant_price_usd ? 'text-emerald-600' : 'text-rose-600'
                     }
+                    dir="ltr"
                   >
                     {currentPrice >= grant.grant_price_usd ? '+' : ''}
                     {(

@@ -28,6 +28,7 @@ function GainBadge({ percent }: { percent: number }) {
   return (
     <Badge
       variant="outline"
+      dir="ltr"
       className={`text-xs font-medium ${isPositive ? 'text-emerald-600 border-emerald-200 bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:bg-emerald-950' : 'text-rose-600 border-rose-200 bg-rose-50 dark:text-rose-400 dark:border-rose-800 dark:bg-rose-950'}`}
     >
       {isPositive ? '+' : ''}
@@ -164,6 +165,7 @@ function HoldingRow({
               {formatPrice(currentPrice, holding.currency)}
               {price?.changePercent !== null && price?.changePercent !== undefined && (
                 <span
+                  dir="ltr"
                   className={`text-xs mr-1 ${price.changePercent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
                 >
                   ({price.changePercent >= 0 ? '+' : ''}
