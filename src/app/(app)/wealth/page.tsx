@@ -1,5 +1,5 @@
 import { InvestmentTab } from '@/components/wealth/investment/InvestmentTab';
-import { RsuTab } from '@/components/wealth/investment/rsu/RsuTab';
+import { RsuTab } from '@/components/wealth/rsu/RsuTab';
 import { RealEstateTab } from '@/components/wealth/real-estate/RealEstateTab';
 import { PensionTab } from '@/components/wealth/pension/PensionTab';
 import { PageHeader } from '@/components/layout/PageHeader';

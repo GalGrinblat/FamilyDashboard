@@ -54,7 +54,7 @@ export function AssetsTable({ assets }: { assets: AssetRef[] }) {
         <div className="space-y-1">
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-blue-500" />
-            תיק השקעות ונכסים
+            נדל&quot;ן
           </CardTitle>
           <CardDescription>
             הערכת שווי נכסים כוללת:{' '}
