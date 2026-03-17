@@ -4,7 +4,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   CarFront,
-  Home,
+  Home as HomeIcon,
   ShieldCheck,
   Wallet,
   Wrench,
@@ -102,7 +102,7 @@ export default async function Home() {
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <PageHeader title="ראשי" icon={Home} />
+      <PageHeader title="ראשי" icon={HomeIcon} />
 
       {/* Main KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

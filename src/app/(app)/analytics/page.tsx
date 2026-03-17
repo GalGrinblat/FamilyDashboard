@@ -12,7 +12,11 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <PageHeader title="דוחות ואנליטיקה" icon={BarChart3} description="ניתוח נתונים אוטומטי המבוסס על תנועות העו״ש שלך." />
+      <PageHeader
+        title="דוחות ואנליטיקה"
+        icon={BarChart3}
+        description="ניתוח נתונים אוטומטי המבוסס על תנועות העו״ש שלך."
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-2">
         {/* Top Half: Spending Pie & Cash Flow Trend */}

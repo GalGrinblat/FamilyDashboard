@@ -48,9 +48,7 @@ export default async function LiquidityPage() {
         <TabsContent value="recurring" className="mt-4">
           <Card className="border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
             <CardHeader>
-              <CardTitle>
-                תקציב ותזרים קבוע (Recurring Flows)
-              </CardTitle>
+              <CardTitle>תקציב ותזרים קבוע (Recurring Flows)</CardTitle>
               <CardDescription>
                 ניהול הכנסות והוצאות קבועות המשפיעות על היתרה הצפויה בסוף החודש.
               </CardDescription>
