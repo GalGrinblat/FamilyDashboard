@@ -1,7 +1,6 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database } from '@/types/database.types';
 import { RealEstateMetadata } from '@/types/wealth';
 import { TrendingUp, Building2, Bitcoin, LineChart, Trash2 } from 'lucide-react';
 import { AssetDialog } from './AssetDialog';
@@ -10,10 +9,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ASSET_TYPES, ASSET_TYPE_LABELS, AssetType } from '@/lib/constants';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
+import type { AssetRef } from '@/lib/schemas';
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
-
-export function AssetsTable({ assets }: { assets: AssetRow[] }) {
+export function AssetsTable({ assets }: { assets: AssetRef[] }) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -47,7 +45,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
       acc[t].push(asset);
       return acc;
     },
-    {} as Record<string, AssetRow[]>,
+    {} as Record<string, AssetRef[]>,
   );
 
   return (

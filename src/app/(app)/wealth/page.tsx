@@ -1,36 +1,12 @@
-import { createClient } from '@/lib/supabase/server';
-import { AssetsTable } from '@/components/wealth/AssetsTable';
-import { PensionTable } from '@/components/wealth/PensionTable';
 import { InvestmentTab } from '@/components/wealth/investment/InvestmentTab';
 import { RsuTab } from '@/components/wealth/investment/rsu/RsuTab';
+import { RealEstateTab } from '@/components/wealth/real-estate/RealEstateTab';
+import { PensionTab } from '@/components/wealth/pension/PensionTab';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { TrendingUp, Briefcase, WalletCards, LineChart, Award } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ASSET_TYPES } from '@/lib/constants';
-import { AssetSchema } from '@/lib/schemas';
-import { z } from 'zod';
 
 export default async function WealthPage() {
-  const supabase = await createClient();
-
-  const [{ data: rawRealEstate }, { data: rawPensions }] = await Promise.all([
-    supabase
-      .from('assets')
-      .select('*')
-      .eq('type', ASSET_TYPES.REAL_ESTATE)
-      .eq('status', 'active')
-      .order('name', { ascending: true }),
-    supabase
-      .from('assets')
-      .select('*')
-      .eq('type', ASSET_TYPES.PENSION)
-      .eq('status', 'active')
-      .order('name', { ascending: true }),
-  ]);
-
-  const realEstateAssets = z.array(AssetSchema).parse(rawRealEstate || []);
-  const pensionAssets = z.array(AssetSchema).parse(rawPensions || []);
-
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <PageHeader title="הון ונכסים" icon={TrendingUp} />
@@ -63,19 +39,19 @@ export default async function WealthPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="investments" className="mt-6">
+        <TabsContent value="investments" className="mt-4">
           <InvestmentTab />
         </TabsContent>
 
-        <TabsContent value="real_estate" className="space-y-4 mt-4">
-          <AssetsTable assets={realEstateAssets} />
+        <TabsContent value="real_estate" className="mt-4">
+          <RealEstateTab />
         </TabsContent>
 
-        <TabsContent value="pension" className="space-y-4 mt-4">
-          <PensionTable pensions={pensionAssets} />
+        <TabsContent value="pension" className="mt-4">
+          <PensionTab />
         </TabsContent>
 
-        <TabsContent value="rsu" className="space-y-4 mt-4">
+        <TabsContent value="rsu" className="mt-4">
           <RsuTab />
         </TabsContent>
       </Tabs>

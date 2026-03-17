@@ -1,17 +1,15 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database } from '@/types/database.types';
 import { Briefcase, Landmark, PiggyBank, GraduationCap, Trash2 } from 'lucide-react';
 import { PensionDialog } from './PensionDialog';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
+import type { AssetRef } from '@/lib/schemas';
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
-
-export function PensionTable({ pensions }: { pensions: AssetRow[] }) {
+export function PensionTable({ pensions }: { pensions: AssetRef[] }) {
   const router = useRouter();
   const supabase = createClient();
 

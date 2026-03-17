@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, Clock, Receipt } from 'lucide-react';
 import { computeRsuSaleTax } from '@/lib/portfolio-calculations';
 import type { RsuGrantWithVests } from '@/types/investment';
+import { SummaryKpisGrid } from '@/components/wealth/shared/SummaryKpisGrid';
 
 interface RsuSummaryKpisProps {
   grants: RsuGrantWithVests[];
@@ -48,49 +48,27 @@ export function RsuSummaryKpis({ grants }: RsuSummaryKpisProps) {
   const totalVestedNet = totalVestedValue - totalEstimatedTax;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <Card>
-        <CardContent className="pt-5 pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">שווי מניות שהבשילו</p>
-              <p className="text-2xl font-bold tabular-nums">{formatUsd(totalVestedValue)}</p>
-              {totalEstimatedTax > 0 && (
-                <p className="text-xs text-muted-foreground">נטו: {formatUsd(totalVestedNet)}</p>
-              )}
-            </div>
-            <TrendingUp className="h-8 w-8 text-muted-foreground/40" />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-5 pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">שווי מניות עתידיות</p>
-              <p className="text-2xl font-bold tabular-nums text-muted-foreground">
-                {formatUsd(totalFutureValue)}
-              </p>
-            </div>
-            <Clock className="h-8 w-8 text-muted-foreground/40" />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-5 pb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">מס משוער במכירה</p>
-              <p className="text-2xl font-bold tabular-nums text-rose-600 dark:text-rose-400">
-                {formatUsd(totalEstimatedTax)}
-              </p>
-            </div>
-            <Receipt className="h-8 w-8 text-muted-foreground/40" />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <SummaryKpisGrid
+      items={[
+        {
+          label: 'שווי מניות שהבשילו',
+          value: formatUsd(totalVestedValue),
+          subtitle: totalEstimatedTax > 0 ? `נטו: ${formatUsd(totalVestedNet)}` : undefined,
+          icon: <TrendingUp className="h-8 w-8 text-muted-foreground/40" />,
+        },
+        {
+          label: 'שווי מניות עתידיות',
+          value: formatUsd(totalFutureValue),
+          valueClassName: 'text-muted-foreground',
+          icon: <Clock className="h-8 w-8 text-muted-foreground/40" />,
+        },
+        {
+          label: 'מס משוער במכירה',
+          value: formatUsd(totalEstimatedTax),
+          valueClassName: 'text-rose-600 dark:text-rose-400',
+          icon: <Receipt className="h-8 w-8 text-muted-foreground/40" />,
+        },
+      ]}
+    />
   );
 }
