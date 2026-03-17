@@ -25,11 +25,9 @@ export function SummaryKpisGrid({ items }: { items: KpiCardConfig[] }) {
                 >
                   {item.value}
                 </p>
-                {item.subtitle && (
-                  <p dir="ltr" className="text-base text-muted-foreground">
-                    {item.subtitle}
-                  </p>
-                )}
+                <p dir="ltr" className="text-base text-muted-foreground">
+                  {item.subtitle ?? '\u00A0'}
+                </p>
               </div>
               {item.icon}
             </div>
