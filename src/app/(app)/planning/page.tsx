@@ -193,7 +193,7 @@ export default async function PlanningPage() {
         </TabsList>
 
         <div className="mt-4">
-          <TabsContent value="periodic" className="m-0">
+          <TabsContent value="periodic" className="mt-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
@@ -218,7 +218,7 @@ export default async function PlanningPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="vacation" className="m-0">
+          <TabsContent value="vacation" className="mt-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>

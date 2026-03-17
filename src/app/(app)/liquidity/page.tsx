@@ -46,9 +46,9 @@ export default async function LiquidityPage() {
         </TabsContent>
 
         <TabsContent value="recurring" className="mt-4">
-          <Card className="border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden">
-            <CardHeader className="bg-indigo-50/30 dark:bg-indigo-900/10">
-              <CardTitle className="text-indigo-800 dark:text-indigo-300">
+          <Card className="border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+            <CardHeader>
+              <CardTitle>
                 תקציב ותזרים קבוע (Recurring Flows)
               </CardTitle>
               <CardDescription>

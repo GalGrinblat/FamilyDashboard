@@ -154,11 +154,11 @@ export default async function HousingPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="utilities" className="space-y-4">
+        <TabsContent value="utilities" className="mt-4">
           <ContractsTab contracts={contracts} />
         </TabsContent>
 
-        <TabsContent value="appliances" className="m-0">
+        <TabsContent value="appliances" className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -180,7 +180,7 @@ export default async function HousingPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="furniture" className="m-0">
+        <TabsContent value="furniture" className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -202,7 +202,7 @@ export default async function HousingPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="electronics" className="m-0">
+        <TabsContent value="electronics" className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>

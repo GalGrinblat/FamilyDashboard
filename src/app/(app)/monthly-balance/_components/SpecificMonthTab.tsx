@@ -270,7 +270,7 @@ export function SpecificMonthTab() {
                     {item.title}
                     {(item.asset_id || item.policy_id) && (
                       <span title="תזרים מנוהל אוטומטית">
-                        <LinkIcon className="h-3 w-3 text-zinc-400" />
+                        <LinkIcon className="h-4 w-4 text-zinc-400" />
                       </span>
                     )}
                     {item.isActual && (
@@ -298,7 +298,7 @@ export function SpecificMonthTab() {
                         className="h-6 w-6"
                         onClick={() => handleEditClick(item)}
                       >
-                        <Pencil className="h-3 w-3" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     )}
                   </div>

@@ -104,11 +104,11 @@ export default async function TransactionsPage() {
 
         <div className="mt-4">
           {/* AI Engine Tab - Default */}
-          <TabsContent value="ai_engine" className="m-0">
+          <TabsContent value="ai_engine" className="mt-4">
             <ExpenseUploader categories={dbCategories} accounts={dbAccounts} />
           </TabsContent>
 
-          <TabsContent value="income" className="m-0">
+          <TabsContent value="income" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>הכנסות</CardTitle>
@@ -120,7 +120,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="housing" className="m-0">
+          <TabsContent value="housing" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>מגורים ומשק בית</CardTitle>
@@ -134,7 +134,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="car" className="m-0">
+          <TabsContent value="car" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>תחבורה ורכבים</CardTitle>
@@ -146,7 +146,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="insurances" className="m-0">
+          <TabsContent value="insurances" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>ביטוחים</CardTitle>
@@ -158,7 +158,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="utilities" className="m-0">
+          <TabsContent value="utilities" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>חשבונות (Utilities)</CardTitle>
@@ -170,7 +170,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="supermarket" className="m-0">
+          <TabsContent value="supermarket" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>סופרמרקט</CardTitle>
@@ -182,7 +182,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="hobbies" className="m-0">
+          <TabsContent value="hobbies" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>חוגים ופנאי</CardTitle>
@@ -194,7 +194,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="entertainment" className="m-0">
+          <TabsContent value="entertainment" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>בילויים ומסעדות</CardTitle>
@@ -206,7 +206,7 @@ export default async function TransactionsPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="vacation" className="m-0">
+          <TabsContent value="vacation" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>חופשות</CardTitle>

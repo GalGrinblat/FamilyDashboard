@@ -45,7 +45,7 @@ export default async function InsurancesPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={INSURANCE_TYPES.HEALTH} className="space-y-4">
+        <TabsContent value={INSURANCE_TYPES.HEALTH} className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
@@ -91,7 +91,7 @@ export default async function InsurancesPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value={INSURANCE_TYPES.PROPERTY} className="space-y-4">
+        <TabsContent value={INSURANCE_TYPES.PROPERTY} className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
@@ -135,7 +135,7 @@ export default async function InsurancesPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value={INSURANCE_TYPES.VEHICLE} className="space-y-4">
+        <TabsContent value={INSURANCE_TYPES.VEHICLE} className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>

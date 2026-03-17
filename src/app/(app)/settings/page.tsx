@@ -29,11 +29,11 @@ export default async function SettingsPage() {
           <TabsTrigger value="general">הגדרות מערכת</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="categories" className="space-y-4">
+        <TabsContent value="categories" className="mt-4">
           <CategoryManager initialCategories={categories} />
         </TabsContent>
 
-        <TabsContent value="general" className="space-y-4">
+        <TabsContent value="general" className="mt-4">
           <SystemSettingsTab />
         </TabsContent>
       </Tabs>

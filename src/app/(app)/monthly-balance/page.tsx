@@ -11,12 +11,12 @@ export default async function MonthlyBalancePage() {
         <TabsTrigger value="specific">חודש ספציפי</TabsTrigger>
         <TabsTrigger value="general">חודש כללי</TabsTrigger>
       </TabsList>
-      <TabsContent value="specific" className="space-y-4">
+      <TabsContent value="specific" className="mt-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <SpecificMonthTab />
         </Suspense>
       </TabsContent>
-      <TabsContent value="general" className="space-y-4">
+      <TabsContent value="general" className="mt-4">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <GeneralMonthTab />
         </Suspense>
