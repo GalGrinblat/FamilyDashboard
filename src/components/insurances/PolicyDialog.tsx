@@ -201,7 +201,7 @@ function PolicyForm({
           סוג הפוליסה
         </Label>
         <Select value={type} onValueChange={(v: InsuranceType) => setType(v)}>
-          <SelectTrigger className="col-span-3">
+          <SelectTrigger className="col-span-3" dir="rtl">
             <SelectValue placeholder="בחר סוג" />
           </SelectTrigger>
           <SelectContent dir="rtl">
@@ -218,7 +218,7 @@ function PolicyForm({
             תת-סוג
           </Label>
           <Select value={subtype} onValueChange={setSubtype}>
-            <SelectTrigger className="col-span-3">
+            <SelectTrigger className="col-span-3" dir="rtl">
               <SelectValue placeholder="בחר תת-סוג" />
             </SelectTrigger>
             <SelectContent dir="rtl">
@@ -282,7 +282,7 @@ function PolicyForm({
           value={premiumFrequency}
           onValueChange={(v: FrequencyType) => setPremiumFrequency(v)}
         >
-          <SelectTrigger className="col-span-3">
+          <SelectTrigger className="col-span-3" dir="rtl">
             <SelectValue placeholder="בחר" />
           </SelectTrigger>
           <SelectContent dir="rtl">
@@ -324,7 +324,7 @@ function PolicyForm({
             שיוך לנכס (אופציונלי)
           </Label>
           <Select value={assetId} onValueChange={(v: string) => setAssetId(v)}>
-            <SelectTrigger className="col-span-3">
+            <SelectTrigger className="col-span-3" dir="rtl">
               <SelectValue placeholder="ללא שיוך" />
             </SelectTrigger>
             <SelectContent dir="rtl">

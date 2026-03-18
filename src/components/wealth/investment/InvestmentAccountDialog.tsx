@@ -41,6 +41,7 @@ export function InvestmentAccountDialog({
 }: InvestmentAccountDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -72,6 +73,7 @@ export function InvestmentAccountDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const payload = {
       name,
@@ -103,7 +105,8 @@ export function InvestmentAccountDialog({
 
     if (error) {
       console.error('Error saving investment account:', error);
-      alert(isEditing ? 'שגיאה בעדכון חשבון ההשקעות' : 'שגיאה בהוספת חשבון ההשקעות');
+      setErrorMsg(isEditing ? 'שגיאה בעדכון חשבון ההשקעות' : 'שגיאה בהוספת חשבון ההשקעות');
+      setLoading(false);
       return;
     }
 
@@ -131,7 +134,7 @@ export function InvestmentAccountDialog({
               <Pencil className="h-4 w-4" />
             ) : (
               <>
-                <Plus className="ml-2 h-4 w-4" /> הוסף חשבון השקעות
+                <Plus className="mr-2 h-4 w-4" /> הוסף חשבון השקעות
               </>
             )}
           </Button>
@@ -166,7 +169,7 @@ export function InvestmentAccountDialog({
               value={accountType}
               onValueChange={(v) => setAccountType(v as InvestmentAccountType)}
             >
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -263,7 +266,7 @@ export function InvestmentAccountDialog({
                     {isHistalmut &&
                       monthlyContribution &&
                       parseFloat(monthlyContribution) > 1571 && (
-                        <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                        <p className="text-base text-amber-600 dark:text-amber-400">
                           ⚠️ חלק מהרווחים יחויב במס 25% (מעל תקרת ₪1,571/חודש)
                         </p>
                       )}
@@ -282,7 +285,7 @@ export function InvestmentAccountDialog({
                         value={histalmutEligibleDate}
                         onChange={(e) => setHistalmutEligibleDate(e.target.value)}
                       />
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-base text-muted-foreground">
                         לאחר תאריך זה, רווחים על החלק שבתוך תקרת הפטור יהיו פטורים ממס
                       </p>
                     </div>
@@ -306,6 +309,7 @@ export function InvestmentAccountDialog({
             />
           </div>
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף חשבון'}

@@ -36,6 +36,7 @@ interface AddMaintenanceDialogProps {
 export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -50,6 +51,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
     e.preventDefault();
     if (!carId) return;
     setLoading(true);
+    setErrorMsg('');
 
     const selectedCar = cars.find((c) => c.id === carId);
     if (!selectedCar) return;
@@ -80,7 +82,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
 
     if (error) {
       console.error('Error saving maintenance log:', error);
-      alert('שגיאה בשמירת הטיפול');
+      setErrorMsg('שגיאה בשמירת הטיפול');
+      setLoading(false);
       return;
     }
 
@@ -97,7 +100,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="ml-2 h-4 w-4" /> גיליון טיפול
+          <Plus className="mr-2 h-4 w-4" /> גיליון טיפול
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
@@ -111,7 +114,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               רכב
             </Label>
             <Select value={carId} onValueChange={setCarId} required>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר רכב" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -141,7 +144,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               סוג אירוע
             </Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -193,6 +196,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               required
             />
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : 'שמור טיפול'}

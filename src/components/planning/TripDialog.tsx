@@ -60,7 +60,7 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant="outline">
-            <Plus className="ml-2 h-4 w-4" />
+            <Plus className="mr-2 h-4 w-4" />
             חופשה חדשה
           </Button>
         )}

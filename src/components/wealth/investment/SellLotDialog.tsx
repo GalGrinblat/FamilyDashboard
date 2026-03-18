@@ -33,6 +33,7 @@ export function SellLotDialog({
 }: SellLotDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -49,9 +50,10 @@ export function SellLotDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
     const qty = parseFloat(quantity);
     if (qty > maxQuantity) {
-      alert(`לא ניתן למכור יותר מ-${maxQuantity} יחידות מרכישה זו`);
+      setErrorMsg(`לא ניתן למכור יותר מ-${maxQuantity} יחידות מרכישה זו`);
       return;
     }
     setLoading(true);
@@ -71,7 +73,8 @@ export function SellLotDialog({
 
     if (error) {
       console.error('Error recording sale:', error);
-      alert('שגיאה בתיעוד המכירה');
+      setErrorMsg('שגיאה בתיעוד המכירה');
+      setLoading(false);
       return;
     }
 
@@ -91,7 +94,7 @@ export function SellLotDialog({
           size="sm"
           className="h-6 px-1.5 text-base text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950"
         >
-          <TrendingDown className="h-3 w-3 ml-1" />
+          <TrendingDown className="h-3 w-3 mr-1" />
           מכר
         </Button>
       </DialogTrigger>
@@ -175,6 +178,7 @@ export function SellLotDialog({
             </p>
           )}
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading} variant="destructive">
               {loading ? 'שומר...' : 'תעד מכירה'}

@@ -25,6 +25,7 @@ interface RsuVestDialogProps {
 export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -37,6 +38,7 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     // 1. Find the holding for this grant's ticker in the account
     const { data: holding } = await supabase
@@ -64,7 +66,7 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
 
       if (holdingError || !newHolding) {
         console.error('Error creating holding:', holdingError);
-        alert('שגיאה ביצירת נייר הערך');
+        setErrorMsg('שגיאה ביצירת נייר הערך');
         setLoading(false);
         return;
       }
@@ -98,7 +100,7 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
 
     if (lotError || !lot) {
       console.error('Error creating lot:', lotError);
-      alert('שגיאה ברישום ההתבגרות');
+      setErrorMsg('שגיאה ברישום ההתבגרות');
       setLoading(false);
       return;
     }
@@ -117,7 +119,8 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
 
     if (vestError) {
       console.error('Error creating vest record:', vestError);
-      alert('שגיאה ברישום ההתבגרות');
+      setErrorMsg('שגיאה ברישום ההתבגרות');
+      setLoading(false);
       return;
     }
 
@@ -134,7 +137,7 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant="outline" size="sm">
-            <Plus className="ml-1 h-3 w-3" /> רשום התבגרות
+            <Plus className="mr-1 h-3 w-3" /> רשום התבגרות
           </Button>
         )}
       </DialogTrigger>
@@ -186,7 +189,7 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
                 placeholder="מחיר השוק ביום ההתבגרות"
                 required
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 {grant.tax_track === 'capital_gains'
                   ? 'עלות הבסיס לצורך מס תחושב לפי מחיר המענק ($' +
                     (grant.grant_price_usd ?? '—') +
@@ -209,6 +212,7 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
             />
           </div>
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : 'רשום התבגרות'}

@@ -43,6 +43,7 @@ export function RsuGrantDialog({
 }: RsuGrantDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -114,9 +115,10 @@ export function RsuGrantDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setErrorMsg('');
     const normalizedTicker = ticker.toUpperCase().trim();
     if (!isValidTicker(normalizedTicker)) {
-      alert('סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, MSFT).');
+      setErrorMsg('סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, MSFT).');
       return;
     }
 
@@ -152,7 +154,7 @@ export function RsuGrantDialog({
       setLoading(false);
       if (error) {
         console.error('Error updating RSU grant:', error);
-        alert('שגיאה בעדכון המענק');
+        setErrorMsg('שגיאה בעדכון המענק');
         return;
       }
     } else {
@@ -164,7 +166,7 @@ export function RsuGrantDialog({
 
       if (grantError || !newGrant) {
         console.error('Error inserting RSU grant:', grantError);
-        alert('שגיאה בהוספת המענק');
+        setErrorMsg('שגיאה בהוספת המענק');
         setLoading(false);
         return;
       }
@@ -199,7 +201,7 @@ export function RsuGrantDialog({
 
           if (holdingError || !newHolding) {
             console.error('Error creating holding:', holdingError);
-            alert('המענק נוסף אך שגיאה ביצירת הנייר ערך');
+            setErrorMsg('המענק נוסף אך שגיאה ביצירת הנייר ערך');
             setLoading(false);
             router.refresh();
             return;
@@ -253,7 +255,7 @@ export function RsuGrantDialog({
               <Pencil className="h-4 w-4" />
             ) : (
               <>
-                <Plus className="ml-2 h-4 w-4" /> הוסף מענק RSU
+                <Plus className="mr-2 h-4 w-4" /> הוסף מענק RSU
               </>
             )}
           </Button>
@@ -355,7 +357,7 @@ export function RsuGrantDialog({
               תדירות הבשלה
             </Label>
             <Select value={vestFrequency} onValueChange={setVestFrequency}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -530,7 +532,7 @@ export function RsuGrantDialog({
               מסלול מס
             </Label>
             <Select value={taxTrack} onValueChange={(v) => setTaxTrack(v as RsuTaxTrack)}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -556,6 +558,7 @@ export function RsuGrantDialog({
             />
           </div>
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף מענק'}

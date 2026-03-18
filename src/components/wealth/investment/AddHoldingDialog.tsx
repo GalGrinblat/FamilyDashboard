@@ -34,6 +34,7 @@ interface AddHoldingDialogProps {
 export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHoldingDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -59,9 +60,12 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setErrorMsg('');
     const normalizedTicker = ticker.toUpperCase().trim();
     if (!isValidTicker(normalizedTicker)) {
-      alert('סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, TEVA.TA).');
+      setErrorMsg(
+        'סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, TEVA.TA).',
+      );
       return;
     }
 
@@ -95,7 +99,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
 
       if (holdingError || !newHolding) {
         console.error('Error adding holding:', holdingError);
-        alert('שגיאה בהוספת נייר הערך');
+        setErrorMsg('שגיאה בהוספת נייר הערך');
         setLoading(false);
         return;
       }
@@ -116,7 +120,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
 
       if (lotError) {
         console.error('Error adding lot:', lotError);
-        alert('נייר הערך נוסף אך שגיאה בהוספת הרכישה');
+        setErrorMsg('נייר הערך נוסף אך שגיאה בהוספת הרכישה');
       }
     }
 
@@ -138,7 +142,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant="outline" size="sm">
-            <Plus className="ml-1 h-3 w-3" /> הוסף נייר ערך
+            <Plus className="mr-1 h-3 w-3" /> הוסף נייר ערך
           </Button>
         )}
       </DialogTrigger>
@@ -180,7 +184,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
               סוג נייר
             </Label>
             <Select value={assetClass} onValueChange={(v) => setAssetClass(v as AssetClass)}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -198,7 +202,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
               מטבע
             </Label>
             <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -283,6 +287,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             </p>
           )}
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : 'הוסף'}

@@ -29,6 +29,7 @@ interface AddCarAssetDialogProps {
 export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -61,6 +62,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const productionYear = registrationDate
       ? new Date(registrationDate as string).getFullYear().toString()
@@ -105,7 +107,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
 
     if (error || !insertedAsset) {
       console.error('Error saving car asset:', error);
-      alert('שגיאה בשמירת הרכב');
+      setErrorMsg('שגיאה בשמירת הרכב');
       setLoading(false);
       return;
     }
@@ -198,7 +200,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
 
     if (error) {
       console.error('Error archiving car:', error);
-      alert('שגיאה בארכוב הרכב');
+      setErrorMsg('שגיאה בארכוב הרכב');
       setLoading(false);
       return;
     }
@@ -213,7 +215,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       <DialogTrigger asChild>
         {triggerButton || (
           <Button>
-            <Plus className="ml-2 h-4 w-4" />
+            <Plus className="mr-2 h-4 w-4" />
             הוסף רכב
           </Button>
         )}
@@ -317,6 +319,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               placeholder="₪"
             />
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter className="flex items-center justify-between sm:justify-between pt-2">
             {isEditing ? (
               <Button

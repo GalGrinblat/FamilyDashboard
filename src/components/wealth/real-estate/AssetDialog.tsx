@@ -41,6 +41,7 @@ interface AssetDialogProps {
 export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -61,6 +62,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const payload: AssetInsert = {
       name,
@@ -97,7 +99,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 
     if (error) {
       console.error('Error saving asset:', error);
-      alert(isEditing ? 'שגיאה בעדכון הנכס' : 'שגיאה בהוספת הנכס');
+      setErrorMsg(isEditing ? 'שגיאה בעדכון הנכס' : 'שגיאה בהוספת הנכס');
       return;
     }
 
@@ -120,7 +122,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
               <Pencil className="h-4 w-4" />
             ) : (
               <>
-                <Plus className="ml-2 h-4 w-4" /> הוסף נכס
+                <Plus className="mr-2 h-4 w-4" /> הוסף נכס
               </>
             )}
           </Button>
@@ -157,7 +159,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
               סוג
             </Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג נכס" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -250,7 +252,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                         }
                       />
                       {re?.rent_end_date && (
-                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+                        <p className="text-base text-emerald-600 dark:text-emerald-400">
                           📅 תזכורת חידוש תיווצר אוטומטית 3 חודשים לפני סיום החוזה
                         </p>
                       )}
@@ -330,6 +332,7 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
             </div>
           )}
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : isEditing ? 'שמור פריט' : 'הוסף נכס'}

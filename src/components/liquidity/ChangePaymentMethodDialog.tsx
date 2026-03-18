@@ -38,6 +38,7 @@ export function ChangePaymentMethodDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const router = useRouter();
   const supabase = createClient();
@@ -63,7 +64,7 @@ export function ChangePaymentMethodDialog({
 
     if (error) {
       console.error('Error creating reminder:', error);
-      alert('שגיאה ביצירת המשימה');
+      setErrorMsg('שגיאה ביצירת המשימה');
     } else {
       setOpen(false);
       router.refresh();
@@ -93,7 +94,7 @@ export function ChangePaymentMethodDialog({
               לאיזה חשבון להעביר?
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId} required>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר חשבון חדש" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -105,6 +106,7 @@ export function ChangePaymentMethodDialog({
               </SelectContent>
             </Select>
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading || !selectedAccountId}>
               {loading ? 'יוצר משימה...' : 'צור משימה לביצוע'}

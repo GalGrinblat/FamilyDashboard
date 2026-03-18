@@ -30,6 +30,7 @@ interface PensionDialogProps {
 export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -66,7 +67,7 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
 
     if (error) {
       console.error('Error saving pension asset:', error);
-      alert('שגיאה בשמירת הקרן');
+      setErrorMsg('שגיאה בשמירת הקרן');
       setLoading(false);
       return;
     }
@@ -81,7 +82,7 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant="outline" size="sm">
-            {isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="ml-2 h-4 w-4" />}
+            {isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
             {isEditing ? '' : 'הוסף קרן/קופה'}
           </Button>
         )}
@@ -122,6 +123,7 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
               placeholder="₪"
             />
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700">
               {loading ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף לנכסים'}

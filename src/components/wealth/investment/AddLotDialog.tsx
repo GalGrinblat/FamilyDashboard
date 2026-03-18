@@ -26,6 +26,7 @@ interface AddLotDialogProps {
 export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: AddLotDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -58,7 +59,8 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
 
     if (error) {
       console.error('Error adding lot:', error);
-      alert('שגיאה בהוספת הרכישה');
+      setErrorMsg('שגיאה בהוספת הרכישה');
+      setLoading(false);
       return;
     }
 
@@ -75,7 +77,7 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant="ghost" size="sm" className="h-7 px-2 text-base">
-            <Plus className="h-3 w-3 ml-1" /> קנייה
+            <Plus className="h-3 w-3 mr-1" /> קנייה
           </Button>
         )}
       </DialogTrigger>
@@ -155,6 +157,7 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
             </p>
           )}
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : 'הוסף רכישה'}

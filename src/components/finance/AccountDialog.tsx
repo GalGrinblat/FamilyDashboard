@@ -37,6 +37,7 @@ export function AccountDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -58,6 +59,7 @@ export function AccountDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     let metadata = null;
     if (type === ACCOUNT_TYPES.CREDIT_CARD && billingDay) {
@@ -88,7 +90,7 @@ export function AccountDialog({
 
     if (error) {
       console.error('Error saving account:', error);
-      alert(isEditing ? 'שגיאה בעדכון החשבון' : 'שגיאה בהוספת החשבון');
+      setErrorMsg(isEditing ? 'שגיאה בעדכון החשבון' : 'שגיאה בהוספת החשבון');
     } else {
       setOpen(false);
       router.refresh(); // Refresh page data
@@ -104,7 +106,7 @@ export function AccountDialog({
               <Pencil className="h-4 w-4" />
             ) : (
               <>
-                <Plus className="ml-2 h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4" />
                 הוסף חשבון
               </>
             )}
@@ -141,7 +143,7 @@ export function AccountDialog({
               סוג
             </Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג חשבון" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -187,6 +189,7 @@ export function AccountDialog({
             </div>
           )}
 
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור חשבון'}

@@ -40,6 +40,7 @@ export function HouseholdItemDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -68,6 +69,7 @@ export function HouseholdItemDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const payload = {
       name,
@@ -94,7 +96,8 @@ export function HouseholdItemDialog({
 
     if (error) {
       console.error('Error saving item:', error);
-      alert(isEditing ? 'שגיאה בעדכון הפריט' : 'שגיאה בהוספת הפריט');
+      setErrorMsg(isEditing ? 'שגיאה בעדכון הפריט' : 'שגיאה בהוספת הפריט');
+      setLoading(false);
       return;
     }
 
@@ -123,7 +126,7 @@ export function HouseholdItemDialog({
             </Button>
           ) : (
             <Button>
-              <Plus className="ml-2 h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
               הוסף פריט
             </Button>
           ))}
@@ -153,13 +156,13 @@ export function HouseholdItemDialog({
               קטגוריה
             </Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר קטגוריה" />
               </SelectTrigger>
               <SelectContent dir="rtl">
-                <SelectItem value="appliance">מכשירי חשמל (Appliance)</SelectItem>
-                <SelectItem value="furniture">ריהוט (Furniture)</SelectItem>
-                <SelectItem value="electronics">אלקטרוניקה (Electronics)</SelectItem>
+                <SelectItem value="appliance">מכשירי חשמל</SelectItem>
+                <SelectItem value="furniture">ריהוט</SelectItem>
+                <SelectItem value="electronics">אלקטרוניקה</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -200,6 +203,7 @@ export function HouseholdItemDialog({
               className="col-span-3"
             />
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : isEditing ? 'עדכן פריט' : 'שמור פריט'}

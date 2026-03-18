@@ -46,6 +46,7 @@ export function RecurringFlowDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -92,6 +93,7 @@ export function RecurringFlowDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const payload = {
       name,
@@ -122,7 +124,7 @@ export function RecurringFlowDialog({
 
     if (error) {
       console.error('Error saving recurring flow:', error);
-      alert(isEditing ? 'שגיאה בעדכון התזרים' : 'שגיאה בהוספת תזרים קבוע');
+      setErrorMsg(isEditing ? 'שגיאה בעדכון התזרים' : 'שגיאה בהוספת תזרים קבוע');
     } else {
       setOpen(false);
       // Refresh the page data
@@ -139,7 +141,7 @@ export function RecurringFlowDialog({
               <Pencil className="h-4 w-4" />
             ) : (
               <>
-                <Plus className="ml-2 h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4" />
                 הוסף תזרים קבוע
               </>
             )}
@@ -148,9 +150,7 @@ export function RecurringFlowDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'עריכת תזרים קבוע' : 'הוספת תזרים קבוע (Salary/Rent)'}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'עריכת תזרים קבוע' : 'הוספת תזרים קבוע'}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? 'עדכן את פרטי התזרים הקיים. השינוי ישפיע על התחזיות העתידיות.'
@@ -182,7 +182,7 @@ export function RecurringFlowDialog({
               סוג
             </Label>
             <Select value={type} onValueChange={(val) => setType(val as CategoryType)}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -210,13 +210,13 @@ export function RecurringFlowDialog({
               תדירות
             </Label>
             <Select value={frequency} onValueChange={(v) => setFrequency(v as FrequencyType)}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר תדירות" />
               </SelectTrigger>
               <SelectContent dir="rtl">
-                <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי (Monthly)</SelectItem>
-                <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי (Yearly)</SelectItem>
-                <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי (Weekly)</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -225,7 +225,7 @@ export function RecurringFlowDialog({
               תחום
             </Label>
             <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר תחום" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -239,7 +239,7 @@ export function RecurringFlowDialog({
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="start_date" className="text-right">
-              תחימת התחלה
+              תאריך התחלה
             </Label>
             <Input
               id="start_date"
@@ -251,7 +251,7 @@ export function RecurringFlowDialog({
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="end_date" className="text-right">
-              תחימת סיום
+              תאריך סיום
             </Label>
             <Input
               id="end_date"
@@ -266,7 +266,7 @@ export function RecurringFlowDialog({
               אמצעי תשלום
             </Label>
             <Select value={accountId} onValueChange={setAccountId}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר חשבון (אופציונלי)" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -279,6 +279,7 @@ export function RecurringFlowDialog({
               </SelectContent>
             </Select>
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
               {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור תזרים'}

@@ -37,6 +37,7 @@ interface ContractDialogProps {
 export function ContractDialog({ triggerButton, contractToEdit }: ContractDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
@@ -50,6 +51,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     const payload = {
       name,
@@ -76,7 +78,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
 
     if (error) {
       console.error('Error saving contract:', error);
-      alert('שגיאה בשמירת הספק');
+      setErrorMsg('שגיאה בשמירת הספק');
       setLoading(false);
       return;
     }
@@ -91,7 +93,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant="outline" size="sm">
-            {isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="ml-2 h-4 w-4" />}
+            {isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
             {isEditing ? '' : 'הוסף ספק/חוזה'}
           </Button>
         )}
@@ -136,7 +138,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               תדירות
             </Label>
             <Select value={frequency} onValueChange={setFrequency}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר תדירות" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -151,7 +153,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               סוג
             </Label>
             <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג" />
               </SelectTrigger>
               <SelectContent dir="rtl">
@@ -172,6 +174,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               className="col-span-3"
             />
           </div>
+          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button
               type="submit"
