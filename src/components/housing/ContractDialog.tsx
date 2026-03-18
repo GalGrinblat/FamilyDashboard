@@ -15,8 +15,15 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
-import { CATEGORY_DOMAINS, CATEGORY_TYPES } from '@/lib/constants';
+import { CATEGORY_DOMAINS, CATEGORY_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
 
 import { Database } from '@/types/database.types';
 
@@ -36,6 +43,9 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
   const isEditing = !!contractToEdit;
   const [name, setName] = useState(contractToEdit?.name || '');
   const [amount, setAmount] = useState(contractToEdit?.amount?.toString() || '');
+  const [frequency, setFrequency] = useState(contractToEdit?.frequency || FREQUENCY_TYPES.MONTHLY);
+  const [domain, setDomain] = useState(contractToEdit?.domain || CATEGORY_DOMAINS.HOUSING);
+  const [endDate, setEndDate] = useState(contractToEdit?.end_date || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,8 +55,9 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
       name,
       amount: parseFloat(amount),
       type: CATEGORY_TYPES.EXPENSE,
-      frequency: 'monthly',
-      domain: CATEGORY_DOMAINS.HOUSING,
+      frequency,
+      domain,
+      end_date: endDate || null,
       is_active: true,
     };
 
@@ -118,6 +129,47 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               className="col-span-3"
               placeholder="₪"
               required
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="frequency" className="text-right">
+              תדירות
+            </Label>
+            <Select value={frequency} onValueChange={setFrequency}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="בחר תדירות" />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי</SelectItem>
+                <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="domain" className="text-right">
+              סוג
+            </Label>
+            <Select value={domain} onValueChange={setDomain}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="בחר סוג" />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value={CATEGORY_DOMAINS.HOUSING}>דיור</SelectItem>
+                <SelectItem value={CATEGORY_DOMAINS.UTILITIES}>שירותים</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="end_date" className="text-right">
+              תאריך סיום
+            </Label>
+            <Input
+              id="end_date"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="col-span-3"
             />
           </div>
           <DialogFooter>
