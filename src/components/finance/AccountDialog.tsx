@@ -125,8 +125,8 @@ export function AccountDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם החשבון
             </Label>
             <Input
@@ -138,8 +138,8 @@ export function AccountDialog({
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="type" className="text-right pt-2">
               סוג
             </Label>
             <Select value={type} onValueChange={setType}>
@@ -159,8 +159,8 @@ export function AccountDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="balance" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="balance" className="text-right pt-2">
               יתרה נוכחית
             </Label>
             <Input
@@ -175,8 +175,8 @@ export function AccountDialog({
           </div>
 
           {type === ACCOUNT_TYPES.CREDIT_CARD && (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="billingDay" className="text-right text-lg">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="billingDay" className="text-right pt-2 text-lg">
                 יום חיוב בחודש
               </Label>
               <Input

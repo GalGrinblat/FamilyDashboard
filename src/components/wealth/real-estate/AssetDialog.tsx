@@ -139,8 +139,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           {/* Name */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם הנכס
             </Label>
             <Input
@@ -154,8 +154,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
           </div>
 
           {/* Type */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="type" className="text-right pt-2">
               סוג
             </Label>
             <Select value={type} onValueChange={setType}>
@@ -173,8 +173,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
           </div>
 
           {/* Estimated Value */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="value" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="value" className="text-right pt-2">
               שווי מעודכן
             </Label>
             <Input
@@ -192,8 +192,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
           {type === ASSET_TYPES.REAL_ESTATE && (
             <>
               {/* Address */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right text-base">
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="address" className="text-right pt-2 text-base">
                   כתובת
                 </Label>
                 <Input
@@ -211,8 +211,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                   📥 שכירות (הכנסה)
                 </p>
                 <div className="grid gap-3">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="rent" className="text-right pt-2 text-base">
                       סכום חודשי
                     </Label>
                     <Input
@@ -224,8 +224,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                       placeholder="₪"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent-start" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="rent-start" className="text-right pt-2 text-base">
                       תחילת חוזה
                     </Label>
                     <Input
@@ -238,8 +238,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                       className="col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="rent-end" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="rent-end" className="text-right pt-2 text-base">
                       סיום חוזה
                     </Label>
                     <div className="col-span-3 space-y-1">
@@ -267,8 +267,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                   🏦 משכנתא (הוצאה)
                 </p>
                 <div className="grid gap-3">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="mortgage" className="text-right pt-2 text-base">
                       החזר חודשי
                     </Label>
                     <Input
@@ -282,8 +282,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                       placeholder="₪"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage-start" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="mortgage-start" className="text-right pt-2 text-base">
                       תחילת משכנתא
                     </Label>
                     <Input
@@ -296,8 +296,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
                       className="col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="mortgage-end" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="mortgage-end" className="text-right pt-2 text-base">
                       סיום משכנתא
                     </Label>
                     <Input
@@ -317,8 +317,8 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
 
           {/* Vehicle fields */}
           {type === ASSET_TYPES.VEHICLE && (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="leasing" className="text-right text-base">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="leasing" className="text-right pt-2 text-base">
                 תשלום ליסינג/הלוואה
               </Label>
               <Input

@@ -86,8 +86,8 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
           <DialogTitle>רכישה — {ticker}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-date" className="text-right pt-2">
               תאריך
             </Label>
             <Input
@@ -100,8 +100,8 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-qty" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-qty" className="text-right pt-2">
               כמות
             </Label>
             <Input
@@ -117,8 +117,8 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-price" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-price" className="text-right pt-2">
               מחיר ליחידה ({currency})
             </Label>
             <Input
@@ -134,8 +134,8 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-fees" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-fees" className="text-right pt-2">
               עמלה ({currency})
             </Label>
             <Input

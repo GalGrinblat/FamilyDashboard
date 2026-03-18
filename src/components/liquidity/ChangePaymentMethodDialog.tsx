@@ -89,8 +89,8 @@ export function ChangePaymentMethodDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="account" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="account" className="text-right pt-2">
               לאיזה חשבון להעביר?
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId} required>

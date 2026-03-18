@@ -146,8 +146,8 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
           <DialogTitle>רישום אירוע התבגרות — {grant.ticker}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="vest-date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="vest-date" className="text-right pt-2">
               תאריך
             </Label>
             <Input
@@ -160,8 +160,8 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="vest-shares" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="vest-shares" className="text-right pt-2">
               מניות שהתבגרו
             </Label>
             <Input
@@ -175,8 +175,8 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="vest-fmv" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="vest-fmv" className="text-right pt-2">
               FMV ביום ההתבגרות ($)
             </Label>
             <div className="col-span-3 space-y-1">
@@ -199,8 +199,8 @@ export function RsuVestDialog({ grant, triggerButton }: RsuVestDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="vest-notes" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="vest-notes" className="text-right pt-2">
               הערות
             </Label>
             <Input

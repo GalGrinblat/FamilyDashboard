@@ -146,8 +146,8 @@ export function InvestmentAccountDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           {/* Name */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="inv-name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="inv-name" className="text-right pt-2">
               שם החשבון
             </Label>
             <Input
@@ -161,8 +161,8 @@ export function InvestmentAccountDialog({
           </div>
 
           {/* Account type */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="inv-type" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="inv-type" className="text-right pt-2">
               סוג חשבון
             </Label>
             <Select
@@ -183,8 +183,8 @@ export function InvestmentAccountDialog({
           </div>
 
           {/* Broker */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="broker" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="broker" className="text-right pt-2">
               ברוקר / בית השקעות
             </Label>
             <Input
@@ -197,8 +197,8 @@ export function InvestmentAccountDialog({
           </div>
 
           {/* Management fee */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="mgmt-fee" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="mgmt-fee" className="text-right pt-2">
               דמי ניהול (%)
             </Label>
             <Input
@@ -215,8 +215,8 @@ export function InvestmentAccountDialog({
           </div>
 
           {/* Managed vs self-directed */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="is-managed" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="is-managed" className="text-right pt-2">
               ניהול
             </Label>
             <div className="col-span-3 flex items-center gap-3">
@@ -229,8 +229,8 @@ export function InvestmentAccountDialog({
 
           {/* Current balance — only for managed accounts */}
           {isManaged && (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="balance" className="text-right">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="balance" className="text-right pt-2">
                 יתרה נוכחית (₪)
               </Label>
               <Input
@@ -251,8 +251,8 @@ export function InvestmentAccountDialog({
                 📊 פרטי מס
               </p>
               <div className="grid gap-3">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="monthly-contrib" className="text-right text-base">
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="monthly-contrib" className="text-right pt-2 text-base">
                     הפקדה חודשית (₪)
                   </Label>
                   <div className="col-span-3 space-y-1">
@@ -274,8 +274,8 @@ export function InvestmentAccountDialog({
                 </div>
 
                 {isHistalmut && (
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="eligible-date" className="text-right text-base">
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="eligible-date" className="text-right pt-2 text-base">
                       תאריך זכאות (6 שנים)
                     </Label>
                     <div className="col-span-3 space-y-1">
@@ -296,8 +296,8 @@ export function InvestmentAccountDialog({
           )}
 
           {/* Notes */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="inv-notes" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="inv-notes" className="text-right pt-2">
               הערות
             </Label>
             <Input

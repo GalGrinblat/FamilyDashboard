@@ -196,8 +196,8 @@ function PolicyForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="type" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="type" className="text-right pt-2 text-base md:text-lg">
           סוג הפוליסה
         </Label>
         <Select value={type} onValueChange={(v: InsuranceType) => setType(v)}>
@@ -213,8 +213,8 @@ function PolicyForm({
       </div>
 
       {subtypeOptions.length > 0 && (
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="subtype" className="text-right text-base md:text-lg">
+        <div className="grid grid-cols-4 items-start gap-4">
+          <Label htmlFor="subtype" className="text-right pt-2 text-base md:text-lg">
             תת-סוג
           </Label>
           <Select value={subtype} onValueChange={setSubtype}>
@@ -232,8 +232,8 @@ function PolicyForm({
         </div>
       )}
 
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="provider" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="provider" className="text-right pt-2 text-base md:text-lg">
           חברת ביטוח
         </Label>
         <Input
@@ -246,8 +246,8 @@ function PolicyForm({
         />
       </div>
 
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="name" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="name" className="text-right pt-2 text-base md:text-lg">
           שם פוליסה
         </Label>
         <Input
@@ -260,8 +260,8 @@ function PolicyForm({
         />
       </div>
 
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="premiumAmount" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="premiumAmount" className="text-right pt-2 text-base md:text-lg">
           עלות (₪)
         </Label>
         <Input
@@ -274,8 +274,8 @@ function PolicyForm({
         />
       </div>
 
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="premiumFrequency" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="premiumFrequency" className="text-right pt-2 text-base md:text-lg">
           תדירות תשלום
         </Label>
         <Select
@@ -292,8 +292,8 @@ function PolicyForm({
         </Select>
       </div>
 
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="renewalDate" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="renewalDate" className="text-right pt-2 text-base md:text-lg">
           תאריך חידוש
         </Label>
         <Input
@@ -305,8 +305,8 @@ function PolicyForm({
         />
       </div>
 
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="policyNumber" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="policyNumber" className="text-right pt-2 text-base md:text-lg">
           מספר פוליסה (אופציונלי)
         </Label>
         <Input
@@ -319,8 +319,8 @@ function PolicyForm({
       </div>
 
       {(type === 'vehicle' || type === 'property') && (
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="asset" className="text-right text-base md:text-lg">
+        <div className="grid grid-cols-4 items-start gap-4">
+          <Label htmlFor="asset" className="text-right pt-2 text-base md:text-lg">
             שיוך לנכס (אופציונלי)
           </Label>
           <Select value={assetId} onValueChange={(v: string) => setAssetId(v)}>
@@ -348,8 +348,8 @@ function PolicyForm({
         </div>
       )}
 
-      <div className="grid grid-cols-4 items-center gap-4 border-t pt-4">
-        <Label htmlFor="document" className="text-right text-base md:text-lg">
+      <div className="grid grid-cols-4 items-start gap-4 border-t pt-4">
+        <Label htmlFor="document" className="text-right pt-2 text-base md:text-lg">
           מסמך הפוליסה
         </Label>
         <div className="col-span-3 space-y-2">

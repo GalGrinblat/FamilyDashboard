@@ -3,15 +3,9 @@
 import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { toggleReminderCompletionAction } from '@/app/(app)/planning/actions';
 import { ReminderDialog } from './ReminderDialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Database } from '@/types/database.types';
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row'];
@@ -41,21 +35,10 @@ export function ReminderRowActions({
         aria-label="Mark as completed"
       />
 
-      <DropdownMenu dir="rtl">
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">פתח תפריט</span>
-            <MoreHorizontal className="h-4 w-4 text-zinc-500" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setEditOpen(true)}>
-            <Edit className="mr-2 h-4 w-4 ml-2" />
-            <span>ערוך משימה</span>
-          </DropdownMenuItem>
-          {/* Add delete action if requested later */}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button variant="ghost" size="icon" className="h-8 w-8 p-0" onClick={() => setEditOpen(true)}>
+        <Edit className="h-4 w-4 text-zinc-500" />
+        <span className="sr-only">ערוך משימה</span>
+      </Button>
 
       <ReminderDialog
         open={editOpen}

@@ -266,8 +266,8 @@ export function RsuGrantDialog({
           <DialogTitle>{isEditing ? 'עריכת מענק RSU' : 'הוספת מענק RSU חדש'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-ticker" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-ticker" className="text-right pt-2">
               טיקר
             </Label>
             <Input
@@ -280,8 +280,8 @@ export function RsuGrantDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-employer" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-employer" className="text-right pt-2">
               מעסיק
             </Label>
             <Input
@@ -293,8 +293,8 @@ export function RsuGrantDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-grant-date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-grant-date" className="text-right pt-2">
               תאריך מענק
             </Label>
             <Input
@@ -307,8 +307,8 @@ export function RsuGrantDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-total" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-total" className="text-right pt-2">
               סה״כ מניות
             </Label>
             <Input
@@ -323,8 +323,8 @@ export function RsuGrantDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-grant-price" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-grant-price" className="text-right pt-2">
               מחיר מענק ($)
             </Label>
             <Input
@@ -338,8 +338,8 @@ export function RsuGrantDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-cliff" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-cliff" className="text-right pt-2">
               Cliff (חודשים)
             </Label>
             <Input
@@ -352,8 +352,8 @@ export function RsuGrantDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-freq" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-freq" className="text-right pt-2">
               תדירות הבשלה
             </Label>
             <Select value={vestFrequency} onValueChange={setVestFrequency}>
@@ -371,8 +371,8 @@ export function RsuGrantDialog({
           <Separator />
           <p className="text-lg font-medium">כמות הבשלה רגילה</p>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">סוג</Label>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right pt-2">סוג</Label>
             <div className="col-span-3 flex gap-2">
               <Button
                 type="button"
@@ -394,8 +394,8 @@ export function RsuGrantDialog({
           </div>
 
           {vestMode === 'shares' ? (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="rsu-per-vest" className="text-right">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="rsu-per-vest" className="text-right pt-2">
                 מניות להבשלה
               </Label>
               <Input
@@ -410,8 +410,8 @@ export function RsuGrantDialog({
               />
             </div>
           ) : (
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="rsu-vest-pct" className="text-right">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="rsu-vest-pct" className="text-right pt-2">
                 אחוז להבשלה
               </Label>
               <div className="col-span-3 flex items-center gap-2">
@@ -448,8 +448,8 @@ export function RsuGrantDialog({
 
           {hasCliffOverride && (
             <>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">סוג</Label>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right pt-2">סוג</Label>
                 <div className="col-span-3 flex gap-2">
                   <Button
                     type="button"
@@ -471,8 +471,8 @@ export function RsuGrantDialog({
               </div>
 
               {cliffMode === 'shares' ? (
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="cliff-shares" className="text-right">
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="cliff-shares" className="text-right pt-2">
                     מניות ב-Cliff
                   </Label>
                   <Input
@@ -486,8 +486,8 @@ export function RsuGrantDialog({
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="cliff-pct" className="text-right">
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="cliff-pct" className="text-right pt-2">
                     אחוז ב-Cliff
                   </Label>
                   <div className="col-span-3 flex items-center gap-2">
@@ -527,8 +527,8 @@ export function RsuGrantDialog({
 
           <Separator />
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-tax-track" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-tax-track" className="text-right pt-2">
               מסלול מס
             </Label>
             <Select value={taxTrack} onValueChange={(v) => setTaxTrack(v as RsuTaxTrack)}>
@@ -545,8 +545,8 @@ export function RsuGrantDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rsu-notes" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="rsu-notes" className="text-right pt-2">
               הערות
             </Label>
             <Input

@@ -71,8 +71,8 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
           <DialogDescription>פתח תיקיית מסע חדש למעקב אחר תקציב והוצאות.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="trip_name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="trip_name" className="text-right pt-2">
               שם החופשה
             </Label>
             <Input
@@ -86,8 +86,8 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="start_date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="start_date" className="text-right pt-2">
               תאריך התחלה
             </Label>
             <Input
@@ -100,8 +100,8 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
               autoComplete="off"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="end_date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="end_date" className="text-right pt-2">
               תאריך חזרה
             </Label>
             <Input
@@ -114,8 +114,8 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
               autoComplete="off"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="trip_budget" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="trip_budget" className="text-right pt-2">
               תקציב משוער
             </Label>
             <Input

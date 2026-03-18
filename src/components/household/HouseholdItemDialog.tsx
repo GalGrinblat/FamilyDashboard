@@ -139,8 +139,8 @@ export function HouseholdItemDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם הפריט
             </Label>
             <Input
@@ -151,8 +151,8 @@ export function HouseholdItemDialog({
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="category" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="category" className="text-right pt-2">
               קטגוריה
             </Label>
             <Select value={category} onValueChange={setCategory}>
@@ -166,8 +166,8 @@ export function HouseholdItemDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="price" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="price" className="text-right pt-2">
               מחיר קנייה
             </Label>
             <Input
@@ -179,8 +179,8 @@ export function HouseholdItemDialog({
               placeholder="₪"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="purchase_date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="purchase_date" className="text-right pt-2">
               תאריך רכישה
             </Label>
             <Input
@@ -191,8 +191,8 @@ export function HouseholdItemDialog({
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="warranty" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="warranty" className="text-right pt-2">
               תום אחריות
             </Label>
             <Input

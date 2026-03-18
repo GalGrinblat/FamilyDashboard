@@ -164,8 +164,8 @@ export function RecurringFlowDialog({
           )}
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם התזרים
             </Label>
             <Input
@@ -177,8 +177,8 @@ export function RecurringFlowDialog({
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="type" className="text-right pt-2">
               סוג
             </Label>
             <Select value={type} onValueChange={(val) => setType(val as CategoryType)}>
@@ -191,8 +191,8 @@ export function RecurringFlowDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="amount" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="amount" className="text-right pt-2">
               סכום צפוי
             </Label>
             <Input
@@ -205,8 +205,8 @@ export function RecurringFlowDialog({
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="freq" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="freq" className="text-right pt-2">
               תדירות
             </Label>
             <Select value={frequency} onValueChange={(v) => setFrequency(v as FrequencyType)}>
@@ -220,8 +220,8 @@ export function RecurringFlowDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="domain" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="domain" className="text-right pt-2">
               תחום
             </Label>
             <Select value={domain} onValueChange={setDomain}>
@@ -237,8 +237,8 @@ export function RecurringFlowDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="start_date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="start_date" className="text-right pt-2">
               תאריך התחלה
             </Label>
             <Input
@@ -249,8 +249,8 @@ export function RecurringFlowDialog({
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="end_date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="end_date" className="text-right pt-2">
               תאריך סיום
             </Label>
             <Input
@@ -261,8 +261,8 @@ export function RecurringFlowDialog({
               className="col-span-3"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="account" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="account" className="text-right pt-2">
               אמצעי תשלום
             </Label>
             <Select value={accountId} onValueChange={setAccountId}>

@@ -230,8 +230,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם הרכב
             </Label>
             <Input
@@ -243,8 +243,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="license" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="license" className="text-right pt-2">
               מספר רישוי
             </Label>
             <Input
@@ -255,8 +255,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               placeholder="123-45-678"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="registrationDate" className="text-right whitespace-nowrap">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="registrationDate" className="text-right pt-2 whitespace-nowrap">
               תאריך עלייה לכביש
             </Label>
             <Input
@@ -268,8 +268,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="insuranceEndDate" className="text-right whitespace-nowrap">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="insuranceEndDate" className="text-right pt-2 whitespace-nowrap">
               תאריך תפוגת ביטוח
             </Label>
             <Input
@@ -281,8 +281,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lastServiceDate" className="text-right whitespace-nowrap">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lastServiceDate" className="text-right pt-2 whitespace-nowrap">
               תאריך טיפול אחרון
             </Label>
             <Input
@@ -293,8 +293,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               className="col-span-3 text-left"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lastServiceKm" className="text-right whitespace-nowrap">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lastServiceKm" className="text-right pt-2 whitespace-nowrap">
               ק״מ בטיפול אחרון
             </Label>
             <Input
@@ -306,8 +306,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               placeholder="למשל: 45000"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="value" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="value" className="text-right pt-2">
               שווי נוכחי מוערך
             </Label>
             <Input

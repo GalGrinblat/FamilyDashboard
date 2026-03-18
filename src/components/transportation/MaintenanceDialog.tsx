@@ -109,8 +109,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
           <DialogDescription>הוסף רשומת טיפול מוסך, טסט שנתי או אירוע תחזוקה.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="car_id" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="car_id" className="text-right pt-2">
               רכב
             </Label>
             <Select value={carId} onValueChange={setCarId} required>
@@ -126,8 +126,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="date" className="text-right pt-2">
               תאריך
             </Label>
             <Input
@@ -139,8 +139,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="type" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="type" className="text-right pt-2">
               סוג אירוע
             </Label>
             <Select value={type} onValueChange={setType}>
@@ -156,8 +156,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="desc" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="desc" className="text-right pt-2">
               תיאור קצר
             </Label>
             <Input
@@ -169,8 +169,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="mileage" className="text-right text-base">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="mileage" className="text-right pt-2 text-base">
               ק״מ (אופציונלי)
             </Label>
             <Input
@@ -182,8 +182,8 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
               placeholder="למשל: 45000"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="cost" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="cost" className="text-right pt-2">
               עלות (₪)
             </Label>
             <Input

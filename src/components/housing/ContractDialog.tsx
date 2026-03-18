@@ -106,8 +106,8 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם הספק
             </Label>
             <Input
@@ -119,8 +119,8 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="amount" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="amount" className="text-right pt-2">
               סכום חודשי
             </Label>
             <Input
@@ -133,8 +133,8 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="frequency" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="frequency" className="text-right pt-2">
               תדירות
             </Label>
             <Select value={frequency} onValueChange={setFrequency}>
@@ -148,8 +148,8 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="domain" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="domain" className="text-right pt-2">
               סוג
             </Label>
             <Select value={domain} onValueChange={setDomain}>
@@ -162,8 +162,8 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="end_date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="end_date" className="text-right pt-2">
               תאריך סיום
             </Label>
             <Input

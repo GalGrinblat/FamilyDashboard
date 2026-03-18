@@ -103,8 +103,8 @@ export function SellLotDialog({
           <DialogTitle>מכירה — {ticker}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sale-date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="sale-date" className="text-right pt-2">
               תאריך מכירה
             </Label>
             <Input
@@ -117,8 +117,8 @@ export function SellLotDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sale-qty" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="sale-qty" className="text-right pt-2">
               כמות
             </Label>
             <div className="col-span-3 flex flex-col gap-1">
@@ -138,8 +138,8 @@ export function SellLotDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sale-price" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="sale-price" className="text-right pt-2">
               מחיר מכירה ({currency})
             </Label>
             <Input
@@ -155,8 +155,8 @@ export function SellLotDialog({
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="sale-fees" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="sale-fees" className="text-right pt-2">
               עמלה ({currency})
             </Label>
             <Input

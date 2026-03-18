@@ -97,8 +97,8 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="name" className="text-right pt-2">
               שם הקופה
             </Label>
             <Input
@@ -110,8 +110,8 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
               required
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="value" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="value" className="text-right pt-2">
               יתרה עדכנית
             </Label>
             <Input

@@ -152,8 +152,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           {/* Holding details */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="ticker" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="ticker" className="text-right pt-2">
               טיקר
             </Label>
             <Input
@@ -166,8 +166,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="holding-name" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="holding-name" className="text-right pt-2">
               שם (אופציונלי)
             </Label>
             <Input
@@ -179,8 +179,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="asset-class" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="asset-class" className="text-right pt-2">
               סוג נייר
             </Label>
             <Select value={assetClass} onValueChange={(v) => setAssetClass(v as AssetClass)}>
@@ -197,8 +197,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             </Select>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="currency" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="currency" className="text-right pt-2">
               מטבע
             </Label>
             <Select value={currency} onValueChange={setCurrency}>
@@ -216,8 +216,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
           <Separator />
           <p className="text-lg font-medium">רכישה ראשונה</p>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-date" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-date" className="text-right pt-2">
               תאריך
             </Label>
             <Input
@@ -230,8 +230,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-qty" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-qty" className="text-right pt-2">
               כמות
             </Label>
             <Input
@@ -247,8 +247,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-price" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-price" className="text-right pt-2">
               מחיר ליחידה
             </Label>
             <Input
@@ -264,8 +264,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="lot-fees" className="text-right">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="lot-fees" className="text-right pt-2">
               עמלה
             </Label>
             <Input
