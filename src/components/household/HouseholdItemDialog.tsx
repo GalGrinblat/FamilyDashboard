@@ -22,21 +22,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil } from 'lucide-react';
+import { Database } from '@/types/database.types';
+
+type HouseholdItemRow = Database['public']['Tables']['household_items']['Row'];
 
 export function HouseholdItemDialog({
   triggerButton,
   forceOpen = false,
   onForceClose,
+  itemToEdit,
 }: {
   triggerButton?: React.ReactNode;
   forceOpen?: boolean;
   onForceClose?: () => void;
+  itemToEdit?: HouseholdItemRow;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  const isEditing = !!itemToEdit;
 
   const [prevForceOpen, setPrevForceOpen] = useState(forceOpen);
   if (forceOpen !== prevForceOpen) {
@@ -51,12 +58,12 @@ export function HouseholdItemDialog({
     }
   };
 
-  // Form State
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('appliance');
-  const [purchasePrice, setPurchasePrice] = useState('');
-  const [purchaseDate, setPurchaseDate] = useState('');
-  const [warrantyExpiry, setWarrantyExpiry] = useState('');
+  // Form State — initialized from itemToEdit when editing
+  const [name, setName] = useState(itemToEdit?.name || '');
+  const [category, setCategory] = useState(itemToEdit?.category || 'appliance');
+  const [purchasePrice, setPurchasePrice] = useState(itemToEdit?.purchase_price?.toString() || '');
+  const [purchaseDate, setPurchaseDate] = useState(itemToEdit?.purchase_date || '');
+  const [warrantyExpiry, setWarrantyExpiry] = useState(itemToEdit?.warranty_expiry || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,41 +77,63 @@ export function HouseholdItemDialog({
       warranty_expiry: warrantyExpiry || null,
     };
 
-    const { error } = await supabase.from('household_items').insert(payload);
+    let error;
+
+    if (isEditing && itemToEdit) {
+      const { error: updateError } = await supabase
+        .from('household_items')
+        .update(payload)
+        .eq('id', itemToEdit.id);
+      error = updateError;
+    } else {
+      const { error: insertError } = await supabase.from('household_items').insert(payload);
+      error = insertError;
+    }
 
     setLoading(false);
 
     if (error) {
-      console.error('Error inserting item:', error);
-      alert('שגיאה בהוספת הפריט');
-    } else {
-      setOpen(false);
-      if (onForceClose) onForceClose();
-      // Reset form
+      console.error('Error saving item:', error);
+      alert(isEditing ? 'שגיאה בעדכון הפריט' : 'שגיאה בהוספת הפריט');
+      return;
+    }
+
+    setOpen(false);
+    if (onForceClose) onForceClose();
+
+    // Only reset form on insert; edit state is discarded when the component unmounts
+    if (!isEditing) {
       setName('');
       setCategory('appliance');
       setPurchasePrice('');
       setPurchaseDate('');
       setWarrantyExpiry('');
-      // Refresh the page data
-      router.refresh();
     }
+
+    router.refresh();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {triggerButton || (
-          <Button>
-            <Plus className="ml-2 h-4 w-4" />
-            הוסף פריט
-          </Button>
-        )}
+        {triggerButton ||
+          (isEditing ? (
+            <Button variant="ghost" size="icon">
+              <Pencil className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button>
+              <Plus className="ml-2 h-4 w-4" />
+              הוסף פריט
+            </Button>
+          ))}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>הוספת פריט חדש</DialogTitle>
-          <DialogDescription>הזן את פרטי הפריט לרישום במעקב המשפחתי.</DialogDescription>
+          <DialogTitle>{isEditing ? 'עריכת פרטי פריט' : 'הוספת פריט חדש'}</DialogTitle>
+          <DialogDescription>
+            {isEditing ? 'עדכן את פרטי הפריט.' : 'הזן את פרטי הפריט לרישום במעקב המשפחתי.'}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
@@ -173,7 +202,7 @@ export function HouseholdItemDialog({
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : 'שמור פריט'}
+              {loading ? 'שומר...' : isEditing ? 'עדכן פריט' : 'שמור פריט'}
             </Button>
           </DialogFooter>
         </form>
