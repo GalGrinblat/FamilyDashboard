@@ -29,7 +29,7 @@ import { isValidTicker } from '@/lib/stock-prices';
 import type { RsuGrantRef } from '@/lib/schemas';
 
 interface RsuGrantDialogProps {
-  investmentAccountId: string;
+  investmentAccountId?: string;
   grantToEdit?: RsuGrantRef;
   triggerButton?: React.ReactNode;
   defaultEmployer?: string;
@@ -125,8 +125,30 @@ export function RsuGrantDialog({
     setLoading(true);
     const grantPriceUsd = grantPrice ? parseFloat(grantPrice) : null;
 
+    let accountId = investmentAccountId;
+    if (!accountId) {
+      const { data: newAccount, error: accountError } = await supabase
+        .from('investment_accounts')
+        .insert({
+          name: employer ? `RSU - ${employer}` : 'RSU',
+          account_type: 'rsu',
+          is_managed: false,
+          is_active: true,
+        })
+        .select('id')
+        .single();
+
+      if (accountError || !newAccount) {
+        console.error('Error creating investment account:', accountError);
+        setErrorMsg('שגיאה ביצירת חשבון השקעות');
+        setLoading(false);
+        return;
+      }
+      accountId = newAccount.id;
+    }
+
     const payload = {
-      investment_account_id: investmentAccountId,
+      investment_account_id: accountId,
       ticker: normalizedTicker,
       employer: employer || null,
       grant_date: grantDate,
@@ -178,7 +200,7 @@ export function RsuGrantDialog({
         const { data: existingHolding } = await supabase
           .from('portfolio_holdings')
           .select('id')
-          .eq('investment_account_id', investmentAccountId)
+          .eq('investment_account_id', accountId)
           .eq('ticker', normalizedTicker)
           .maybeSingle();
 
@@ -190,7 +212,7 @@ export function RsuGrantDialog({
           const { data: newHolding, error: holdingError } = await supabase
             .from('portfolio_holdings')
             .insert({
-              investment_account_id: investmentAccountId,
+              investment_account_id: accountId,
               ticker: normalizedTicker,
               asset_class: 'stock',
               currency: 'USD',

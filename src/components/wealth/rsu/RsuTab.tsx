@@ -71,9 +71,7 @@ export async function RsuTab() {
           אין מענקי RSU פעילים. הוסף מענק ראשון כדי להתחיל.
         </div>
         <div className="flex justify-center">
-          {accountOptions.length > 0 && (
-            <RsuGrantDialog investmentAccountId={accountOptions[0].id} />
-          )}
+          <RsuGrantDialog />
         </div>
       </div>
     );
