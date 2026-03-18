@@ -2,13 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Home,
-  ArrowRightLeft,
-  TrendingUp,
-  Settings as SettingsIcon,
-  Scale,
-} from 'lucide-react';
+import { Home, ArrowRightLeft, TrendingUp, Settings as SettingsIcon, Scale } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function MobileNav() {
