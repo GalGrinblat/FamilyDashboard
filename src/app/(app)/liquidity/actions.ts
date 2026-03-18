@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 
-// Fetch necessary data for the Monthly Balance view
+// Fetch necessary data for the Monthly Projection view
 export async function getMonthlyBalanceData(monthStart: Date, monthEnd: Date) {
   const supabase = await createClient();
 

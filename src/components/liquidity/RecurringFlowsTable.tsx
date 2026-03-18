@@ -395,6 +395,7 @@ export function RecurringFlowsTable({
   const activeExpense = expenseFlows
     .filter((f) => !isRetired(f) && !isExpired(f))
     .reduce((s, f) => s + f.amount, 0);
+  const netFlow = activeIncome - activeExpense;
 
   return (
     <div className="w-full space-y-8">
@@ -450,6 +451,19 @@ export function RecurringFlowsTable({
             />
           ))}
         </div>
+      </div>
+
+      {/* ── Net Flow Summary ── */}
+      <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30">
+        <span className="text-base font-semibold text-zinc-700 dark:text-zinc-300">
+          תזרים נטו חודשי
+        </span>
+        <span
+          dir="ltr"
+          className={`text-base font-bold ${netFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
+        >
+          {formatCurrency(netFlow, true)}
+        </span>
       </div>
     </div>
   );

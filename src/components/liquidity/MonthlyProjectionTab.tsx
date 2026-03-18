@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Pencil, Link as LinkIcon } from 'lucide-react';
-import { upsertMonthlyOverride, getMonthlyBalanceData } from '../actions';
+import { upsertMonthlyOverride, getMonthlyBalanceData } from '@/app/(app)/liquidity/actions';
 import { Database } from '@/types/database.types';
 import {
   Dialog,
@@ -31,7 +31,7 @@ type Transaction = Database['public']['Tables']['transactions']['Row'];
 type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'];
 type Override = Database['public']['Tables']['monthly_overrides']['Row'];
 
-export function SpecificMonthTab() {
+export function MonthlyProjectionTab() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<{

@@ -8,7 +8,6 @@ import {
   TrendingUp,
   Settings as SettingsIcon,
   Scale,
-  PieChart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +16,6 @@ export function MobileNav() {
 
   const links = [
     { href: '/', icon: Home, label: 'ראשי' },
-    { href: '/monthly-balance', icon: PieChart, label: 'מאזן' },
     { href: '/liquidity', icon: Scale, label: 'עו״ש' },
     { href: '/transactions', icon: ArrowRightLeft, label: 'תנועות' },
     { href: '/wealth', icon: TrendingUp, label: 'הון' },

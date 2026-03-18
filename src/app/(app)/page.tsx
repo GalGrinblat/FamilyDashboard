@@ -246,10 +246,10 @@ export default async function Home() {
                 ניהול חשבונות ונכסים
               </Button>
             </Link>
-            <Link href="/monthly-balance" className="block">
+            <Link href="/liquidity" className="block">
               <Button variant="outline" className="w-full justify-start h-12">
                 <ArrowDownRight className="mr-2 ml-4 h-5 w-5 text-rose-500" />
-                מאזן חודשי ותקציב
+                עו״ש ותזרים
               </Button>
             </Link>
             <Link href="/settings" className="block">

@@ -8,7 +8,6 @@ import {
   Sofa,
   CalendarDays,
   ArrowRightLeft,
-  PieChart,
   Car,
   Shield,
   Scale,
@@ -19,7 +18,6 @@ import {
 
 const navItems = [
   { href: '/', label: 'ראשי', icon: Home },
-  { href: '/monthly-balance', label: 'מאזן חודשי', icon: PieChart },
   { href: '/liquidity', label: 'עו״ש ותזרים', icon: Scale },
   { href: '/transactions', label: 'יומן תנועות', icon: ArrowRightLeft },
   { href: '/wealth', label: 'הון ונכסים', icon: TrendingUp },
