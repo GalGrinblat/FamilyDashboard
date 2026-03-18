@@ -255,6 +255,42 @@ export type Database = {
           },
         ];
       };
+      monthly_one_offs: {
+        Row: {
+          amount: number;
+          created_at: string | null;
+          day_of_month: number;
+          id: string;
+          month_year: string;
+          title: string;
+          type: string;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string | null;
+          day_of_month?: number;
+          id?: string;
+          month_year: string;
+          title: string;
+          type: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string | null;
+          day_of_month?: number;
+          id?: string;
+          month_year?: string;
+          title?: string;
+          type?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       monthly_overrides: {
         Row: {
           created_at: string | null;
@@ -584,7 +620,9 @@ export type Database = {
           due_date: string;
           id: string;
           is_completed: boolean;
+          recurring_flow_id: string | null;
           start_date: string | null;
+          target_account_id: string | null;
           title: string;
           type: string;
           updated_at: string | null;
@@ -595,7 +633,9 @@ export type Database = {
           due_date: string;
           id?: string;
           is_completed?: boolean;
+          recurring_flow_id?: string | null;
           start_date?: string | null;
+          target_account_id?: string | null;
           title: string;
           type: string;
           updated_at?: string | null;
@@ -606,7 +646,9 @@ export type Database = {
           due_date?: string;
           id?: string;
           is_completed?: boolean;
+          recurring_flow_id?: string | null;
           start_date?: string | null;
+          target_account_id?: string | null;
           title?: string;
           type?: string;
           updated_at?: string | null;
@@ -617,6 +659,20 @@ export type Database = {
             columns: ['asset_id'];
             isOneToOne: false;
             referencedRelation: 'assets';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reminders_recurring_flow_id_fkey';
+            columns: ['recurring_flow_id'];
+            isOneToOne: false;
+            referencedRelation: 'recurring_flows';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reminders_target_account_id_fkey';
+            columns: ['target_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
             referencedColumns: ['id'];
           },
         ];

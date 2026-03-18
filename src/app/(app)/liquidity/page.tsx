@@ -9,6 +9,7 @@ import { Scale } from 'lucide-react';
 import { Database } from '@/types/database.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
+import { REMINDER_TYPES } from '@/lib/constants';
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
@@ -18,22 +19,29 @@ type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
 export default async function LiquidityPage() {
   const supabase = await createClient();
 
-  const [{ data: rawAccounts }, { data: recurringFlows }, { data: rawOverrides }] =
-    await Promise.all([
-      supabase.from('accounts').select('*').order('name', { ascending: true }),
-      supabase
-        .from('recurring_flows')
-        .select('*, accounts(name)')
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('monthly_overrides')
-        .select('*')
-        .gte('month_year', format(new Date(), 'yyyy-MM')),
-    ]);
+  const [
+    { data: rawAccounts },
+    { data: recurringFlows },
+    { data: rawOverrides },
+    { data: rawPendingChanges },
+  ] = await Promise.all([
+    supabase.from('accounts').select('*').order('name', { ascending: true }),
+    supabase
+      .from('recurring_flows')
+      .select('*, accounts(name)')
+      .order('created_at', { ascending: false }),
+    supabase.from('monthly_overrides').select('*').gte('month_year', format(new Date(), 'yyyy-MM')),
+    supabase
+      .from('reminders')
+      .select('id, recurring_flow_id, target_account_id, title')
+      .eq('type', REMINDER_TYPES.PAYMENT_METHOD_CHANGE)
+      .eq('is_completed', false),
+  ]);
 
   const accounts = (rawAccounts as AccountRow[]) || [];
   const flows = (recurringFlows as unknown as FlowRow[]) || [];
   const overrides = rawOverrides ?? [];
+  const pendingChanges = rawPendingChanges ?? [];
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -60,7 +68,11 @@ export default async function LiquidityPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0 sm:p-0 pt-0 sm:pt-0">
-              <RecurringFlowsTable flows={flows} accounts={accounts} />
+              <RecurringFlowsTable
+                flows={flows}
+                accounts={accounts}
+                pendingChanges={pendingChanges}
+              />
             </CardContent>
           </Card>
         </TabsContent>

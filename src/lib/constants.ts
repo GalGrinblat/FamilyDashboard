@@ -53,6 +53,7 @@ export const REMINDER_TYPES = {
   MAINTENANCE: 'maintenance',
   CAR_TEST: 'car_test',
   INSURANCE: 'insurance',
+  PAYMENT_METHOD_CHANGE: 'payment_method_change',
 } as const;
 
 export type ReminderType = (typeof REMINDER_TYPES)[keyof typeof REMINDER_TYPES];

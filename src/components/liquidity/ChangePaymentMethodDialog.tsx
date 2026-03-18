@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CreditCard } from 'lucide-react';
+import { REMINDER_TYPES } from '@/lib/constants';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
   accounts?: { name: string } | null;
@@ -55,9 +56,11 @@ export function ChangePaymentMethodDialog({
     // Create a new reminder
     const { error } = await supabase.from('reminders').insert({
       title: `החלפת אמצעי תשלום עבור ${flow.name} ל-${targetAccountName}`,
-      type: 'finance',
+      type: REMINDER_TYPES.PAYMENT_METHOD_CHANGE,
       due_date: new Date().toISOString(),
       is_completed: false,
+      recurring_flow_id: flow.id,
+      target_account_id: selectedAccountId,
     });
 
     setLoading(false);

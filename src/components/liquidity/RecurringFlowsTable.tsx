@@ -9,7 +9,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Plus, Link, Trash2, Archive, ArchiveRestore } from 'lucide-react';
+import {
+  Plus,
+  Link,
+  Trash2,
+  Archive,
+  ArchiveRestore,
+  ArrowRightLeft,
+  CheckCheck,
+} from 'lucide-react';
 import { Database } from '@/types/database.types';
 import {
   CATEGORY_TYPES,
@@ -22,9 +30,17 @@ import { ChangePaymentMethodDialog } from './ChangePaymentMethodDialog';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { completePaymentMethodChange } from '@/app/(app)/liquidity/actions';
 
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
   accounts?: { name: string } | null;
+};
+
+type PendingChange = {
+  id: string;
+  recurring_flow_id: string | null;
+  target_account_id: string | null;
+  title: string;
 };
 
 function isExpired(flow: FlowRow): boolean {
@@ -42,9 +58,19 @@ interface FlowTableProps {
   colorClass: string;
   onDelete: (flow: FlowRow) => void;
   onToggleRetire: (flow: FlowRow) => void;
+  pendingChanges: PendingChange[];
+  onMarkChangeDone: (pending: PendingChange) => void;
 }
 
-function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: FlowTableProps) {
+function FlowTable({
+  flows,
+  accounts,
+  colorClass,
+  onDelete,
+  onToggleRetire,
+  pendingChanges,
+  onMarkChangeDone,
+}: FlowTableProps) {
   if (flows.length === 0) {
     return <p className="text-lg text-muted-foreground italic px-2 py-3">אין רשומות.</p>;
   }
@@ -69,8 +95,15 @@ function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: Fl
 
   const renderActions = (flow: FlowRow) => {
     const linked = !!(flow.asset_id || flow.policy_id);
+    const pendingChange = pendingChanges.find((r) => r.recurring_flow_id === flow.id);
     return (
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-0.5 flex-wrap">
+        {pendingChange && (
+          <Button variant="outline" size="sm" onClick={() => onMarkChangeDone(pendingChange)}>
+            <CheckCheck className="h-4 w-4 ml-1" />
+            סמן כבוצע
+          </Button>
+        )}
         {!linked && (
           <>
             <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
@@ -126,6 +159,7 @@ function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: Fl
         {flows.map((flow) => {
           const inactive = isRetired(flow) || isExpired(flow);
           const expired = isExpired(flow);
+          const pendingChange = pendingChanges.find((r) => r.recurring_flow_id === flow.id);
           return (
             <TableRow
               key={flow.id}
@@ -140,6 +174,12 @@ function FlowTable({ flows, accounts, colorClass, onDelete, onToggleRetire }: Fl
                     </span>
                   )}
                   {renderStatusBadge(flow)}
+                  {pendingChange && (
+                    <span className="inline-flex items-center gap-1 text-base bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-md">
+                      <ArrowRightLeft className="h-3.5 w-3.5" />
+                      ממתין להחלפת חשבון
+                    </span>
+                  )}
                 </div>
               </TableCell>
               <TableCell className="text-zinc-500 text-lg">{flow.accounts?.name || '-'}</TableCell>
@@ -187,12 +227,22 @@ interface MobileCardProps {
   accounts: { id: string; name: string }[];
   onDelete: (flow: FlowRow) => void;
   onToggleRetire: (flow: FlowRow) => void;
+  pendingChanges: PendingChange[];
+  onMarkChangeDone: (pending: PendingChange) => void;
 }
 
-function MobileCard({ flow, accounts, onDelete, onToggleRetire }: MobileCardProps) {
+function MobileCard({
+  flow,
+  accounts,
+  onDelete,
+  onToggleRetire,
+  pendingChanges,
+  onMarkChangeDone,
+}: MobileCardProps) {
   const inactive = isRetired(flow) || isExpired(flow);
   const expired = isExpired(flow);
   const linked = !!(flow.asset_id || flow.policy_id);
+  const pendingChange = pendingChanges.find((r) => r.recurring_flow_id === flow.id);
 
   const statusBadge = isRetired(flow) ? (
     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-lg font-medium ring-1 ring-inset bg-zinc-100 text-zinc-500 ring-zinc-300/80 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-600/30">
@@ -208,7 +258,13 @@ function MobileCard({ flow, accounts, onDelete, onToggleRetire }: MobileCardProp
     <div
       className={`flex flex-col space-y-3 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 relative ${inactive ? 'opacity-60' : ''}`}
     >
-      <div className="absolute top-2 left-2 flex items-center gap-1">
+      <div className="absolute top-2 left-2 flex items-center gap-1 flex-wrap">
+        {pendingChange && (
+          <Button variant="outline" size="sm" onClick={() => onMarkChangeDone(pendingChange)}>
+            <CheckCheck className="h-4 w-4 ml-1" />
+            סמן כבוצע
+          </Button>
+        )}
         {!linked && (
           <>
             <ChangePaymentMethodDialog flow={flow} accounts={accounts} />
@@ -243,7 +299,15 @@ function MobileCard({ flow, accounts, onDelete, onToggleRetire }: MobileCardProp
       </div>
 
       <div className="flex flex-col pt-2">
-        <div className="flex items-center gap-1.5 mb-1">{statusBadge}</div>
+        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+          {statusBadge}
+          {pendingChange && (
+            <span className="inline-flex items-center gap-1 text-base bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-md">
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+              ממתין להחלפת חשבון
+            </span>
+          )}
+        </div>
         <div className="flex justify-between items-start">
           <span
             className={`font-semibold text-zinc-900 dark:text-zinc-100 text-lg ${inactive ? 'line-through text-zinc-400' : ''}`}
@@ -328,9 +392,11 @@ function SectionHeader({
 export function RecurringFlowsTable({
   flows,
   accounts,
+  pendingChanges = [],
 }: {
   flows: FlowRow[];
   accounts: { id: string; name: string }[];
+  pendingChanges?: PendingChange[];
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -343,6 +409,16 @@ export function RecurringFlowsTable({
     } else {
       router.refresh();
     }
+  };
+
+  const handleMarkChangeDone = async (pending: PendingChange) => {
+    if (!pending.recurring_flow_id || !pending.target_account_id) return;
+    await completePaymentMethodChange(
+      pending.id,
+      pending.recurring_flow_id,
+      pending.target_account_id,
+    );
+    router.refresh();
   };
 
   const handleToggleRetire = async (flow: FlowRow) => {
@@ -410,6 +486,8 @@ export function RecurringFlowsTable({
             colorClass={getAmountColorClass('income')}
             onDelete={handleDelete}
             onToggleRetire={handleToggleRetire}
+            pendingChanges={pendingChanges}
+            onMarkChangeDone={handleMarkChangeDone}
           />
         </div>
         {/* Mobile */}
@@ -421,6 +499,8 @@ export function RecurringFlowsTable({
               accounts={accounts}
               onDelete={handleDelete}
               onToggleRetire={handleToggleRetire}
+              pendingChanges={pendingChanges}
+              onMarkChangeDone={handleMarkChangeDone}
             />
           ))}
         </div>
@@ -437,6 +517,8 @@ export function RecurringFlowsTable({
             colorClass={getAmountColorClass('expense')}
             onDelete={handleDelete}
             onToggleRetire={handleToggleRetire}
+            pendingChanges={pendingChanges}
+            onMarkChangeDone={handleMarkChangeDone}
           />
         </div>
         {/* Mobile */}
@@ -448,6 +530,8 @@ export function RecurringFlowsTable({
               accounts={accounts}
               onDelete={handleDelete}
               onToggleRetire={handleToggleRetire}
+              pendingChanges={pendingChanges}
+              onMarkChangeDone={handleMarkChangeDone}
             />
           ))}
         </div>

@@ -62,6 +62,8 @@ export function RecurringFlowDialog({
   const [endDate, setEndDate] = useState('');
   const [domain, setDomain] = useState('general');
 
+  const [errors, setErrors] = useState<{ name?: string; amount?: string; dates?: string }>({});
+
   const [prevOpen, setPrevOpen] = useState(open);
   const [prevFlowToEdit, setPrevFlowToEdit] = useState(flowToEdit);
 
@@ -87,11 +89,24 @@ export function RecurringFlowDialog({
       setStartDate('');
       setEndDate('');
       setDomain('general');
+      setErrors({});
     }
+  }
+
+  function validate(): boolean {
+    const errs: { name?: string; amount?: string; dates?: string } = {};
+    if (!name.trim()) errs.name = 'נדרש שם לתזרים';
+    const parsed = parseFloat(amount);
+    if (!amount || isNaN(parsed) || parsed <= 0) errs.amount = 'יש להזין סכום חיובי';
+    if (startDate && endDate && endDate < startDate)
+      errs.dates = 'תאריך סיום חייב להיות אחרי תאריך התחלה';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     setErrorMsg('');
 
@@ -168,14 +183,15 @@ export function RecurringFlowDialog({
             <Label htmlFor="name" className="text-right pt-2">
               שם התזרים
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: משכורת - גל"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="למשל: משכורת - גל"
+              />
+              {errors.name && <p className="text-base text-rose-500">{errors.name}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="type" className="text-right pt-2">
@@ -195,15 +211,16 @@ export function RecurringFlowDialog({
             <Label htmlFor="amount" className="text-right pt-2">
               סכום צפוי
             </Label>
-            <Input
-              id="amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="col-span-3"
-              placeholder="₪"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="amount"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="₪"
+              />
+              {errors.amount && <p className="text-base text-rose-500">{errors.amount}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="freq" className="text-right pt-2">
@@ -253,13 +270,15 @@ export function RecurringFlowDialog({
             <Label htmlFor="end_date" className="text-right pt-2">
               תאריך סיום
             </Label>
-            <Input
-              id="end_date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="col-span-3"
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="end_date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+              {errors.dates && <p className="text-base text-rose-500">{errors.dates}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="account" className="text-right pt-2">

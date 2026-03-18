@@ -3,8 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Pencil, Link as LinkIcon } from 'lucide-react';
-import { upsertMonthlyOverride, getMonthlyBalanceData } from '@/app/(app)/liquidity/actions';
+import { ChevronLeft, ChevronRight, Pencil, Link as LinkIcon, Trash2, Plus } from 'lucide-react';
+import {
+  upsertMonthlyOverride,
+  getMonthlyBalanceData,
+  addMonthlyOneOff,
+  deleteMonthlyOneOff,
+} from '@/app/(app)/liquidity/actions';
 import { Database } from '@/types/database.types';
 import {
   Dialog,
@@ -16,6 +21,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   CATEGORY_TYPES,
   CATEGORY_DOMAINS,
@@ -31,6 +43,8 @@ type Transaction = Database['public']['Tables']['transactions']['Row'];
 type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'];
 type Override = Database['public']['Tables']['monthly_overrides']['Row'];
 
+type OneOff = Database['public']['Tables']['monthly_one_offs']['Row'];
+
 export function MonthlyProjectionTab() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +53,8 @@ export function MonthlyProjectionTab() {
     transactions: Transaction[];
     recurringFlows: RecurringFlow[];
     overrides: Override[];
+    oneOffs: OneOff[];
+    computedStartBalance: number;
   } | null>(null);
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -46,12 +62,37 @@ export function MonthlyProjectionTab() {
   const [editAmount, setEditAmount] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  const [oneOffOpen, setOneOffOpen] = useState(false);
+  const [oneOffTitle, setOneOffTitle] = useState('');
+  const [oneOffType, setOneOffType] = useState<'income' | 'expense'>('expense');
+  const [oneOffAmount, setOneOffAmount] = useState('');
+  const [oneOffDay, setOneOffDay] = useState('1');
+  const [oneOffErrors, setOneOffErrors] = useState<{
+    title?: string;
+    amount?: string;
+    day?: string;
+  }>({});
+  const [oneOffLoading, setOneOffLoading] = useState(false);
+
   const currentMonthLabel = currentDate.toLocaleDateString('he-IL', {
     month: 'long',
     year: 'numeric',
   });
   const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+  const monthYearStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+  const refreshData = async (start: Date, end: Date) => {
+    setIsLoading(true);
+    try {
+      const result = await getMonthlyBalanceData(start, end);
+      setData(result as typeof data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -79,24 +120,14 @@ export function MonthlyProjectionTab() {
   };
 
   // --- Calculation Logic ---
-  // 1. Calculate Bank Start Balance
-  // Taking the primary checking account (assuming first one or specific type for now)
-  const bankAccount = data?.accounts.find(
-    (a) => a.type === ACCOUNT_TYPES.BANK || a.type === 'checking',
-  );
-
-  // We would trace back the current_balance by reversing the effect of transactions between *now* and *start_of_month*
-  // For simplicity of MVP, if month in past we show `current_balance` (assuming it's accurate at that time? actually no, balance is always NOW).
-  // Let's implement a rough projection from NOW back to month start. This relies on all transactions being logged.
-  // For now, let's just display the current balance as the starting point.
-  const startBalance = bankAccount?.current_balance || 0;
+  // 1. Use computed start balance from server
+  const startBalance = data?.computedStartBalance ?? 0;
 
   // 2. Identify Credit Cards
   const creditCards =
     data?.accounts.filter((a) => a.type === ACCOUNT_TYPES.CREDIT_CARD || a.type === 'credit') || [];
 
   // 3. Build Timeline
-  // A single unified list of: Historical Transactions + Expected Recurring Flows + Expected CC Bills
   interface TimelineItem {
     id: string;
     date: number; // day of month 1-31
@@ -108,6 +139,7 @@ export function MonthlyProjectionTab() {
     domain?: string | null;
     asset_id?: string | null;
     policy_id?: string | null;
+    oneOffId?: string;
   }
 
   const timeline: TimelineItem[] = [];
@@ -165,6 +197,19 @@ export function MonthlyProjectionTab() {
       }
     });
 
+    // Section D: one-off items
+    (data.oneOffs ?? []).forEach((item) => {
+      timeline.push({
+        id: `oneoff-${item.id}`,
+        date: item.day_of_month,
+        title: item.title,
+        amount: Number(item.amount),
+        type: item.type as CategoryType,
+        isActual: false,
+        oneOffId: item.id,
+      });
+    });
+
     // (We would optionally match actual transactions against recurring flows to avoid double counting)
   }
 
@@ -190,7 +235,6 @@ export function MonthlyProjectionTab() {
     setIsSaving(true);
     try {
       const amount = parseFloat(editAmount);
-      const monthYearStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
       await upsertMonthlyOverride(editingItem.originalRecurringId, monthYearStr, amount);
 
       // Refresh data
@@ -202,6 +246,50 @@ export function MonthlyProjectionTab() {
       alert('שגיאה בשמירת הערך');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  function validateOneOff() {
+    const errs: { title?: string; amount?: string; day?: string } = {};
+    if (!oneOffTitle.trim()) errs.title = 'נדרש כותרת';
+    const parsed = parseFloat(oneOffAmount);
+    if (!oneOffAmount || isNaN(parsed) || parsed <= 0) errs.amount = 'יש להזין סכום חיובי';
+    const day = parseInt(oneOffDay);
+    if (isNaN(day) || day < 1 || day > 31) errs.day = 'יום חייב להיות בין 1 ל-31';
+    setOneOffErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  const handleAddOneOff = async () => {
+    if (!validateOneOff()) return;
+    setOneOffLoading(true);
+    try {
+      await addMonthlyOneOff(
+        monthYearStr,
+        oneOffTitle.trim(),
+        parseFloat(oneOffAmount),
+        oneOffType,
+        parseInt(oneOffDay),
+      );
+      setOneOffOpen(false);
+      setOneOffTitle('');
+      setOneOffAmount('');
+      setOneOffDay('1');
+      setOneOffErrors({});
+      await refreshData(monthStart, monthEnd);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setOneOffLoading(false);
+    }
+  };
+
+  const handleDeleteOneOff = async (id: string) => {
+    try {
+      await deleteMonthlyOneOff(id);
+      await refreshData(monthStart, monthEnd);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -229,9 +317,7 @@ export function MonthlyProjectionTab() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(startBalance)}</div>
-            <p className="text-base text-muted-foreground">
-              {bankAccount ? bankAccount.name : 'אין חשבון מוגדר'}
-            </p>
+            <p className="text-base text-muted-foreground">יתרה מחושבת</p>
           </CardContent>
         </Card>
         <Card>
@@ -250,9 +336,91 @@ export function MonthlyProjectionTab() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>תזרים צפוי לחודש {currentMonthLabel}</CardTitle>
-          <CardDescription>תנועות והוצאות קבועות לפי תאריך</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>תזרים צפוי לחודש {currentMonthLabel}</CardTitle>
+            <CardDescription>תנועות והוצאות קבועות לפי תאריך</CardDescription>
+          </div>
+          <Dialog open={oneOffOpen} onOpenChange={setOneOffOpen}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              onClick={() => setOneOffOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+              הוסף חד-פעמי
+            </Button>
+            <DialogContent dir="rtl" className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>הוסף פריט חד-פעמי</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label className="text-right pt-2">כותרת</Label>
+                  <div className="col-span-3 space-y-1">
+                    <Input
+                      value={oneOffTitle}
+                      onChange={(e) => setOneOffTitle(e.target.value)}
+                      placeholder="למשל: תיקון רכב"
+                    />
+                    {oneOffErrors.title && (
+                      <p className="text-base text-rose-500">{oneOffErrors.title}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label className="text-right pt-2">סוג</Label>
+                  <Select
+                    value={oneOffType}
+                    onValueChange={(v) => setOneOffType(v as 'income' | 'expense')}
+                  >
+                    <SelectTrigger className="col-span-3" dir="rtl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl">
+                      <SelectItem value="expense">הוצאה (-)</SelectItem>
+                      <SelectItem value="income">הכנסה (+)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label className="text-right pt-2">סכום</Label>
+                  <div className="col-span-3 space-y-1">
+                    <Input
+                      type="number"
+                      value={oneOffAmount}
+                      onChange={(e) => setOneOffAmount(e.target.value)}
+                      placeholder="₪"
+                    />
+                    {oneOffErrors.amount && (
+                      <p className="text-base text-rose-500">{oneOffErrors.amount}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label className="text-right pt-2">יום בחודש</Label>
+                  <div className="col-span-3 space-y-1">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={oneOffDay}
+                      onChange={(e) => setOneOffDay(e.target.value)}
+                    />
+                    {oneOffErrors.day && (
+                      <p className="text-base text-rose-500">{oneOffErrors.day}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleAddOneOff} disabled={oneOffLoading}>
+                  {oneOffLoading ? 'שומר...' : 'הוסף'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -280,6 +448,15 @@ export function MonthlyProjectionTab() {
                       <span className="text-base text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
                         {CATEGORY_DOMAIN_SHORT_LABELS[item.domain as CategoryDomain] || item.domain}
                       </span>
+                    )}
+                    {item.oneOffId && (
+                      <button
+                        onClick={() => handleDeleteOneOff(item.oneOffId!)}
+                        className="ml-1 text-muted-foreground hover:text-destructive"
+                        title="מחק פריט"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     )}
                   </div>
                   <div className={`text-lg font-bold ${getAmountColorClass(item.type)}`}>
