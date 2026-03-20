@@ -45,32 +45,26 @@ export function AccountDialog({
 
   // Form State
   const [name, setName] = useState(accountToEdit?.name || '');
-  const [type, setType] = useState(accountToEdit?.type || ACCOUNT_TYPES.BANK);
+  const [type, setType] = useState<'bank' | 'credit_card'>(
+    accountToEdit?.type || ACCOUNT_TYPES.BANK,
+  );
   const [balance, setBalance] = useState(
     accountToEdit?.current_balance ? accountToEdit.current_balance.toString() : '0',
   );
 
-  // Credit Card specific metadata
-  const originalMetadata = (accountToEdit?.metadata as Record<string, unknown>) || {};
-  const [billingDay, setBillingDay] = useState(
-    (originalMetadata as { billingDay?: number }).billingDay?.toString() || '',
-  );
+  // Credit Card specific fields
+  const [billingDay, setBillingDay] = useState(accountToEdit?.billing_day?.toString() || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
 
-    let metadata = null;
-    if (type === ACCOUNT_TYPES.CREDIT_CARD && billingDay) {
-      metadata = { billingDay: parseInt(billingDay) };
-    }
-
     const payload = {
       name,
       type,
       current_balance: parseFloat(balance),
-      metadata,
+      billing_day: type === ACCOUNT_TYPES.CREDIT_CARD && billingDay ? parseInt(billingDay) : null,
     };
 
     let error;
@@ -142,7 +136,7 @@ export function AccountDialog({
             <Label htmlFor="type" className="text-right pt-2">
               סוג
             </Label>
-            <Select value={type} onValueChange={setType}>
+            <Select value={type} onValueChange={(v) => setType(v as 'bank' | 'credit_card')}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג חשבון" />
               </SelectTrigger>
@@ -152,9 +146,6 @@ export function AccountDialog({
                 </SelectItem>
                 <SelectItem value={ACCOUNT_TYPES.CREDIT_CARD}>
                   {ACCOUNT_TYPE_LABELS[ACCOUNT_TYPES.CREDIT_CARD]}
-                </SelectItem>
-                <SelectItem value={ACCOUNT_TYPES.INVESTMENT}>
-                  {ACCOUNT_TYPE_LABELS[ACCOUNT_TYPES.INVESTMENT]}
                 </SelectItem>
               </SelectContent>
             </Select>

@@ -19,7 +19,7 @@ export function GlobalFAB({
   categories,
   accounts,
 }: {
-  categories: { id: string; name_he: string; domain?: string }[];
+  categories: { id: string; name_he: string; domain?: string | null }[];
   accounts: { id: string; name: string }[];
 }) {
   const [isExpenseOpen, setIsExpenseOpen] = React.useState(false);

@@ -4,13 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Database } from '@/types/database.types';
-import {
-  CategoryType,
-  CATEGORY_TYPES,
-  CATEGORY_DOMAIN_LABELS,
-  FREQUENCY_TYPES,
-  FrequencyType,
-} from '@/lib/constants';
+import { CategoryType, CATEGORY_TYPES, FREQUENCY_TYPES, FrequencyType } from '@/lib/constants';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 
@@ -60,7 +54,6 @@ export function RecurringFlowDialog({
   const [accountId, setAccountId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [domain, setDomain] = useState('general');
 
   const [errors, setErrors] = useState<{ name?: string; amount?: string; dates?: string }>({});
 
@@ -79,7 +72,6 @@ export function RecurringFlowDialog({
       setAccountId(flowToEdit.account_id || '');
       setStartDate(flowToEdit.start_date || '');
       setEndDate(flowToEdit.end_date || '');
-      setDomain(flowToEdit.domain || 'general');
     } else if (!open && !isEditing) {
       setName('');
       setAmount('');
@@ -88,7 +80,6 @@ export function RecurringFlowDialog({
       setAccountId('');
       setStartDate('');
       setEndDate('');
-      setDomain('general');
       setErrors({});
     }
   }
@@ -118,7 +109,6 @@ export function RecurringFlowDialog({
       account_id: accountId === 'none' ? null : accountId || null,
       start_date: startDate || null,
       end_date: endDate || null,
-      domain: domain || 'general',
       is_active: true,
     };
 
@@ -234,23 +224,6 @@ export function RecurringFlowDialog({
                 <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי</SelectItem>
                 <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי</SelectItem>
                 <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="domain" className="text-right pt-2">
-              תחום
-            </Label>
-            <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger className="col-span-3" dir="rtl">
-                <SelectValue placeholder="בחר תחום" />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                {Object.entries(CATEGORY_DOMAIN_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
           </div>

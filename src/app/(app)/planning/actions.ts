@@ -7,12 +7,13 @@ import { Database } from '@/types/database.types';
 type ReminderInsert = Database['public']['Tables']['reminders']['Insert'];
 type ReminderUpdate = Database['public']['Tables']['reminders']['Update'];
 type TripInsert = Database['public']['Tables']['trips']['Insert'];
+type ReminderType = Database['public']['Enums']['reminder_type'];
 
 export async function addReminderAction(formData: FormData) {
   const supabase = await createClient();
 
   const title = formData.get('title') as string;
-  const type = formData.get('type') as string;
+  const type = formData.get('type') as ReminderType;
   const dueDate = formData.get('due_date') as string;
 
   if (!title || !type || !dueDate) {
@@ -44,7 +45,7 @@ export async function updateReminderAction(id: string, formData: FormData) {
   const supabase = await createClient();
 
   const title = formData.get('title') as string;
-  const type = formData.get('type') as string;
+  const type = formData.get('type') as ReminderType;
   const dueDate = formData.get('due_date') as string;
   const startDate = formData.get('start_date') as string;
 

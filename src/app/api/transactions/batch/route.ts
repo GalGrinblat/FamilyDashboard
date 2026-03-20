@@ -4,6 +4,7 @@ import { Database } from '@/types/database.types';
 
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert'];
 type MerchantMappingInsert = Database['public']['Tables']['merchant_mappings']['Insert'];
+type CategoryType = Database['public']['Enums']['category_type'];
 
 interface ParsedPayloadRow {
   date?: string;
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
             .insert({
               name_he: row.suggested_new_category.name_he,
               name_en: row.suggested_new_category.name_en || row.suggested_new_category.name_he,
-              type: row.suggested_new_category.type,
+              type: row.suggested_new_category.type as CategoryType,
             })
             .select('id')
             .single();

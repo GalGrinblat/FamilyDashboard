@@ -51,7 +51,7 @@ interface AfterTaxParams {
   account: InvestmentAccountRef;
   currentValueIls: number;
   costBasisIls: number;
-  ownerAge?: number | null; // required for gemel_lehashkaa
+  ownerAge?: number | null; // required for gemel
 }
 
 export function computeAfterTaxValue({
@@ -67,15 +67,15 @@ export function computeAfterTaxValue({
     case 'brokerage':
       return currentValueIls - gain * TAX_RATES.CAPITAL_GAINS;
 
-    case 'gemel_lehashkaa': {
+    case 'gemel': {
       const rate =
         ownerAge != null && ownerAge >= 60 ? TAX_RATES.GEMEL_AFTER_60 : TAX_RATES.CAPITAL_GAINS;
       return currentValueIls - gain * rate;
     }
 
     case 'histalmut': {
-      const eligible = account.histalmut_eligible_date
-        ? new Date(account.histalmut_eligible_date) <= new Date()
+      const eligible = account.tax_eligible_date
+        ? new Date(account.tax_eligible_date) <= new Date()
         : false;
       if (!eligible) {
         // Before 6 years: all gains taxed at 25%

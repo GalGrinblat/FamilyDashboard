@@ -10,12 +10,8 @@ import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 
 export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
-  const bankAccounts = accounts.filter(
-    (a) => a.type === ACCOUNT_TYPES.BANK || a.type === 'checking',
-  );
-  const creditAccounts = accounts.filter(
-    (a) => a.type === ACCOUNT_TYPES.CREDIT_CARD || a.type === 'credit',
-  );
+  const bankAccounts = accounts.filter((a) => a.type === ACCOUNT_TYPES.BANK);
+  const creditAccounts = accounts.filter((a) => a.type === ACCOUNT_TYPES.CREDIT_CARD);
 
   const totalBank = bankAccounts.reduce((sum, a) => sum + Number(a.current_balance || 0), 0);
   const totalCredit = creditAccounts.reduce((sum, a) => sum + Number(a.current_balance || 0), 0);
@@ -103,8 +99,7 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                     <div className="flex flex-col">
                       <span className="font-medium">{account.name}</span>
                       <span className="text-base text-muted-foreground">
-                        יום חיוב:{' '}
-                        {(account.metadata as { billingDay?: number })?.billingDay || 'לא הוגדר'}
+                        יום חיוב: {account.billing_day || 'לא הוגדר'}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">

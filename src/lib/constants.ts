@@ -121,7 +121,6 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
 export const ACCOUNT_TYPES = {
   BANK: 'bank',
   CREDIT_CARD: 'credit_card',
-  INVESTMENT: 'investment',
 } as const;
 
 export type AccountType = (typeof ACCOUNT_TYPES)[keyof typeof ACCOUNT_TYPES];
@@ -129,17 +128,16 @@ export type AccountType = (typeof ACCOUNT_TYPES)[keyof typeof ACCOUNT_TYPES];
 export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   [ACCOUNT_TYPES.BANK]: 'חשבון עו״ש (בנק)',
   [ACCOUNT_TYPES.CREDIT_CARD]: 'כרטיס אשראי',
-  [ACCOUNT_TYPES.INVESTMENT]: 'חיסכון / תיק השקעות',
 };
 
 // ─── Investment Accounts ───────────────────────────────────────────────────
 
 export const INVESTMENT_ACCOUNT_TYPES = {
   BROKERAGE: 'brokerage',
-  GEMEL_LEHASHKAA: 'gemel_lehashkaa',
   HISTALMUT: 'histalmut',
   RSU: 'rsu',
-  OTHER: 'other',
+  GEMEL: 'gemel',
+  PENSION: 'pension',
 } as const;
 
 export type InvestmentAccountType =
@@ -147,10 +145,10 @@ export type InvestmentAccountType =
 
 export const INVESTMENT_ACCOUNT_TYPE_LABELS: Record<InvestmentAccountType, string> = {
   [INVESTMENT_ACCOUNT_TYPES.BROKERAGE]: 'תיק השקעות / ברוקר',
-  [INVESTMENT_ACCOUNT_TYPES.GEMEL_LEHASHKAA]: 'גמל להשקעה',
   [INVESTMENT_ACCOUNT_TYPES.HISTALMUT]: 'קרן השתלמות',
   [INVESTMENT_ACCOUNT_TYPES.RSU]: 'RSU (מניות עובד)',
-  [INVESTMENT_ACCOUNT_TYPES.OTHER]: 'אחר',
+  [INVESTMENT_ACCOUNT_TYPES.GEMEL]: 'קופת גמל',
+  [INVESTMENT_ACCOUNT_TYPES.PENSION]: 'קרן פנסיה',
 };
 
 // ─── Portfolio Holdings ────────────────────────────────────────────────────

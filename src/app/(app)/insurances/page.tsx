@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 
 import { PolicySchema } from '@/lib/schemas';
 import { z } from 'zod';
+import { PolicyWithAsset } from '@/types/insurance';
 
 export default async function InsurancesPage() {
   const supabase = await createClient();
@@ -21,7 +22,7 @@ export default async function InsurancesPage() {
     .select('*, assets(*)')
     .order('created_at', { ascending: false });
 
-  const policies = z.array(PolicySchema).parse(policiesData || []);
+  const policies = z.array(PolicySchema).parse(policiesData || []) as unknown as PolicyWithAsset[];
 
   const healthPolicies = policies.filter((p) => p.type === INSURANCE_TYPES.HEALTH);
   const propertyPolicies = policies.filter((p) => p.type === INSURANCE_TYPES.PROPERTY);

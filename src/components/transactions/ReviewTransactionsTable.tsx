@@ -36,8 +36,8 @@ export interface ClassifiedTransactionRow extends ParsedTransactionRow {
 
 interface ReviewTransactionsTableProps {
   rows: ClassifiedTransactionRow[];
-  categories: { id: string; name_he: string; domain?: string }[];
-  activeAssets?: { id: string; name: string; domain?: string }[];
+  categories: { id: string; name_he: string; domain?: string | null }[];
+  activeAssets?: { id: string; name: string; domain?: string | null }[];
   onConfirm: (finalRows: ClassifiedTransactionRow[]) => void;
   onCancel: () => void;
   isSubmitting: boolean;

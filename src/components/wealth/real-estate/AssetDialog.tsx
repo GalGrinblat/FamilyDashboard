@@ -365,7 +365,6 @@ async function syncAssetFlows(
         amount: parseFloat(re.monthly_rent.toString()),
         type: 'income',
         frequency: 'monthly',
-        domain: 'housing',
         is_active: true,
         start_date: re.rent_start_date || null,
         end_date: re.rent_end_date || null,
@@ -378,7 +377,6 @@ async function syncAssetFlows(
         amount: parseFloat(re.mortgage_payment.toString()),
         type: 'expense',
         frequency: 'monthly',
-        domain: 'housing',
         is_active: true,
         start_date: re.mortgage_start_date || null,
         end_date: re.mortgage_end_date || null,
@@ -394,7 +392,6 @@ async function syncAssetFlows(
         amount: parseFloat(ve.leasing_payment.toString()),
         type: 'expense',
         frequency: 'monthly',
-        domain: 'transportation',
         is_active: true,
       });
     }
@@ -436,7 +433,7 @@ async function syncAssetFlows(
     const reminderPayload = {
       title: reminderTitle,
       due_date: reminderDate.toISOString().split('T')[0],
-      type: 'other' as const,
+      type: 'maintenance' as const,
       is_completed: false,
       notes: `חוזה השכירות של ${assetName} מסתיים בתאריך ${endDate.toLocaleDateString('he-IL')}. יש לחדש או לסיים את החוזה.`,
     };

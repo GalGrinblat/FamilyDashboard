@@ -1,7 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server';
-import { TransactionsTable } from '@/components/transactions/TransactionsTable';
+import {
+  TransactionsTable,
+  TransactionWithCategory,
+} from '@/components/transactions/TransactionsTable';
 import { ExpenseUploader } from '@/components/transactions/ExpenseUploader';
 import { CATEGORY_TYPES, CATEGORY_DOMAINS } from '@/lib/constants';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -32,7 +35,9 @@ export default async function TransactionsPage() {
       supabase.from('accounts').select('id, name').order('name', { ascending: true }),
     ]);
 
-  const transactions = z.array(TransactionSchema).parse(rawTransactions || []);
+  const transactions = z
+    .array(TransactionSchema)
+    .parse(rawTransactions || []) as unknown as TransactionWithCategory[];
   const dbCategories = (rawCategories || []) as { id: string; name_he: string; domain: string }[];
   const dbAccounts = z.array(AccountSchema.pick({ id: true, name: true })).parse(rawAccounts || []);
 

@@ -14,6 +14,7 @@ import { REMINDER_TYPES } from '@/lib/constants';
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
   accounts?: { name: string } | null;
+  categories?: { domain: string | null } | null;
 };
 
 export default async function LiquidityPage() {
@@ -28,7 +29,7 @@ export default async function LiquidityPage() {
     supabase.from('accounts').select('*').order('name', { ascending: true }),
     supabase
       .from('recurring_flows')
-      .select('*, accounts(name)')
+      .select('*, accounts(name), categories(domain)')
       .order('created_at', { ascending: false }),
     supabase.from('monthly_overrides').select('*').gte('month_year', format(new Date(), 'yyyy-MM')),
     supabase

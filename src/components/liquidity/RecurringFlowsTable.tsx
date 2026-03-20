@@ -34,6 +34,7 @@ import { completePaymentMethodChange } from '@/app/(app)/liquidity/actions';
 
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
   accounts?: { name: string } | null;
+  categories?: { domain: string | null } | null;
 };
 
 type PendingChange = {
@@ -191,8 +192,8 @@ function FlowTable({
                     : 'שבועי'}
               </TableCell>
               <TableCell className="text-zinc-500 text-lg">
-                {flow.domain
-                  ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי'
+                {flow.categories?.domain
+                  ? CATEGORY_DOMAIN_SHORT_LABELS[flow.categories.domain as CategoryDomain] || 'כללי'
                   : 'כללי'}
               </TableCell>
               <TableCell className="text-zinc-500 text-lg">
@@ -341,8 +342,8 @@ function MobileCard({
         </span>
         <span className="text-zinc-300 dark:text-zinc-600">•</span>
         <span>
-          {flow.domain
-            ? CATEGORY_DOMAIN_SHORT_LABELS[flow.domain as CategoryDomain] || 'כללי'
+          {flow.categories?.domain
+            ? CATEGORY_DOMAIN_SHORT_LABELS[flow.categories.domain as CategoryDomain] || 'כללי'
             : 'כללי'}
         </span>
       </div>

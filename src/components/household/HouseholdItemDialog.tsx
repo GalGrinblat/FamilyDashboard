@@ -61,7 +61,9 @@ export function HouseholdItemDialog({
 
   // Form State — initialized from itemToEdit when editing
   const [name, setName] = useState(itemToEdit?.name || '');
-  const [category, setCategory] = useState(itemToEdit?.category || 'appliance');
+  const [category, setCategory] = useState<'appliance' | 'furniture' | 'electronics' | 'other'>(
+    itemToEdit?.category || 'appliance',
+  );
   const [purchasePrice, setPurchasePrice] = useState(itemToEdit?.purchase_price?.toString() || '');
   const [purchaseDate, setPurchaseDate] = useState(itemToEdit?.purchase_date || '');
   const [warrantyExpiry, setWarrantyExpiry] = useState(itemToEdit?.warranty_expiry || '');
@@ -155,7 +157,12 @@ export function HouseholdItemDialog({
             <Label htmlFor="category" className="text-right pt-2">
               קטגוריה
             </Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select
+              value={category}
+              onValueChange={(v) =>
+                setCategory(v as 'appliance' | 'furniture' | 'electronics' | 'other')
+              }
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר קטגוריה" />
               </SelectTrigger>

@@ -12,10 +12,15 @@ import { Progress } from '@/components/ui/progress';
 import { Database } from '@/types/database.types';
 
 type TransactionWithDetails = Database['public']['Tables']['transactions']['Row'] & {
-  categories?: { type?: string; domain?: string } | { type?: string; domain?: string }[] | null;
+  categories?:
+    | { type?: string | null; domain?: string | null }
+    | { type?: string | null; domain?: string | null }[]
+    | null;
   merchant_mappings?: { category_domains?: { name?: string } } | null;
 };
-type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'];
+type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'] & {
+  categories?: { domain: string | null } | null;
+};
 
 export function BudgetVsActual({
   transactions,
@@ -62,7 +67,11 @@ export function BudgetVsActual({
 
         // Budget allocated to domain
         const budget = recurringExpenses
-          .filter((f) => f.domain === domain || (!f.domain && domain === CATEGORY_DOMAINS.GENERAL))
+          .filter(
+            (f) =>
+              f.categories?.domain === domain ||
+              (!f.categories?.domain && domain === CATEGORY_DOMAINS.GENERAL),
+          )
           .reduce((sum, f) => sum + f.amount, 0);
 
         return {

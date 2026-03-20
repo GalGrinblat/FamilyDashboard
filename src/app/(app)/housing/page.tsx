@@ -26,8 +26,8 @@ export default async function HousingPage() {
       .order('created_at', { ascending: false }),
     supabase
       .from('recurring_flows')
-      .select('id, name, amount, type, domain, frequency, end_date, is_active')
-      .in('domain', ['housing', 'utilities'])
+      .select('id, name, amount, type, frequency, end_date, is_active, categories!inner(domain)')
+      .in('categories.domain', ['housing', 'utilities'])
       .eq('type', 'expense')
       .order('name', { ascending: true }),
   ]);
@@ -38,7 +38,7 @@ export default async function HousingPage() {
   const electronics = items.filter((i) => i.category === 'electronics');
 
   const contracts =
-    (rawContracts as Database['public']['Tables']['recurring_flows']['Row'][]) || [];
+    (rawContracts as unknown as Database['public']['Tables']['recurring_flows']['Row'][]) || [];
 
   // KPI computations
   const totalMonthlyCost = contracts.reduce((sum, c) => sum + Number(c.amount || 0), 0);

@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
-import { CATEGORY_DOMAINS, CATEGORY_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
+import { CATEGORY_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
 
 import { Database } from '@/types/database.types';
 
@@ -44,8 +44,9 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
   const isEditing = !!contractToEdit;
   const [name, setName] = useState(contractToEdit?.name || '');
   const [amount, setAmount] = useState(contractToEdit?.amount?.toString() || '');
-  const [frequency, setFrequency] = useState(contractToEdit?.frequency || FREQUENCY_TYPES.MONTHLY);
-  const [domain, setDomain] = useState(contractToEdit?.domain || CATEGORY_DOMAINS.HOUSING);
+  const [frequency, setFrequency] = useState<'monthly' | 'yearly' | 'weekly'>(
+    contractToEdit?.frequency || FREQUENCY_TYPES.MONTHLY,
+  );
   const [endDate, setEndDate] = useState(contractToEdit?.end_date || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +59,6 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
       amount: parseFloat(amount),
       type: CATEGORY_TYPES.EXPENSE,
       frequency,
-      domain,
       end_date: endDate || null,
       is_active: true,
     };
@@ -137,7 +137,10 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
             <Label htmlFor="frequency" className="text-right pt-2">
               תדירות
             </Label>
-            <Select value={frequency} onValueChange={setFrequency}>
+            <Select
+              value={frequency}
+              onValueChange={(v) => setFrequency(v as 'monthly' | 'yearly' | 'weekly')}
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר תדירות" />
               </SelectTrigger>
@@ -145,20 +148,6 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
                 <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי</SelectItem>
                 <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי</SelectItem>
                 <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="domain" className="text-right pt-2">
-              סוג
-            </Label>
-            <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger className="col-span-3" dir="rtl">
-                <SelectValue placeholder="בחר סוג" />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                <SelectItem value={CATEGORY_DOMAINS.HOUSING}>דיור</SelectItem>
-                <SelectItem value={CATEGORY_DOMAINS.UTILITIES}>שירותים</SelectItem>
               </SelectContent>
             </Select>
           </div>

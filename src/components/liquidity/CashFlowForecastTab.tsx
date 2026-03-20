@@ -59,7 +59,7 @@ interface Props {
 export function CashFlowForecastTab({ accounts, flows, overrides }: Props) {
   const data = useMemo(() => {
     const startBalance = accounts
-      .filter((a) => a.type === ACCOUNT_TYPES.BANK || a.type === 'checking')
+      .filter((a) => a.type === ACCOUNT_TYPES.BANK)
       .reduce((s, a) => s + (a.current_balance ?? 0), 0);
 
     const months = Array.from({ length: 6 }, (_, i) => addMonths(startOfMonth(new Date()), i));

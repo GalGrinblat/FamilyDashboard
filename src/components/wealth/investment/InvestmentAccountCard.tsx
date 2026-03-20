@@ -29,8 +29,8 @@ function TaxBadge({ account, gain }: { account: InvestmentAccountWithHoldings; g
   if (gain <= 0) return null;
 
   if (account.account_type === 'histalmut') {
-    const eligible = account.histalmut_eligible_date
-      ? new Date(account.histalmut_eligible_date) <= new Date()
+    const eligible = account.tax_eligible_date
+      ? new Date(account.tax_eligible_date) <= new Date()
       : false;
     const monthly = account.monthly_contribution_ils ?? 0;
     const aboveFraction =
@@ -57,7 +57,7 @@ function TaxBadge({ account, gain }: { account: InvestmentAccountWithHoldings; g
     );
   }
 
-  if (account.account_type === 'gemel_lehashkaa') {
+  if (account.account_type === 'gemel') {
     return (
       <Badge variant="outline" className="text-base text-blue-600 border-blue-300">
         מס {TAX_RATES.CAPITAL_GAINS * 100}% על רווח

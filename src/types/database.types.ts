@@ -4,39 +4,42 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.4';
+    PostgrestVersion: '14.1';
   };
   public: {
     Tables: {
       accounts: {
         Row: {
+          billing_day: number | null;
           created_at: string | null;
-          currency: string;
-          current_balance: number;
+          credit_limit: number | null;
+          currency: string | null;
+          current_balance: number | null;
           id: string;
-          metadata: Json | null;
           name: string;
-          type: string;
+          type: Database['public']['Enums']['account_type'];
           updated_at: string | null;
         };
         Insert: {
+          billing_day?: number | null;
           created_at?: string | null;
-          currency?: string;
-          current_balance?: number;
+          credit_limit?: number | null;
+          currency?: string | null;
+          current_balance?: number | null;
           id?: string;
-          metadata?: Json | null;
           name: string;
-          type: string;
+          type: Database['public']['Enums']['account_type'];
           updated_at?: string | null;
         };
         Update: {
+          billing_day?: number | null;
           created_at?: string | null;
-          currency?: string;
-          current_balance?: number;
+          credit_limit?: number | null;
+          currency?: string | null;
+          current_balance?: number | null;
           id?: string;
-          metadata?: Json | null;
           name?: string;
-          type?: string;
+          type?: Database['public']['Enums']['account_type'];
           updated_at?: string | null;
         };
         Relationships: [];
@@ -49,7 +52,7 @@ export type Database = {
           id: string;
           metadata: Json | null;
           name: string;
-          status: string | null;
+          status: Database['public']['Enums']['asset_status'] | null;
           type: string;
           updated_at: string | null;
         };
@@ -60,7 +63,7 @@ export type Database = {
           id?: string;
           metadata?: Json | null;
           name: string;
-          status?: string | null;
+          status?: Database['public']['Enums']['asset_status'] | null;
           type: string;
           updated_at?: string | null;
         };
@@ -71,7 +74,7 @@ export type Database = {
           id?: string;
           metadata?: Json | null;
           name?: string;
-          status?: string | null;
+          status?: Database['public']['Enums']['asset_status'] | null;
           type?: string;
           updated_at?: string | null;
         };
@@ -95,35 +98,35 @@ export type Database = {
       categories: {
         Row: {
           created_at: string | null;
-          domain: string;
+          domain: Database['public']['Enums']['category_domain'] | null;
           id: string;
           name_en: string;
           name_he: string;
           parent_id: string | null;
-          sort_order: number;
-          type: string;
+          sort_order: number | null;
+          type: Database['public']['Enums']['category_type'];
           updated_at: string | null;
         };
         Insert: {
           created_at?: string | null;
-          domain?: string;
+          domain?: Database['public']['Enums']['category_domain'] | null;
           id?: string;
           name_en: string;
           name_he: string;
           parent_id?: string | null;
-          sort_order?: number;
-          type: string;
+          sort_order?: number | null;
+          type: Database['public']['Enums']['category_type'];
           updated_at?: string | null;
         };
         Update: {
           created_at?: string | null;
-          domain?: string;
+          domain?: Database['public']['Enums']['category_domain'] | null;
           id?: string;
           name_en?: string;
           name_he?: string;
           parent_id?: string | null;
-          sort_order?: number;
-          type?: string;
+          sort_order?: number | null;
+          type?: Database['public']['Enums']['category_type'];
           updated_at?: string | null;
         };
         Relationships: [
@@ -136,40 +139,85 @@ export type Database = {
           },
         ];
       };
+      financial_goals: {
+        Row: {
+          category: Database['public']['Enums']['goal_category'];
+          created_at: string | null;
+          current_amount: number;
+          id: string;
+          is_completed: boolean;
+          notes: string | null;
+          target_amount: number;
+          target_date: string | null;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          category?: Database['public']['Enums']['goal_category'];
+          created_at?: string | null;
+          current_amount?: number;
+          id?: string;
+          is_completed?: boolean;
+          notes?: string | null;
+          target_amount: number;
+          target_date?: string | null;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          category?: Database['public']['Enums']['goal_category'];
+          created_at?: string | null;
+          current_amount?: number;
+          id?: string;
+          is_completed?: boolean;
+          notes?: string | null;
+          target_amount?: number;
+          target_date?: string | null;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       household_items: {
         Row: {
-          attachments: Json | null;
-          category: string;
+          attachment_urls: string[] | null;
+          category: Database['public']['Enums']['household_item_category'];
           created_at: string | null;
           id: string;
-          metadata: Json | null;
+          manual_url: string | null;
+          model: string | null;
           name: string;
           purchase_date: string | null;
           purchase_price: number | null;
+          serial_number: string | null;
           updated_at: string | null;
           warranty_expiry: string | null;
         };
         Insert: {
-          attachments?: Json | null;
-          category: string;
+          attachment_urls?: string[] | null;
+          category: Database['public']['Enums']['household_item_category'];
           created_at?: string | null;
           id?: string;
-          metadata?: Json | null;
+          manual_url?: string | null;
+          model?: string | null;
           name: string;
           purchase_date?: string | null;
           purchase_price?: number | null;
+          serial_number?: string | null;
           updated_at?: string | null;
           warranty_expiry?: string | null;
         };
         Update: {
-          attachments?: Json | null;
-          category?: string;
+          attachment_urls?: string[] | null;
+          category?: Database['public']['Enums']['household_item_category'];
           created_at?: string | null;
           id?: string;
-          metadata?: Json | null;
+          manual_url?: string | null;
+          model?: string | null;
           name?: string;
           purchase_date?: string | null;
           purchase_price?: number | null;
+          serial_number?: string | null;
           updated_at?: string | null;
           warranty_expiry?: string | null;
         };
@@ -177,11 +225,10 @@ export type Database = {
       };
       investment_accounts: {
         Row: {
-          account_type: string;
+          account_type: Database['public']['Enums']['investment_account_type'];
           broker: string | null;
           created_at: string | null;
           current_balance: number | null;
-          histalmut_eligible_date: string | null;
           id: string;
           is_active: boolean;
           is_managed: boolean;
@@ -189,14 +236,14 @@ export type Database = {
           monthly_contribution_ils: number | null;
           name: string;
           notes: string | null;
+          tax_eligible_date: string | null;
           updated_at: string | null;
         };
         Insert: {
-          account_type: string;
+          account_type: Database['public']['Enums']['investment_account_type'];
           broker?: string | null;
           created_at?: string | null;
           current_balance?: number | null;
-          histalmut_eligible_date?: string | null;
           id?: string;
           is_active?: boolean;
           is_managed?: boolean;
@@ -204,14 +251,14 @@ export type Database = {
           monthly_contribution_ils?: number | null;
           name: string;
           notes?: string | null;
+          tax_eligible_date?: string | null;
           updated_at?: string | null;
         };
         Update: {
-          account_type?: string;
+          account_type?: Database['public']['Enums']['investment_account_type'];
           broker?: string | null;
           created_at?: string | null;
           current_balance?: number | null;
-          histalmut_eligible_date?: string | null;
           id?: string;
           is_active?: boolean;
           is_managed?: boolean;
@@ -219,6 +266,7 @@ export type Database = {
           monthly_contribution_ils?: number | null;
           name?: string;
           notes?: string | null;
+          tax_eligible_date?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -263,20 +311,18 @@ export type Database = {
           id: string;
           month_year: string;
           title: string;
-          type: string;
+          type: Database['public']['Enums']['flow_type'];
           updated_at: string | null;
-          user_id: string;
         };
         Insert: {
           amount: number;
           created_at?: string | null;
-          day_of_month?: number;
+          day_of_month: number;
           id?: string;
           month_year: string;
           title: string;
-          type: string;
+          type: Database['public']['Enums']['flow_type'];
           updated_at?: string | null;
-          user_id: string;
         };
         Update: {
           amount?: number;
@@ -285,9 +331,8 @@ export type Database = {
           id?: string;
           month_year?: string;
           title?: string;
-          type?: string;
+          type?: Database['public']['Enums']['flow_type'];
           updated_at?: string | null;
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -336,11 +381,11 @@ export type Database = {
           name: string;
           policy_number: string | null;
           premium_amount: number;
-          premium_frequency: string;
+          premium_frequency: Database['public']['Enums']['policy_frequency'];
           provider: string;
           renewal_date: string | null;
           subtype: string | null;
-          type: string;
+          type: Database['public']['Enums']['policy_type'];
         };
         Insert: {
           asset_id?: string | null;
@@ -351,11 +396,11 @@ export type Database = {
           name: string;
           policy_number?: string | null;
           premium_amount: number;
-          premium_frequency?: string;
+          premium_frequency?: Database['public']['Enums']['policy_frequency'];
           provider: string;
           renewal_date?: string | null;
           subtype?: string | null;
-          type: string;
+          type: Database['public']['Enums']['policy_type'];
         };
         Update: {
           asset_id?: string | null;
@@ -366,11 +411,11 @@ export type Database = {
           name?: string;
           policy_number?: string | null;
           premium_amount?: number;
-          premium_frequency?: string;
+          premium_frequency?: Database['public']['Enums']['policy_frequency'];
           provider?: string;
           renewal_date?: string | null;
           subtype?: string | null;
-          type?: string;
+          type?: Database['public']['Enums']['policy_type'];
         };
         Relationships: [
           {
@@ -435,7 +480,7 @@ export type Database = {
           fees: number | null;
           holding_id: string;
           id: string;
-          lot_type: string;
+          lot_type: Database['public']['Enums']['portfolio_lot_type'];
           notes: string | null;
           price_per_unit: number;
           purchase_date: string;
@@ -449,7 +494,7 @@ export type Database = {
           fees?: number | null;
           holding_id: string;
           id?: string;
-          lot_type?: string;
+          lot_type?: Database['public']['Enums']['portfolio_lot_type'];
           notes?: string | null;
           price_per_unit: number;
           purchase_date: string;
@@ -463,7 +508,7 @@ export type Database = {
           fees?: number | null;
           holding_id?: string;
           id?: string;
-          lot_type?: string;
+          lot_type?: Database['public']['Enums']['portfolio_lot_type'];
           notes?: string | null;
           price_per_unit?: number;
           purchase_date?: string;
@@ -537,15 +582,14 @@ export type Database = {
           asset_id: string | null;
           category_id: string | null;
           created_at: string | null;
-          domain: string;
           end_date: string | null;
-          frequency: string;
+          frequency: Database['public']['Enums']['flow_frequency'];
           id: string;
-          is_active: boolean;
+          is_active: boolean | null;
           name: string;
           policy_id: string | null;
           start_date: string | null;
-          type: string;
+          type: Database['public']['Enums']['flow_type'];
           updated_at: string | null;
         };
         Insert: {
@@ -554,15 +598,14 @@ export type Database = {
           asset_id?: string | null;
           category_id?: string | null;
           created_at?: string | null;
-          domain?: string;
           end_date?: string | null;
-          frequency: string;
+          frequency: Database['public']['Enums']['flow_frequency'];
           id?: string;
-          is_active?: boolean;
+          is_active?: boolean | null;
           name: string;
           policy_id?: string | null;
           start_date?: string | null;
-          type: string;
+          type: Database['public']['Enums']['flow_type'];
           updated_at?: string | null;
         };
         Update: {
@@ -571,15 +614,14 @@ export type Database = {
           asset_id?: string | null;
           category_id?: string | null;
           created_at?: string | null;
-          domain?: string;
           end_date?: string | null;
-          frequency?: string;
+          frequency?: Database['public']['Enums']['flow_frequency'];
           id?: string;
-          is_active?: boolean;
+          is_active?: boolean | null;
           name?: string;
           policy_id?: string | null;
           start_date?: string | null;
-          type?: string;
+          type?: Database['public']['Enums']['flow_type'];
           updated_at?: string | null;
         };
         Relationships: [
@@ -618,39 +660,45 @@ export type Database = {
           asset_id: string | null;
           created_at: string | null;
           due_date: string;
+          frequency: Database['public']['Enums']['flow_frequency'] | null;
           id: string;
-          is_completed: boolean;
+          is_completed: boolean | null;
+          is_recurring: boolean;
           recurring_flow_id: string | null;
           start_date: string | null;
           target_account_id: string | null;
           title: string;
-          type: string;
+          type: Database['public']['Enums']['reminder_type'];
           updated_at: string | null;
         };
         Insert: {
           asset_id?: string | null;
           created_at?: string | null;
           due_date: string;
+          frequency?: Database['public']['Enums']['flow_frequency'] | null;
           id?: string;
-          is_completed?: boolean;
+          is_completed?: boolean | null;
+          is_recurring?: boolean;
           recurring_flow_id?: string | null;
           start_date?: string | null;
           target_account_id?: string | null;
           title: string;
-          type: string;
+          type: Database['public']['Enums']['reminder_type'];
           updated_at?: string | null;
         };
         Update: {
           asset_id?: string | null;
           created_at?: string | null;
           due_date?: string;
+          frequency?: Database['public']['Enums']['flow_frequency'] | null;
           id?: string;
-          is_completed?: boolean;
+          is_completed?: boolean | null;
+          is_recurring?: boolean;
           recurring_flow_id?: string | null;
           start_date?: string | null;
           target_account_id?: string | null;
           title?: string;
-          type?: string;
+          type?: Database['public']['Enums']['reminder_type'];
           updated_at?: string | null;
         };
         Relationships: [
@@ -798,7 +846,7 @@ export type Database = {
       };
       transactions: {
         Row: {
-          account_id: string;
+          account_id: string | null;
           amount: number;
           asset_id: string | null;
           category_id: string | null;
@@ -806,17 +854,17 @@ export type Database = {
           date: string;
           description: string | null;
           id: string;
-          installment_number: number;
-          is_deduplicated: boolean;
+          installment_number: number | null;
+          is_duplicate: boolean | null;
           merchant: string | null;
           original_amount: number | null;
           recurring_flow_id: string | null;
-          total_installments: number;
+          total_installments: number | null;
           trip_id: string | null;
           updated_at: string | null;
         };
         Insert: {
-          account_id: string;
+          account_id?: string | null;
           amount: number;
           asset_id?: string | null;
           category_id?: string | null;
@@ -824,17 +872,17 @@ export type Database = {
           date: string;
           description?: string | null;
           id?: string;
-          installment_number?: number;
-          is_deduplicated?: boolean;
+          installment_number?: number | null;
+          is_duplicate?: boolean | null;
           merchant?: string | null;
           original_amount?: number | null;
           recurring_flow_id?: string | null;
-          total_installments?: number;
+          total_installments?: number | null;
           trip_id?: string | null;
           updated_at?: string | null;
         };
         Update: {
-          account_id?: string;
+          account_id?: string | null;
           amount?: number;
           asset_id?: string | null;
           category_id?: string | null;
@@ -842,12 +890,12 @@ export type Database = {
           date?: string;
           description?: string | null;
           id?: string;
-          installment_number?: number;
-          is_deduplicated?: boolean;
+          installment_number?: number | null;
+          is_duplicate?: boolean | null;
           merchant?: string | null;
           original_amount?: number | null;
           recurring_flow_id?: string | null;
-          total_installments?: number;
+          total_installments?: number | null;
           trip_id?: string | null;
           updated_at?: string | null;
         };
@@ -920,7 +968,28 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      account_type: 'bank' | 'credit_card';
+      asset_status: 'active' | 'sold' | 'archived';
+      category_domain:
+        | 'general'
+        | 'housing'
+        | 'transportation'
+        | 'insurances'
+        | 'utilities'
+        | 'supermarket'
+        | 'hobbies'
+        | 'entertainment'
+        | 'vacation';
+      category_type: 'income' | 'expense' | 'investment';
+      flow_frequency: 'monthly' | 'yearly' | 'weekly';
+      flow_type: 'income' | 'expense';
+      goal_category: 'emergency_fund' | 'down_payment' | 'vacation' | 'education' | 'other';
+      household_item_category: 'appliance' | 'furniture' | 'electronics' | 'other';
+      investment_account_type: 'brokerage' | 'histalmut' | 'rsu' | 'gemel' | 'pension';
+      policy_frequency: 'monthly' | 'yearly';
+      policy_type: 'health' | 'life' | 'property' | 'vehicle';
+      portfolio_lot_type: 'buy' | 'sell' | 'rsu_vest' | 'dividend_reinvest';
+      reminder_type: 'maintenance' | 'car_test' | 'insurance' | 'payment_method_change';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1045,6 +1114,30 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_type: ['bank', 'credit_card'],
+      asset_status: ['active', 'sold', 'archived'],
+      category_domain: [
+        'general',
+        'housing',
+        'transportation',
+        'insurances',
+        'utilities',
+        'supermarket',
+        'hobbies',
+        'entertainment',
+        'vacation',
+      ],
+      category_type: ['income', 'expense', 'investment'],
+      flow_frequency: ['monthly', 'yearly', 'weekly'],
+      flow_type: ['income', 'expense'],
+      goal_category: ['emergency_fund', 'down_payment', 'vacation', 'education', 'other'],
+      household_item_category: ['appliance', 'furniture', 'electronics', 'other'],
+      investment_account_type: ['brokerage', 'histalmut', 'rsu', 'gemel', 'pension'],
+      policy_frequency: ['monthly', 'yearly'],
+      policy_type: ['health', 'life', 'property', 'vehicle'],
+      portfolio_lot_type: ['buy', 'sell', 'rsu_vest', 'dividend_reinvest'],
+      reminder_type: ['maintenance', 'car_test', 'insurance', 'payment_method_change'],
+    },
   },
 } as const;

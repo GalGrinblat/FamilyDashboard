@@ -48,7 +48,7 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
       name,
       type: ASSET_TYPES.PENSION,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
-      status: 'active',
+      status: 'active' as const,
       metadata: {},
     };
 

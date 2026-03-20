@@ -40,7 +40,9 @@ import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
 type Account = Database['public']['Tables']['accounts']['Row'];
 type Transaction = Database['public']['Tables']['transactions']['Row'];
-type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'];
+type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'] & {
+  categories?: { domain: string | null } | null;
+};
 type Override = Database['public']['Tables']['monthly_overrides']['Row'];
 
 type OneOff = Database['public']['Tables']['monthly_one_offs']['Row'];
@@ -124,8 +126,7 @@ export function MonthlyProjectionTab() {
   const startBalance = data?.computedStartBalance ?? 0;
 
   // 2. Identify Credit Cards
-  const creditCards =
-    data?.accounts.filter((a) => a.type === ACCOUNT_TYPES.CREDIT_CARD || a.type === 'credit') || [];
+  const creditCards = data?.accounts.filter((a) => a.type === ACCOUNT_TYPES.CREDIT_CARD) || [];
 
   // 3. Build Timeline
   interface TimelineItem {
@@ -168,7 +169,7 @@ export function MonthlyProjectionTab() {
         type: flow.type as CategoryType,
         isActual: false,
         originalRecurringId: flow.id,
-        domain: flow.domain,
+        domain: flow.categories?.domain ?? null,
         asset_id: flow.asset_id,
         policy_id: flow.policy_id,
       });
@@ -176,9 +177,8 @@ export function MonthlyProjectionTab() {
 
     // B. Credit Card Bills
     creditCards.forEach((cc) => {
-      // Read billing date from metadata or default to 10
-      const metadata = cc.metadata as { billingDay?: number } | null;
-      const billingDay = metadata?.billingDay || 10;
+      // Read billing date from billing_day column or default to 10
+      const billingDay = cc.billing_day || 10;
 
       // Expected bill is the current balance (if negative, that's what we owe)
       // Or sum of transactions this period. Using current_balance is easiest for MVP.

@@ -9,7 +9,9 @@ type TransactionWithCategory = Database['public']['Tables']['transactions']['Row
     | Pick<Database['public']['Tables']['categories']['Row'], 'name_he' | 'type' | 'domain'>[]
     | null;
 };
-type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'];
+type RecurringFlow = Database['public']['Tables']['recurring_flows']['Row'] & {
+  categories?: { domain: string | null } | null;
+};
 
 export async function getAnalyticsData() {
   const supabase = await createClient();
@@ -38,10 +40,10 @@ export async function getAnalyticsData() {
   // Fetch recurring flows for budget vs actual
   const { data: rawFlows } = await supabase
     .from('recurring_flows')
-    .select('*')
+    .select('*, categories(domain)')
     .eq('is_active', true);
 
-  const recurringFlows = (rawFlows as RecurringFlow[]) || [];
+  const recurringFlows = (rawFlows as unknown as RecurringFlow[]) || [];
 
   // Fetch simple net worth (current balances)
   const { data: accounts } = await supabase.from('accounts').select('current_balance');

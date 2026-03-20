@@ -60,7 +60,7 @@ export function InvestmentAccountDialog({
     accountToEdit?.current_balance?.toString() ?? '',
   );
   const [histalmutEligibleDate, setHistalmutEligibleDate] = useState(
-    accountToEdit?.histalmut_eligible_date ?? '',
+    accountToEdit?.tax_eligible_date ?? '',
   );
   const [monthlyContribution, setMonthlyContribution] = useState(
     accountToEdit?.monthly_contribution_ils?.toString() ?? '',
@@ -68,7 +68,7 @@ export function InvestmentAccountDialog({
   const [notes, setNotes] = useState(accountToEdit?.notes ?? '');
 
   const isHistalmut = accountType === INVESTMENT_ACCOUNT_TYPES.HISTALMUT;
-  const isGemel = accountType === INVESTMENT_ACCOUNT_TYPES.GEMEL_LEHASHKAA;
+  const isGemel = accountType === INVESTMENT_ACCOUNT_TYPES.GEMEL;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +82,7 @@ export function InvestmentAccountDialog({
       management_fee_percent: managementFee ? parseFloat(managementFee) : null,
       is_managed: isManaged,
       current_balance: isManaged && currentBalance ? parseFloat(currentBalance) : null,
-      histalmut_eligible_date: isHistalmut && histalmutEligibleDate ? histalmutEligibleDate : null,
+      tax_eligible_date: isHistalmut && histalmutEligibleDate ? histalmutEligibleDate : null,
       monthly_contribution_ils:
         (isHistalmut || isGemel) && monthlyContribution ? parseFloat(monthlyContribution) : null,
       notes: notes || null,

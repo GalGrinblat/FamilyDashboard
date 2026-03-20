@@ -19,6 +19,8 @@ import { Plus } from 'lucide-react';
 
 import { Database } from '@/types/database.types';
 
+type ReminderInsert = Database['public']['Tables']['reminders']['Insert'];
+
 type AssetRow = Database['public']['Tables']['assets']['Row'];
 
 interface AddCarAssetDialogProps {
@@ -70,8 +72,8 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
 
     const payload = {
       name,
-      type: 'vehicle',
-      status: 'active',
+      type: 'vehicle' as const,
+      status: 'active' as const,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
       metadata: {
         license_plate: licensePlate,
@@ -125,7 +127,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     const assetId = (insertedAsset as AssetRow).id;
 
     // Auto-generate reminders
-    const remindersToInsert = [];
+    const remindersToInsert: ReminderInsert[] = [];
 
     if (registrationDate) {
       const regDate = new Date(registrationDate as string);
@@ -138,7 +140,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       remindersToInsert.push({
         title: `טסט שנתי: ${name}`,
         due_date: nextTest.toISOString().split('T')[0],
-        type: 'car_test',
+        type: 'car_test' as const,
         asset_id: assetId,
       });
     }
@@ -149,7 +151,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       remindersToInsert.push({
         title: `חידוש ביטוח: ${name}`,
         due_date: insDate.toISOString().split('T')[0],
-        type: 'insurance',
+        type: 'insurance' as const,
         asset_id: assetId,
       });
     }
@@ -166,7 +168,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       remindersToInsert.push({
         title: `טיפול תקופתי: ${name}`,
         due_date: nextService.toISOString().split('T')[0],
-        type: 'maintenance',
+        type: 'maintenance' as const,
         asset_id: assetId,
       });
     }

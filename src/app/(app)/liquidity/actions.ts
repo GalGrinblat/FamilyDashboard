@@ -32,7 +32,7 @@ export async function getMonthlyBalanceData(monthStart: Date, monthEnd: Date) {
   // 3. Fetch Recurring Flows (active ones)
   const { data: recurringFlows, error: rFlowsError } = await supabase
     .from('recurring_flows')
-    .select('*')
+    .select('*, categories(domain)')
     .eq('is_active', true);
   if (rFlowsError) throw new Error('Failed to fetch recurring flows');
 
@@ -46,7 +46,7 @@ export async function getMonthlyBalanceData(monthStart: Date, monthEnd: Date) {
 
   // 5. Compute reconstructed start balance for this month
   const today = new Date();
-  const bankAccounts = (accounts ?? []).filter((a) => a.type === 'checking' || a.type === 'bank');
+  const bankAccounts = (accounts ?? []).filter((a) => a.type === 'bank');
   const totalCurrentBalance = bankAccounts.reduce((s, a) => s + (a.current_balance ?? 0), 0);
   const bankAccountIds = bankAccounts.map((a) => a.id);
 
@@ -133,7 +133,7 @@ export async function addMonthlyOneOff(
   month_year: string,
   title: string,
   amount: number,
-  type: string,
+  type: 'income' | 'expense',
   day_of_month: number,
 ) {
   const supabase = await createClient();
@@ -145,7 +145,6 @@ export async function addMonthlyOneOff(
   if (authError || !user) throw new Error('Unauthorized');
 
   const { error } = await supabase.from('monthly_one_offs').insert({
-    user_id: user.id,
     month_year,
     title,
     amount,

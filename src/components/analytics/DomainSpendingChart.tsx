@@ -12,7 +12,10 @@ import {
 import { Database } from '@/types/database.types';
 
 type TransactionWithCategory = Database['public']['Tables']['transactions']['Row'] & {
-  categories?: { type?: string; domain?: string } | { type?: string; domain?: string }[] | null;
+  categories?:
+    | { type?: string | null; domain?: string | null }
+    | { type?: string | null; domain?: string | null }[]
+    | null;
 };
 
 // Define colors for domains
