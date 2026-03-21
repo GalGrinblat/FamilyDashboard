@@ -161,11 +161,22 @@ function PolicyForm({
     }
   };
 
+  const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
   const uploadDocument = async (): Promise<string | null> => {
     if (!file) return policy?.document_url || null;
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    if (!fileExt || !ALLOWED_EXTENSIONS.includes(fileExt)) {
+      toast.error('סוג קובץ לא מורשה');
+      return null;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('הקובץ גדול מדי (מקסימום 10MB)');
+      return null;
+    }
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
     const filePath = `${type}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -173,7 +184,7 @@ function PolicyForm({
       .upload(filePath, file);
 
     if (uploadError) {
-      console.error('Error uploading file:', uploadError);
+      if (process.env.NODE_ENV === "development") console.error('Error uploading file:', uploadError);
       return null;
     }
 

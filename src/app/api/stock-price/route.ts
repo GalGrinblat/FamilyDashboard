@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchStockPrices, isValidTicker } from '@/lib/stock-prices';
+import { createClient } from '@/lib/supabase/server';
 
 const MAX_TICKERS = 50;
 
 export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const tickersParam = request.nextUrl.searchParams.get('tickers');
   if (!tickersParam) {
     return NextResponse.json({ error: 'Missing tickers parameter' }, { status: 400 });

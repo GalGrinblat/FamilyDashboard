@@ -30,7 +30,7 @@ export function MaintenanceLog({
     if (!window.confirm('האם למחוק רשומה זו? הפעולה אינה הפיכה.')) return;
     const { error } = await supabase.from('vehicle_maintenance').delete().eq('id', id);
     if (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === "development") console.error(error);
       alert('שגיאה במחיקה');
     } else {
       router.refresh();

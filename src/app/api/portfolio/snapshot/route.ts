@@ -7,6 +7,10 @@ import { savePortfolioSnapshot } from '@/lib/portfolio-snapshot';
 
 export async function POST() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const [{ data: rawAccounts }, { data: rawHoldings }, { data: rawLots }] = await Promise.all([
     supabase.from('investment_accounts').select('*').eq('is_active', true),

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Database } from '@/types/database.types';
 import { GoogleGenAI, Type, Schema } from '@google/genai';
+import { z } from 'zod';
 
 type MerchantMappingRow = Database['public']['Tables']['merchant_mappings']['Row'];
 type CategoryRow = Database['public']['Tables']['categories']['Row'];
@@ -14,10 +15,23 @@ interface ClassifyRequestRow {
   original_row_data: Record<string, unknown>;
 }
 
-// Initialize Gemini SDK
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'dummy',
-});
+// Lazily initialize Gemini SDK — only when GEMINI_API_KEY is present at request time
+const getAiClient = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+
+const AiResultSchema = z.array(
+  z.object({
+    index: z.number(),
+    suggested_category_id: z.string().uuid().nullable().optional(),
+    suggested_new_category: z
+      .object({
+        name_he: z.string().max(100),
+        name_en: z.string().max(100),
+        type: z.enum(['expense', 'income']),
+      })
+      .nullable()
+      .optional(),
+  }),
+);
 
 const classificationSchema: Schema = {
   type: Type.ARRAY,
@@ -56,6 +70,10 @@ export async function POST(req: Request) {
     const accountId = payload.accountId;
 
     const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     if (!rows || !Array.isArray(rows) || rows.length === 0) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
@@ -118,7 +136,7 @@ export async function POST(req: Request) {
         original_index: idx,
         suggested_category_id: mappingsDict.get(rawMerchant) || null,
         is_ai_classified: false,
-        suggested_new_category: null,
+        suggested_new_category: null as { name_he: string; name_en: string; type: string } | null,
         is_duplicate: isDuplicate(row.date, row.amount),
       };
     });
@@ -141,7 +159,7 @@ export async function POST(req: Request) {
                 If NO existing category fits (e.g. it's a completely new type of expense like "SpaceX Ticket"), you can return null for suggested_category_id, and instead provide a 'suggested_new_category' object with name_he, name_en, and type (expense/income).
                 `;
 
-        const response = await ai.models.generateContent({
+        const response = await getAiClient().models.generateContent({
           model: 'gemini-2.5-flash',
           contents: promptContext,
           config: {
@@ -152,16 +170,10 @@ export async function POST(req: Request) {
         });
 
         if (response.text) {
-          const aiResults = JSON.parse(response.text);
+          const aiResults = AiResultSchema.parse(JSON.parse(response.text));
           // Map results back to classifiedRows
           unmappedRows.forEach((unmapped, mappedIdx) => {
-            const aiMatch = aiResults.find(
-              (res: {
-                index: number;
-                suggested_category_id?: string | null;
-                suggested_new_category?: { name_he: string; name_en: string; type: string } | null;
-              }) => res.index === mappedIdx,
-            );
+            const aiMatch = aiResults.find((res) => res.index === mappedIdx);
             if (aiMatch) {
               const mainRow = classifiedRows.find(
                 (r) => r.original_index === unmapped.original_index,
@@ -170,7 +182,7 @@ export async function POST(req: Request) {
                 mainRow.suggested_category_id = aiMatch.suggested_category_id || null;
                 mainRow.suggested_new_category = aiMatch.suggested_category_id
                   ? null
-                  : aiMatch.suggested_new_category;
+                  : (aiMatch.suggested_new_category ?? null);
                 mainRow.is_ai_classified = true;
               }
             }

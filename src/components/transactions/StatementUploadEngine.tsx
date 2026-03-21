@@ -48,7 +48,14 @@ export function StatementUploadEngine({
     }
   };
 
+  const MAX_UPLOAD_SIZE = 20 * 1024 * 1024; // 20 MB
+
   const handleFileValidation = (file: File) => {
+    if (file.size > MAX_UPLOAD_SIZE) {
+      alert('הקובץ גדול מדי. גודל מקסימלי הוא 20MB.');
+      return;
+    }
+
     const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
     const isCsv = file.type === 'text/csv' || file.name.endsWith('.csv');
 
@@ -173,7 +180,7 @@ export function StatementUploadEngine({
         processJsonRows(rawRows);
       },
       error: (error) => {
-        console.error('Error parsing CSV:', error);
+        if (process.env.NODE_ENV === "development") console.error('Error parsing CSV:', error);
         alert('אירעה שגיאה בקריאת הקובץ.');
         setIsParsing(false);
       },
@@ -183,55 +190,66 @@ export function StatementUploadEngine({
   const parseExcel = async (file: File) => {
     setIsParsing(true);
     try {
-      // Dynamically import xlsx only when needed avoiding heavy client bundle
-      const XLSX = await import('xlsx');
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
+      if (file.name.endsWith('.xls')) {
+        alert('פורמט XLS ישן אינו נתמך. אנא שמור את הקובץ כ-XLSX ונסה שנית.');
+        setIsParsing(false);
+        return;
+      }
 
-        // Get 2D array to find the hidden Headers row since Banks pad the top
-        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][];
+      // Dynamically import exceljs only when needed to avoid heavy client bundle
+      const ExcelJS = await import('exceljs');
+      const buffer = await file.arrayBuffer();
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+      const worksheet = workbook.worksheets[0];
 
-        let headerRowIdx = -1;
-        for (let i = 0; i < Math.min(20, rawData.length); i++) {
-          const rowStr = JSON.stringify(rawData[i] || []).toLowerCase();
-          if (rowStr.includes('תאריך') && (rowStr.includes('סכום') || rowStr.includes('amount'))) {
-            headerRowIdx = i;
-            break;
+      if (!worksheet) {
+        alert('לא נמצא גיליון בקובץ האקסל.');
+        setIsParsing(false);
+        return;
+      }
+
+      // Build 2D array (exceljs row.values is 1-based; slice(1) removes the empty [0])
+      const rawData: unknown[][] = [];
+      worksheet.eachRow((row) => {
+        rawData.push((row.values as unknown[]).slice(1));
+      });
+
+      let headerRowIdx = -1;
+      for (let i = 0; i < Math.min(20, rawData.length); i++) {
+        const rowStr = JSON.stringify(rawData[i] || []).toLowerCase();
+        if (rowStr.includes('תאריך') && (rowStr.includes('סכום') || rowStr.includes('amount'))) {
+          headerRowIdx = i;
+          break;
+        }
+      }
+
+      if (headerRowIdx === -1) {
+        alert('לא נמצאה שורת כותרת מזוהה בקובץ האקסל (Date/Amount/תאריך/סכום).');
+        setIsParsing(false);
+        return;
+      }
+
+      const headers = rawData[headerRowIdx] as string[];
+
+      // Convert remaining rows into our Record array format expected by logic
+      const rowsAsObjects: Record<string, unknown>[] = [];
+      for (let i = headerRowIdx + 1; i < rawData.length; i++) {
+        if (!rawData[i] || rawData[i].length === 0) continue;
+
+        const obj: Record<string, unknown> = {};
+        const rowArr = rawData[i] as unknown[];
+        for (let j = 0; j < headers.length; j++) {
+          if (headers[j]) {
+            obj[headers[j]] = rowArr[j];
           }
         }
+        rowsAsObjects.push(obj);
+      }
 
-        if (headerRowIdx === -1) {
-          alert('לא נמצאה שורת כותרת מזוהה בקובץ האקסל (Date/Amount/תאריך/סכום).');
-          setIsParsing(false);
-          return;
-        }
-
-        const headers = rawData[headerRowIdx] as string[];
-
-        // Convert remaining rows into our Record array format expected by logic
-        const rowsAsObjects: Record<string, unknown>[] = [];
-        for (let i = headerRowIdx + 1; i < rawData.length; i++) {
-          if (!rawData[i] || rawData[i].length === 0) continue;
-
-          const obj: Record<string, unknown> = {};
-          const rowArr = rawData[i] as unknown[];
-          for (let j = 0; j < headers.length; j++) {
-            if (headers[j]) {
-              obj[headers[j]] = rowArr[j];
-            }
-          }
-          rowsAsObjects.push(obj);
-        }
-
-        processJsonRows(rowsAsObjects);
-      };
-      reader.readAsArrayBuffer(file);
+      processJsonRows(rowsAsObjects);
     } catch (error) {
-      console.error('Excel parse error', error);
+      if (process.env.NODE_ENV === 'development') console.error('Excel parse error', error);
       alert('אירעה שגיאה בפענוח מצורף אקסל. נסה לשמור כ-CSV.');
       setIsParsing(false);
     }

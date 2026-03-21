@@ -41,7 +41,7 @@ export function ExpenseUploader({
       const jsonResponse = await res.json();
       setClassifiedRows(jsonResponse.results || []);
     } catch (err) {
-      console.error(err);
+      if (process.env.NODE_ENV === "development") console.error(err);
       alert('אירעה שגיאה בשרת הסיווג (API Error).');
     } finally {
       setIsClassifying(false);
@@ -79,7 +79,7 @@ export function ExpenseUploader({
       handleReset();
       // In a real app we'd trigger a router.refresh() here so the UI tables see the new data
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === "development") console.error(error);
       alert('שגיאה בשמירת התנועות לרשומות הבסיס.');
     } finally {
       setIsSubmitting(false);
