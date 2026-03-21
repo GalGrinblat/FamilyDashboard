@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Database } from '@/types/database.types';
@@ -46,7 +46,7 @@ export function ChangePaymentMethodDialog({
 
   const {
     handleSubmit,
-    watch,
+    control,
     setValue,
     reset,
     formState: { isSubmitting },
@@ -57,7 +57,7 @@ export function ChangePaymentMethodDialog({
     },
   });
 
-  const accountId = watch('account_id');
+  const accountId = useWatch({ control, name: 'account_id' });
 
   const onSubmit = async (data: ChangePaymentMethodFormData) => {
     const targetAccountName =

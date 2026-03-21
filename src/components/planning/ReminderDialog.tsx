@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { addReminderAction, updateReminderAction } from '@/app/(app)/planning/actions';
@@ -86,7 +86,7 @@ function ReminderForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<ReminderFormData>({
@@ -99,7 +99,7 @@ function ReminderForm({
     },
   });
 
-  const type = watch('type');
+  const type = useWatch({ control, name: 'type' });
 
   const onSubmit = async (data: ReminderFormData) => {
     const formData = new FormData();

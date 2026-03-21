@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -45,16 +45,16 @@ export function AddLotDialog({ holdingId, ticker, currency, triggerButton }: Add
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<AddLotFormData>({
     resolver: zodResolver(AddLotFormSchema) as Resolver<AddLotFormData>,
     defaultValues,
   });
 
-  const quantity = watch('quantity');
-  const pricePerUnit = watch('price_per_unit');
-  const fees = watch('fees');
+  const quantity = useWatch({ control, name: 'quantity' });
+  const pricePerUnit = useWatch({ control, name: 'price_per_unit' });
+  const fees = useWatch({ control, name: 'fees' });
 
   const totalCost =
     quantity && pricePerUnit

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -59,14 +59,14 @@ function GoalDialog({ goal, triggerButton }: { goal?: GoalRow; triggerButton: Re
     handleSubmit,
     reset,
     setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<GoalFormData>({
     resolver: zodResolver(GoalFormSchema) as Resolver<GoalFormData>,
     defaultValues,
   });
 
-  const category = watch('category');
+  const category = useWatch({ control, name: 'category' });
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);

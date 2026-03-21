@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Database } from '@/types/database.types';
@@ -53,7 +53,7 @@ export function RecurringFlowDialog({
     handleSubmit,
     reset,
     setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<RecurringFlowFormData>({
     resolver: zodResolver(RecurringFlowFormSchema) as Resolver<RecurringFlowFormData>,
@@ -104,9 +104,9 @@ export function RecurringFlowDialog({
     router.refresh();
   };
 
-  const typeValue = watch('type');
-  const frequencyValue = watch('frequency');
-  const accountIdValue = watch('account_id');
+  const typeValue = useWatch({ control, name: 'type' });
+  const frequencyValue = useWatch({ control, name: 'frequency' });
+  const accountIdValue = useWatch({ control, name: 'account_id' });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

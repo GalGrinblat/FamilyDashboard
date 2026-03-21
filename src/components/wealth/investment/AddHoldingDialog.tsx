@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     setError,
     formState: { errors, isSubmitting },
@@ -66,11 +66,11 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
     defaultValues,
   });
 
-  const assetClass = watch('asset_class');
-  const currency = watch('currency');
-  const quantity = watch('quantity');
-  const pricePerUnit = watch('price_per_unit');
-  const fees = watch('fees');
+  const assetClass = useWatch({ control, name: 'asset_class' });
+  const currency = useWatch({ control, name: 'currency' });
+  const quantity = useWatch({ control, name: 'quantity' });
+  const pricePerUnit = useWatch({ control, name: 'price_per_unit' });
+  const fees = useWatch({ control, name: 'fees' });
 
   const totalCost =
     quantity && pricePerUnit
