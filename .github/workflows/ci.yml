@@ -11,6 +11,10 @@ jobs:
     name: Build & Test
     runs-on: ubuntu-latest
 
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co'
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'example-anon-key'
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,9 +34,65 @@ jobs:
       - name: Check Types
         run: npx tsc --noEmit
 
-      # We just build the app to ensure no compilation errors exists. Vercel automatically deploys on push to main via integration.
+      - name: Run Unit & Integration Tests
+        run: npm run test
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+      # We just build the app to ensure no compilation errors exist. Vercel automatically deploys on push to main via integration.
       - name: Build Application
         run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co'
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: 'example-anon-key'
+
+  # E2E job disabled until GitHub Secrets are configured.
+  # To re-enable: uncomment this block and add these secrets in GitHub → Settings → Secrets:
+  #   NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, TEST_USER_EMAIL, TEST_USER_PASSWORD
+  #
+  # e2e:
+  #   name: E2E Tests
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #
+  #   env:
+  #     PLAYWRIGHT_BASE_URL: http://localhost:3000
+  #     NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  #     NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  #
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: 'npm'
+  #
+  #     - name: Install Dependencies
+  #       run: npm ci
+  #
+  #     - name: Install Playwright Browsers
+  #       run: npx playwright install --with-deps chromium
+  #
+  #     - name: Build Application
+  #       run: npm run build
+  #
+  #     - name: Run E2E Tests
+  #       run: npx playwright test --project=chromium
+  #       env:
+  #         TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+  #         TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+  #
+  #     - name: Upload Playwright Report
+  #       uses: actions/upload-artifact@v4
+  #       if: failure()
+  #       with:
+  #         name: playwright-report
+  #         path: playwright-report/
+  #         retention-days: 7
+
