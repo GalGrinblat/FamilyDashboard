@@ -90,7 +90,7 @@ export function MonthlyProjectionTab() {
       const result = await getMonthlyBalanceData(start, end);
       setData(result as typeof data);
     } catch (err) {
-      if (process.env.NODE_ENV === "development") console.error(err);
+      if (process.env.NODE_ENV === 'development') console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +106,10 @@ export function MonthlyProjectionTab() {
           setIsLoading(false);
         }
       })
-      .catch((e) => { if (process.env.NODE_ENV === "development") if (process.env.NODE_ENV === "development") console.error(e); });
+      .catch((e) => {
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development') console.error(e);
+      });
 
     return () => {
       isMounted = false;
@@ -244,7 +247,7 @@ export function MonthlyProjectionTab() {
       setData(res as NonNullable<typeof data>);
       setIsEditOpen(false);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
       alert('שגיאה בשמירת הערך');
     } finally {
       setIsSaving(false);
@@ -280,7 +283,7 @@ export function MonthlyProjectionTab() {
       setOneOffErrors({});
       await refreshData(monthStart, monthEnd);
     } catch (err) {
-      if (process.env.NODE_ENV === "development") console.error(err);
+      if (process.env.NODE_ENV === 'development') console.error(err);
     } finally {
       setOneOffLoading(false);
     }
@@ -291,7 +294,7 @@ export function MonthlyProjectionTab() {
       await deleteMonthlyOneOff(id);
       await refreshData(monthStart, monthEnd);
     } catch (err) {
-      if (process.env.NODE_ENV === "development") console.error(err);
+      if (process.env.NODE_ENV === 'development') console.error(err);
     }
   };
 

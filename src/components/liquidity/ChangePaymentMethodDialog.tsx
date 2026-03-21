@@ -73,7 +73,7 @@ export function ChangePaymentMethodDialog({
     });
 
     if (error) {
-      if (process.env.NODE_ENV === "development") console.error('Error creating reminder:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error creating reminder:', error);
       toast.error('שגיאה ביצירת המשימה');
       return;
     }

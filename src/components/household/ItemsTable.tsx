@@ -35,7 +35,7 @@ export function ItemsTable({ items }: { items: HouseholdItemRow[] }) {
     if (!window.confirm('האם למחוק פריט זה?')) return;
     const { error } = await supabase.from('household_items').delete().eq('id', id);
     if (error) {
-      if (process.env.NODE_ENV === "development") console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
       alert('שגיאה במחיקת הפריט');
       return;
     }

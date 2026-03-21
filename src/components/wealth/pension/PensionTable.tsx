@@ -21,7 +21,7 @@ export function PensionTable({ pensions }: { pensions: InvestmentAccountRef[] })
       .update({ is_active: false })
       .eq('id', id);
     if (error) {
-      if (process.env.NODE_ENV === "development") console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
       alert('שגיאה בהסרת הקופה');
     } else {
       router.refresh();

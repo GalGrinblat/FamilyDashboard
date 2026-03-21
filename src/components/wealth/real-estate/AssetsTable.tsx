@@ -17,7 +17,7 @@ export function AssetsTable({ properties }: { properties: PropertyRef[] }) {
     if (!window.confirm('האם למחוק נכס זה? הפעולה אינה הפיכה.')) return;
     const { error } = await supabase.from('properties').delete().eq('id', id);
     if (error) {
-      if (process.env.NODE_ENV === "development") console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
       alert('שגיאה במחיקת הנכס');
     } else {
       router.refresh();

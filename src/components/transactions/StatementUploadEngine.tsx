@@ -180,7 +180,7 @@ export function StatementUploadEngine({
         processJsonRows(rawRows);
       },
       error: (error) => {
-        if (process.env.NODE_ENV === "development") console.error('Error parsing CSV:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Error parsing CSV:', error);
         alert('אירעה שגיאה בקריאת הקובץ.');
         setIsParsing(false);
       },

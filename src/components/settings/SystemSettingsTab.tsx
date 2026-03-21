@@ -69,7 +69,7 @@ export function SystemSettingsTab() {
 
     setSaving(false);
     if (error) {
-      if (process.env.NODE_ENV === "development") console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
       alert('שגיאה בשמירת הגדרות');
     } else {
       alert('הגדרות נשמרו בהצלחה');

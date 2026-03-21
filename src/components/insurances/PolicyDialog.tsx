@@ -184,7 +184,8 @@ function PolicyForm({
       .upload(filePath, file);
 
     if (uploadError) {
-      if (process.env.NODE_ENV === "development") console.error('Error uploading file:', uploadError);
+      if (process.env.NODE_ENV === 'development')
+        console.error('Error uploading file:', uploadError);
       return null;
     }
 

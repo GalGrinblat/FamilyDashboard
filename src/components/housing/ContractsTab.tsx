@@ -19,7 +19,7 @@ export function ContractsTab({ contracts }: { contracts: RecurringFlowRow[] }) {
     if (!window.confirm('האם למחוק ספק זה?')) return;
     const { error } = await supabase.from('recurring_flows').delete().eq('id', id);
     if (error) {
-      if (process.env.NODE_ENV === "development") console.error(error);
+      if (process.env.NODE_ENV === 'development') console.error(error);
       alert('שגיאה במחיקת ספק');
     } else {
       router.refresh();
