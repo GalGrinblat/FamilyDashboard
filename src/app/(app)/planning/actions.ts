@@ -3,10 +3,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Database } from '@/types/database.types';
+import { GoalFormSchema } from '@/lib/schemas';
 
 type ReminderInsert = Database['public']['Tables']['reminders']['Insert'];
 type ReminderUpdate = Database['public']['Tables']['reminders']['Update'];
 type TripInsert = Database['public']['Tables']['trips']['Insert'];
+type GoalInsert = Database['public']['Tables']['financial_goals']['Insert'];
+type GoalUpdate = Database['public']['Tables']['financial_goals']['Update'];
 type ReminderType = Database['public']['Enums']['reminder_type'];
 
 export async function addReminderAction(formData: FormData) {
@@ -111,6 +114,60 @@ export async function addTripAction(formData: FormData) {
   if (error) {
     console.error('Error inserting trip:', error);
     return { error: 'שגיאה בהוספת החופשה' };
+  }
+
+  revalidatePath('/planning');
+  return { success: true };
+}
+
+export async function upsertGoalAction(
+  rawData: unknown,
+  id?: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const parsed = GoalFormSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { success: false, error: 'נתונים לא תקינים' };
+  }
+  const data = parsed.data;
+  const supabase = await createClient();
+
+  const payload: GoalInsert | GoalUpdate = {
+    title: data.title,
+    category: data.category,
+    target_amount: data.target_amount,
+    current_amount: data.current_amount ?? 0,
+    target_date: data.target_date ?? null,
+    notes: data.notes ?? null,
+  };
+
+  const { error } = id
+    ? await supabase
+        .from('financial_goals')
+        .update(payload as GoalUpdate)
+        .eq('id', id)
+    : await supabase.from('financial_goals').insert(payload as GoalInsert);
+
+  if (error) {
+    console.error('Error upserting goal:', error);
+    return { success: false, error: 'שגיאה בשמירת היעד' };
+  }
+
+  revalidatePath('/planning');
+  return { success: true };
+}
+
+export async function markGoalCompleteAction(
+  id: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('financial_goals')
+    .update({ is_completed: true })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error marking goal complete:', error);
+    return { success: false, error: 'שגיאה בעדכון היעד' };
   }
 
   revalidatePath('/planning');

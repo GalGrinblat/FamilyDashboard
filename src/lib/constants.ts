@@ -178,6 +178,26 @@ export const LOT_TYPES = {
 
 export type LotType = (typeof LOT_TYPES)[keyof typeof LOT_TYPES];
 
+// ─── Financial Goals ──────────────────────────────────────────────────────
+
+export const GOAL_CATEGORIES = {
+  EMERGENCY_FUND: 'emergency_fund',
+  DOWN_PAYMENT: 'down_payment',
+  VACATION: 'vacation',
+  EDUCATION: 'education',
+  OTHER: 'other',
+} as const;
+
+export type GoalCategory = (typeof GOAL_CATEGORIES)[keyof typeof GOAL_CATEGORIES];
+
+export const GOAL_CATEGORY_LABELS: Record<GoalCategory, string> = {
+  [GOAL_CATEGORIES.EMERGENCY_FUND]: 'קרן חירום',
+  [GOAL_CATEGORIES.DOWN_PAYMENT]: 'הון עצמי לדירה',
+  [GOAL_CATEGORIES.VACATION]: 'חופשה',
+  [GOAL_CATEGORIES.EDUCATION]: 'חינוך',
+  [GOAL_CATEGORIES.OTHER]: 'אחר',
+};
+
 // ─── Tax constants (Israeli law) ──────────────────────────────────────────
 
 export const HISTALMUT_MONTHLY_CEILING_ILS = 1571;

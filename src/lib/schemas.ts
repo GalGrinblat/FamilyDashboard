@@ -426,6 +426,16 @@ export const ChangePaymentMethodFormSchema = z.object({
 });
 export type ChangePaymentMethodFormData = z.infer<typeof ChangePaymentMethodFormSchema>;
 
+export const GoalFormSchema = z.object({
+  title: z.string().min(1, 'נדרש כותרת ליעד'),
+  category: z.enum(['emergency_fund', 'down_payment', 'vacation', 'education', 'other']),
+  target_amount: z.coerce.number().positive('נדרש סכום יעד חיובי'),
+  current_amount: z.coerce.number().min(0).optional(),
+  target_date: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+export type GoalFormData = z.infer<typeof GoalFormSchema>;
+
 export type InvestmentAccountRef = z.infer<typeof InvestmentAccountSchema>;
 export type PortfolioHoldingRef = z.infer<typeof PortfolioHoldingSchema>;
 export type PortfolioLotRef = z.infer<typeof PortfolioLotSchema>;

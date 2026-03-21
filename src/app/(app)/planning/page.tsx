@@ -9,25 +9,32 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar } from 'lucide-react';
+import { Plus, Calendar, Target, Map } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { ReminderDialog } from '@/components/planning/ReminderDialog';
 import { TripDialog } from '@/components/planning/TripDialog';
 import { ReminderRowActions } from '@/components/planning/ReminderRowActions';
+import { GoalsTab } from '@/components/planning/GoalsTab';
+import { CalendarTab } from '@/components/planning/CalendarTab';
 import { Database } from '@/types/database.types';
 import { SYSTEM_REMINDER_TYPES } from '@/lib/constants';
 import { differenceInDays, startOfDay } from 'date-fns';
 import { PageHeader } from '@/components/layout/PageHeader';
+import Link from 'next/link';
+import { formatCurrency } from '@/lib/utils';
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row'];
-type ReminderRowWithAsset = ReminderRow & { assets?: { name: string } | null };
+type ReminderWithLinked = ReminderRow & {
+  vehicles?: { name: string } | null;
+  properties?: { name: string } | null;
+};
 type TripRow = Database['public']['Tables']['trips']['Row'];
 
 function RemindersTable({
   items,
   customTypes,
 }: {
-  items: ReminderRowWithAsset[];
+  items: ReminderWithLinked[];
   customTypes: string[];
 }) {
   if (!items || items.length === 0) {
@@ -72,13 +79,15 @@ function RemindersTable({
           if (diffDays < 0) daysColorClass = 'text-red-600 dark:text-red-400 font-bold';
           else if (diffDays <= 7) daysColorClass = 'text-amber-600 dark:text-amber-400 font-medium';
 
+          const linkedName = item.vehicles?.name || item.properties?.name;
+
           return (
             <TableRow key={item.id}>
               <TableCell className="font-medium">
                 {item.title}
-                {item.assets && item.assets.name && (
+                {linkedName && (
                   <span className="block border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 text-base rounded px-1.5 py-0.5 mt-1 w-fit">
-                    נכס: {item.assets.name}
+                    {item.vehicles ? 'רכב' : 'נכס'}: {linkedName}
                   </span>
                 )}
               </TableCell>
@@ -138,6 +147,7 @@ function TripsTable({ items }: { items: TripRow[] }) {
           <TableHead className="text-right">תאריך התחלה</TableHead>
           <TableHead className="text-right">תאריך סיום</TableHead>
           <TableHead className="text-right">תקציב</TableHead>
+          <TableHead className="text-left w-[80px]"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -154,8 +164,13 @@ function TripsTable({ items }: { items: TripRow[] }) {
                 ? new Intl.DateTimeFormat('he-IL').format(new Date(item.end_date))
                 : '-'}
             </TableCell>
-            <TableCell>
-              {item.budget ? `₪${new Intl.NumberFormat('he-IL').format(item.budget)}` : '-'}
+            <TableCell>{item.budget ? formatCurrency(item.budget) : '-'}</TableCell>
+            <TableCell className="text-left">
+              <Link href={`/planning/trips/${item.id}`}>
+                <Button variant="ghost" size="sm">
+                  <Map className="h-4 w-4" />
+                </Button>
+              </Link>
             </TableCell>
           </TableRow>
         ))}
@@ -167,20 +182,27 @@ function TripsTable({ items }: { items: TripRow[] }) {
 export default async function PlanningPage() {
   const supabase = await createClient();
 
-  // Fetch User metadata for custom types
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const customTypes = user?.user_metadata?.custom_reminder_types || [];
 
-  // Fetch Reminders and Trips in parallel
-  const [{ data: remindersData }, { data: tripsData }] = await Promise.all([
-    supabase.from('reminders').select('*, assets(name)').order('due_date', { ascending: true }),
+  const [{ data: remindersData }, { data: tripsData }, { data: goalsData }] = await Promise.all([
+    supabase
+      .from('reminders')
+      .select('*, vehicles(name), properties(name)')
+      .order('due_date', { ascending: true }),
     supabase.from('trips').select('*').order('start_date', { ascending: true }),
+    supabase
+      .from('financial_goals')
+      .select('*')
+      .eq('is_completed', false)
+      .order('target_date', { ascending: true }),
   ]);
 
-  const reminders = (remindersData as unknown as ReminderRowWithAsset[]) || [];
+  const reminders = (remindersData as unknown as ReminderWithLinked[]) || [];
   const trips = (tripsData as TripRow[]) || [];
+  const goals = goalsData || [];
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -188,8 +210,16 @@ export default async function PlanningPage() {
 
       <Tabs defaultValue="periodic" className="w-full mt-4" dir="rtl">
         <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
-          <TabsTrigger value="periodic">תכנון עיתי (Periodic)</TabsTrigger>
-          <TabsTrigger value="vacation">תכנון חופשות (Vacations)</TabsTrigger>
+          <TabsTrigger value="periodic">תכנון עיתי</TabsTrigger>
+          <TabsTrigger value="goals">
+            <Target className="w-4 h-4 ml-1" />
+            יעדים פיננסיים
+          </TabsTrigger>
+          <TabsTrigger value="calendar">
+            <Calendar className="w-4 h-4 ml-1" />
+            לוח שנה
+          </TabsTrigger>
+          <TabsTrigger value="vacation">חופשות</TabsTrigger>
         </TabsList>
 
         <div className="mt-4">
@@ -218,14 +248,20 @@ export default async function PlanningPage() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="goals" className="mt-4">
+            <GoalsTab goals={goals} />
+          </TabsContent>
+
+          <TabsContent value="calendar" className="mt-4">
+            <CalendarTab reminders={reminders} />
+          </TabsContent>
+
           <TabsContent value="vacation" className="mt-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>תכנון חופשות</CardTitle>
-                  <CardDescription>
-                    תכנון תקציב ותוכניות מסלול לחופשות עתידיות (למשל קיצביל 2026).
-                  </CardDescription>
+                  <CardDescription>תכנון תקציב ותוכניות מסלול לחופשות עתידיות.</CardDescription>
                 </div>
                 <TripDialog
                   triggerButton={
