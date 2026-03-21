@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,6 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TrendingDown } from 'lucide-react';
+import { SellLotFormSchema, SellLotFormData } from '@/lib/schemas';
+import { sellLotAction } from '@/app/(app)/wealth/actions';
+import type { Resolver } from 'react-hook-form';
 
 interface SellLotDialogProps {
   holdingId: string;
@@ -32,57 +37,60 @@ export function SellLotDialog({
   currency,
 }: SellLotDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const today = new Date().toISOString().split('T')[0];
-  const [saleDate, setSaleDate] = useState(today);
-  const [quantity, setQuantity] = useState(maxQuantity.toString());
-  const [pricePerUnit, setPricePerUnit] = useState('');
-  const [fees, setFees] = useState('');
+
+  const defaultValues: SellLotFormData = {
+    sale_date: today,
+    quantity: maxQuantity,
+    price_per_unit: '' as unknown as number,
+    fees: null,
+  };
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<SellLotFormData>({
+    resolver: zodResolver(SellLotFormSchema) as Resolver<SellLotFormData>,
+    defaultValues,
+  });
+
+  const quantity = watch('quantity');
+  const pricePerUnit = watch('price_per_unit');
+  const fees = watch('fees');
 
   const proceeds =
     quantity && pricePerUnit
-      ? parseFloat(quantity) * parseFloat(pricePerUnit) - (fees ? parseFloat(fees) : 0)
+      ? Number(quantity) * Number(pricePerUnit) - (fees ? Number(fees) : 0)
       : null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg('');
-    const qty = parseFloat(quantity);
-    if (qty > maxQuantity) {
-      setErrorMsg(`לא ניתן למכור יותר מ-${maxQuantity} יחידות מרכישה זו`);
+  const onSubmit = async (data: SellLotFormData) => {
+    if (data.quantity > maxQuantity) {
+      setError('quantity', {
+        message: `לא ניתן למכור יותר מ-${maxQuantity} יחידות מרכישה זו`,
+      });
       return;
     }
-    setLoading(true);
 
-    const { error } = await supabase.from('portfolio_lots').insert({
-      holding_id: holdingId,
-      lot_type: 'sell',
-      purchase_date: saleDate,
-      quantity: qty,
-      price_per_unit: parseFloat(pricePerUnit),
-      total_cost: proceeds,
-      fees: fees ? parseFloat(fees) : 0,
-      related_lot_id: relatedLotId,
+    const result = await sellLotAction(holdingId, relatedLotId, {
+      sale_date: data.sale_date,
+      quantity: data.quantity,
+      price_per_unit: data.price_per_unit,
+      fees: data.fees ?? 0,
     });
 
-    setLoading(false);
-
-    if (error) {
-      console.error('Error recording sale:', error);
-      setErrorMsg('שגיאה בתיעוד המכירה');
-      setLoading(false);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
+    toast.success('המכירה תועדה בהצלחה');
     setOpen(false);
-    setSaleDate(today);
-    setQuantity(maxQuantity.toString());
-    setPricePerUnit('');
-    setFees('');
+    reset({ ...defaultValues, quantity: maxQuantity });
     router.refresh();
   };
 
@@ -102,19 +110,17 @@ export function SellLotDialog({
         <DialogHeader>
           <DialogTitle>מכירה — {ticker}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="sale-date" className="text-right pt-2">
               תאריך מכירה
             </Label>
-            <Input
-              id="sale-date"
-              type="date"
-              value={saleDate}
-              onChange={(e) => setSaleDate(e.target.value)}
-              className="col-span-3"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="sale-date" type="date" {...register('sale_date')} />
+              {errors.sale_date && (
+                <p className="text-base text-rose-500">{errors.sale_date.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -128,13 +134,15 @@ export function SellLotDialog({
                 step="any"
                 min="0.0001"
                 max={maxQuantity}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                required
+                {...register('quantity')}
               />
-              <p className="text-base text-muted-foreground">
-                מקסימום: {maxQuantity.toLocaleString('he-IL', { maximumFractionDigits: 4 })}
-              </p>
+              {errors.quantity ? (
+                <p className="text-base text-rose-500">{errors.quantity.message}</p>
+              ) : (
+                <p className="text-base text-muted-foreground">
+                  מקסימום: {maxQuantity.toLocaleString('he-IL', { maximumFractionDigits: 4 })}
+                </p>
+              )}
             </div>
           </div>
 
@@ -142,17 +150,19 @@ export function SellLotDialog({
             <Label htmlFor="sale-price" className="text-right pt-2">
               מחיר מכירה ({currency})
             </Label>
-            <Input
-              id="sale-price"
-              type="number"
-              step="any"
-              min="0"
-              value={pricePerUnit}
-              onChange={(e) => setPricePerUnit(e.target.value)}
-              className="col-span-3"
-              placeholder={`מחיר ב-${currency}`}
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="sale-price"
+                type="number"
+                step="any"
+                min="0"
+                {...register('price_per_unit')}
+                placeholder={`מחיר ב-${currency}`}
+              />
+              {errors.price_per_unit && (
+                <p className="text-base text-rose-500">{errors.price_per_unit.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -164,8 +174,7 @@ export function SellLotDialog({
               type="number"
               step="any"
               min="0"
-              value={fees}
-              onChange={(e) => setFees(e.target.value)}
+              {...register('fees')}
               className="col-span-3"
               placeholder="0"
             />
@@ -178,10 +187,9 @@ export function SellLotDialog({
             </p>
           )}
 
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading} variant="destructive">
-              {loading ? 'שומר...' : 'תעד מכירה'}
+            <Button type="submit" disabled={isSubmitting} variant="destructive">
+              {isSubmitting ? 'שומר...' : 'תעד מכירה'}
             </Button>
           </DialogFooter>
         </form>

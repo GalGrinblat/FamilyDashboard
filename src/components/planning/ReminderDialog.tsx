@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { addReminderAction, updateReminderAction } from '@/app/(app)/planning/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import { SYSTEM_REMINDER_TYPES, REMINDER_TYPES } from '@/lib/constants';
 import { Database } from '@/types/database.types';
+import { ReminderFormSchema, ReminderFormData } from '@/lib/schemas';
 
 type ReminderRow = Database['public']['Tables']['reminders']['Row'];
 
@@ -76,66 +81,69 @@ function ReminderForm({
   onSuccess: () => void;
 }) {
   const isEditMode = !!reminder;
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const router = useRouter();
 
-  // Form State
-  const [title, setTitle] = useState(reminder?.title || '');
-  const [type, setType] = useState<string>(reminder?.type || REMINDER_TYPES.MAINTENANCE);
-  const [dueDate, setDueDate] = useState(reminder?.due_date || '');
-  const [startDate, setStartDate] = useState(reminder?.start_date || '');
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ReminderFormData>({
+    resolver: zodResolver(ReminderFormSchema),
+    defaultValues: {
+      title: reminder?.title ?? '',
+      type: reminder?.type ?? REMINDER_TYPES.MAINTENANCE,
+      due_date: reminder?.due_date ?? '',
+      start_date: reminder?.start_date ?? null,
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+  const type = watch('type');
 
+  const onSubmit = async (data: ReminderFormData) => {
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('type', type);
-    formData.append('due_date', dueDate);
-    if (startDate) formData.append('start_date', startDate);
+    formData.append('title', data.title);
+    formData.append('type', data.type);
+    formData.append('due_date', data.due_date);
+    if (data.start_date) formData.append('start_date', data.start_date);
 
-    let result;
-    if (isEditMode) {
-      result = await updateReminderAction(reminder.id, formData);
-    } else {
-      result = await addReminderAction(formData);
-    }
-
-    setLoading(false);
+    const result = isEditMode
+      ? await updateReminderAction(reminder.id, formData)
+      : await addReminderAction(formData);
 
     if (result?.error) {
-      setErrorMsg(result.error);
-    } else {
-      onSuccess();
+      toast.error(result.error);
+      return;
     }
+    toast.success(isEditMode ? 'התזכורת עודכנה בהצלחה' : 'התזכורת נוספה בהצלחה');
+    onSuccess();
+    router.refresh();
   };
 
   const allTypes = [...SYSTEM_REMINDER_TYPES, ...customTypes.map((t) => ({ value: t, label: t }))];
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="title" className="text-right pt-2">
           תיאור משימה
         </Label>
-        <Input
-          id="title"
-          name="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="col-span-3"
-          placeholder="למשל: לחדש ביטוח רכב"
-          autoComplete="off"
-          required
-        />
+        <div className="col-span-3 space-y-1">
+          <Input
+            id="title"
+            {...register('title')}
+            placeholder="למשל: לחדש ביטוח רכב"
+            autoComplete="off"
+          />
+          {errors.title && <p className="text-base text-rose-500">{errors.title.message}</p>}
+        </div>
       </div>
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="type" className="text-right pt-2">
           סוג
         </Label>
-        <Select value={type} onValueChange={setType}>
+        <Select value={type} onValueChange={(v) => setValue('type', v)}>
           <SelectTrigger className="col-span-3" id="type" dir="rtl">
             <SelectValue placeholder="בחר סוג" />
           </SelectTrigger>
@@ -154,10 +162,8 @@ function ReminderForm({
         </Label>
         <Input
           id="start_date"
-          name="start_date"
           type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          {...register('start_date')}
           className="col-span-3"
           autoComplete="off"
         />
@@ -166,23 +172,14 @@ function ReminderForm({
         <Label htmlFor="due_date" className="text-right pt-2">
           תאריך יעד
         </Label>
-        <Input
-          id="due_date"
-          name="due_date"
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="col-span-3"
-          autoComplete="off"
-          required
-        />
+        <div className="col-span-3 space-y-1">
+          <Input id="due_date" type="date" {...register('due_date')} autoComplete="off" />
+          {errors.due_date && <p className="text-base text-rose-500">{errors.due_date.message}</p>}
+        </div>
       </div>
-      {errorMsg && (
-        <div className="text-lg font-medium text-destructive mt-2 text-right">{errorMsg}</div>
-      )}
       <DialogFooter>
-        <Button type="submit" disabled={loading}>
-          {loading ? 'שומר...' : isEditMode ? 'שמור שינויים' : 'שמור תזכורת'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'שומר...' : isEditMode ? 'שמור שינויים' : 'שמור תזכורת'}
         </Button>
       </DialogFooter>
     </form>

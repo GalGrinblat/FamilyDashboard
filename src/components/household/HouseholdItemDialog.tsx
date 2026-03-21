@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,6 +26,9 @@ import {
 } from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
 import { Database } from '@/types/database.types';
+import { HouseholdItemFormSchema, HouseholdItemFormData } from '@/lib/schemas';
+import { upsertHouseholdItemAction } from '@/app/(app)/household/actions';
+import type { Resolver } from 'react-hook-form';
 
 type HouseholdItemRow = Database['public']['Tables']['household_items']['Row'];
 
@@ -39,18 +44,54 @@ export function HouseholdItemDialog({
   itemToEdit?: HouseholdItemRow;
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!itemToEdit;
 
-  const [prevForceOpen, setPrevForceOpen] = useState(forceOpen);
-  if (forceOpen !== prevForceOpen) {
-    setPrevForceOpen(forceOpen);
+  useEffect(() => {
     if (forceOpen) setOpen(true);
-  }
+  }, [forceOpen]);
+
+  const defaultValues: HouseholdItemFormData = {
+    name: '',
+    category: 'appliance',
+    purchase_price: null,
+    purchase_date: null,
+    warranty_expiry: null,
+    serial_number: null,
+    model: null,
+  };
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<HouseholdItemFormData>({
+    resolver: zodResolver(HouseholdItemFormSchema) as Resolver<HouseholdItemFormData>,
+    defaultValues,
+  });
+
+  const category = watch('category');
+
+  useEffect(() => {
+    if (open && isEditing && itemToEdit) {
+      reset({
+        name: itemToEdit.name,
+        category: (itemToEdit.category as HouseholdItemFormData['category']) ?? 'appliance',
+        purchase_price: itemToEdit.purchase_price ?? null,
+        purchase_date: itemToEdit.purchase_date ?? null,
+        warranty_expiry: itemToEdit.warranty_expiry ?? null,
+        serial_number: null,
+        model: null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, itemToEdit, reset]);
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
@@ -59,62 +100,15 @@ export function HouseholdItemDialog({
     }
   };
 
-  // Form State — initialized from itemToEdit when editing
-  const [name, setName] = useState(itemToEdit?.name || '');
-  const [category, setCategory] = useState<'appliance' | 'furniture' | 'electronics' | 'other'>(
-    itemToEdit?.category || 'appliance',
-  );
-  const [purchasePrice, setPurchasePrice] = useState(itemToEdit?.purchase_price?.toString() || '');
-  const [purchaseDate, setPurchaseDate] = useState(itemToEdit?.purchase_date || '');
-  const [warrantyExpiry, setWarrantyExpiry] = useState(itemToEdit?.warranty_expiry || '');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
-
-    const payload = {
-      name,
-      category,
-      purchase_price: purchasePrice ? parseFloat(purchasePrice) : null,
-      purchase_date: purchaseDate || null,
-      warranty_expiry: warrantyExpiry || null,
-    };
-
-    let error;
-
-    if (isEditing && itemToEdit) {
-      const { error: updateError } = await supabase
-        .from('household_items')
-        .update(payload)
-        .eq('id', itemToEdit.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase.from('household_items').insert(payload);
-      error = insertError;
-    }
-
-    setLoading(false);
-
-    if (error) {
-      console.error('Error saving item:', error);
-      setErrorMsg(isEditing ? 'שגיאה בעדכון הפריט' : 'שגיאה בהוספת הפריט');
-      setLoading(false);
+  const onSubmit = async (data: HouseholdItemFormData) => {
+    const result = await upsertHouseholdItemAction(data, itemToEdit?.id);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
+    toast.success(isEditing ? 'הפריט עודכן בהצלחה' : 'הפריט נוסף בהצלחה');
     setOpen(false);
     if (onForceClose) onForceClose();
-
-    // Only reset form on insert; edit state is discarded when the component unmounts
-    if (!isEditing) {
-      setName('');
-      setCategory('appliance');
-      setPurchasePrice('');
-      setPurchaseDate('');
-      setWarrantyExpiry('');
-    }
-
     router.refresh();
   };
 
@@ -140,18 +134,15 @@ export function HouseholdItemDialog({
             {isEditing ? 'עדכן את פרטי הפריט.' : 'הזן את פרטי הפריט לרישום במעקב המשפחתי.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם הפריט
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="name" {...register('name')} />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="category" className="text-right pt-2">
@@ -159,9 +150,7 @@ export function HouseholdItemDialog({
             </Label>
             <Select
               value={category}
-              onValueChange={(v) =>
-                setCategory(v as 'appliance' | 'furniture' | 'electronics' | 'other')
-              }
+              onValueChange={(v) => setValue('category', v as HouseholdItemFormData['category'])}
             >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר קטגוריה" />
@@ -170,6 +159,7 @@ export function HouseholdItemDialog({
                 <SelectItem value="appliance">מכשירי חשמל</SelectItem>
                 <SelectItem value="furniture">ריהוט</SelectItem>
                 <SelectItem value="electronics">אלקטרוניקה</SelectItem>
+                <SelectItem value="other">אחר</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -180,8 +170,7 @@ export function HouseholdItemDialog({
             <Input
               id="price"
               type="number"
-              value={purchasePrice}
-              onChange={(e) => setPurchasePrice(e.target.value)}
+              {...register('purchase_price')}
               className="col-span-3"
               placeholder="₪"
             />
@@ -193,8 +182,7 @@ export function HouseholdItemDialog({
             <Input
               id="purchase_date"
               type="date"
-              value={purchaseDate}
-              onChange={(e) => setPurchaseDate(e.target.value)}
+              {...register('purchase_date')}
               className="col-span-3"
             />
           </div>
@@ -205,15 +193,13 @@ export function HouseholdItemDialog({
             <Input
               id="warranty"
               type="date"
-              value={warrantyExpiry}
-              onChange={(e) => setWarrantyExpiry(e.target.value)}
+              {...register('warranty_expiry')}
               className="col-span-3"
             />
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'עדכן פריט' : 'שמור פריט'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : isEditing ? 'עדכן פריט' : 'שמור פריט'}
             </Button>
           </DialogFooter>
         </form>

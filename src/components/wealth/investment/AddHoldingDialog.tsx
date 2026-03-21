@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,8 +25,11 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
-import { ASSET_CLASSES, ASSET_CLASS_LABELS, type AssetClass } from '@/lib/constants';
+import { ASSET_CLASSES, ASSET_CLASS_LABELS } from '@/lib/constants';
 import { isValidTicker } from '@/lib/stock-prices';
+import { AddHoldingFormSchema, AddHoldingFormData } from '@/lib/schemas';
+import { upsertHoldingAction } from '@/app/(app)/wealth/actions';
+import type { Resolver } from 'react-hook-form';
 
 interface AddHoldingDialogProps {
   investmentAccountId: string;
@@ -33,107 +38,75 @@ interface AddHoldingDialogProps {
 
 export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHoldingDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Holding fields
-  const [ticker, setTicker] = useState('');
-  const [name, setName] = useState('');
-  const [assetClass, setAssetClass] = useState<AssetClass>(ASSET_CLASSES.STOCK);
-  const [currency, setCurrency] = useState('USD');
+  const defaultValues: AddHoldingFormData = {
+    ticker: '',
+    name: null,
+    asset_class: ASSET_CLASSES.STOCK,
+    currency: 'USD',
+    purchase_date: today,
+    quantity: '' as unknown as number,
+    price_per_unit: '' as unknown as number,
+    fees: null,
+  };
 
-  // First lot fields
-  const [purchaseDate, setPurchaseDate] = useState(today);
-  const [quantity, setQuantity] = useState('');
-  const [pricePerUnit, setPricePerUnit] = useState('');
-  const [fees, setFees] = useState('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<AddHoldingFormData>({
+    resolver: zodResolver(AddHoldingFormSchema) as Resolver<AddHoldingFormData>,
+    defaultValues,
+  });
+
+  const assetClass = watch('asset_class');
+  const currency = watch('currency');
+  const quantity = watch('quantity');
+  const pricePerUnit = watch('price_per_unit');
+  const fees = watch('fees');
 
   const totalCost =
     quantity && pricePerUnit
-      ? parseFloat(quantity) * parseFloat(pricePerUnit) + (fees ? parseFloat(fees) : 0)
+      ? Number(quantity) * Number(pricePerUnit) + (fees ? Number(fees) : 0)
       : null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setErrorMsg('');
-    const normalizedTicker = ticker.toUpperCase().trim();
+  const onSubmit = async (data: AddHoldingFormData) => {
+    const normalizedTicker = data.ticker.toUpperCase().trim();
     if (!isValidTicker(normalizedTicker)) {
-      setErrorMsg(
-        'סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, TEVA.TA).',
-      );
+      setError('ticker', {
+        message: 'סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, TEVA.TA).',
+      });
       return;
     }
 
-    setLoading(true);
+    const result = await upsertHoldingAction(
+      investmentAccountId,
+      normalizedTicker,
+      data.name || null,
+      data.asset_class,
+      data.currency,
+      {
+        purchase_date: data.purchase_date,
+        quantity: data.quantity,
+        price_per_unit: data.price_per_unit,
+        fees: data.fees ?? 0,
+      },
+    );
 
-    // Check if holding already exists for this ticker in this account
-    const { data: existing } = await supabase
-      .from('portfolio_holdings')
-      .select('id')
-      .eq('investment_account_id', investmentAccountId)
-      .eq('ticker', normalizedTicker)
-      .maybeSingle();
-
-    let holdingId: string;
-
-    if (existing) {
-      holdingId = existing.id;
-    } else {
-      const { data: newHolding, error: holdingError } = await supabase
-        .from('portfolio_holdings')
-        .insert({
-          investment_account_id: investmentAccountId,
-          ticker: normalizedTicker,
-          name: name || null,
-          asset_class: assetClass,
-          currency,
-          is_active: true,
-        })
-        .select('id')
-        .single();
-
-      if (holdingError || !newHolding) {
-        console.error('Error adding holding:', holdingError);
-        setErrorMsg('שגיאה בהוספת נייר הערך');
-        setLoading(false);
-        return;
-      }
-      holdingId = newHolding.id;
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
-
-    // Insert the first lot
-    if (quantity && pricePerUnit) {
-      const { error: lotError } = await supabase.from('portfolio_lots').insert({
-        holding_id: holdingId,
-        lot_type: 'buy',
-        purchase_date: purchaseDate,
-        quantity: parseFloat(quantity),
-        price_per_unit: parseFloat(pricePerUnit),
-        total_cost: totalCost,
-        fees: fees ? parseFloat(fees) : 0,
-      });
-
-      if (lotError) {
-        console.error('Error adding lot:', lotError);
-        setErrorMsg('נייר הערך נוסף אך שגיאה בהוספת הרכישה');
-      }
-    }
-
-    setLoading(false);
+    toast.success('נייר הערך נוסף בהצלחה');
     setOpen(false);
-    setTicker('');
-    setName('');
-    setAssetClass(ASSET_CLASSES.STOCK);
-    setCurrency('USD');
-    setPurchaseDate(today);
-    setQuantity('');
-    setPricePerUnit('');
-    setFees('');
+    reset(defaultValues);
     router.refresh();
   };
 
@@ -150,20 +123,21 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
         <DialogHeader>
           <DialogTitle>הוספת נייר ערך</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           {/* Holding details */}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="ticker" className="text-right pt-2">
               טיקר
             </Label>
-            <Input
-              id="ticker"
-              value={ticker}
-              onChange={(e) => setTicker(e.target.value)}
-              className="col-span-3 uppercase"
-              placeholder="למשל: AAPL, TEVA.TA, BTC-USD"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="ticker"
+                {...register('ticker')}
+                className="uppercase"
+                placeholder="למשל: AAPL, TEVA.TA, BTC-USD"
+              />
+              {errors.ticker && <p className="text-base text-rose-500">{errors.ticker.message}</p>}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -172,8 +146,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             </Label>
             <Input
               id="holding-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              {...register('name')}
               className="col-span-3"
               placeholder="למשל: Apple Inc."
             />
@@ -183,7 +156,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             <Label htmlFor="asset-class" className="text-right pt-2">
               סוג נייר
             </Label>
-            <Select value={assetClass} onValueChange={(v) => setAssetClass(v as AssetClass)}>
+            <Select value={assetClass} onValueChange={(v) => setValue('asset_class', v)}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
@@ -201,7 +174,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             <Label htmlFor="currency" className="text-right pt-2">
               מטבע
             </Label>
-            <Select value={currency} onValueChange={setCurrency}>
+            <Select value={currency} onValueChange={(v) => setValue('currency', v)}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
@@ -220,48 +193,50 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             <Label htmlFor="lot-date" className="text-right pt-2">
               תאריך
             </Label>
-            <Input
-              id="lot-date"
-              type="date"
-              value={purchaseDate}
-              onChange={(e) => setPurchaseDate(e.target.value)}
-              className="col-span-3"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="lot-date" type="date" {...register('purchase_date')} />
+              {errors.purchase_date && (
+                <p className="text-base text-rose-500">{errors.purchase_date.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="lot-qty" className="text-right pt-2">
               כמות
             </Label>
-            <Input
-              id="lot-qty"
-              type="number"
-              step="any"
-              min="0"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              className="col-span-3"
-              placeholder="מספר מניות / יחידות"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="lot-qty"
+                type="number"
+                step="any"
+                min="0"
+                {...register('quantity')}
+                placeholder="מספר מניות / יחידות"
+              />
+              {errors.quantity && (
+                <p className="text-base text-rose-500">{errors.quantity.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="lot-price" className="text-right pt-2">
               מחיר ליחידה
             </Label>
-            <Input
-              id="lot-price"
-              type="number"
-              step="any"
-              min="0"
-              value={pricePerUnit}
-              onChange={(e) => setPricePerUnit(e.target.value)}
-              className="col-span-3"
-              placeholder={`מחיר ב-${currency}`}
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="lot-price"
+                type="number"
+                step="any"
+                min="0"
+                {...register('price_per_unit')}
+                placeholder={`מחיר ב-${currency}`}
+              />
+              {errors.price_per_unit && (
+                <p className="text-base text-rose-500">{errors.price_per_unit.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -273,8 +248,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
               type="number"
               step="any"
               min="0"
-              value={fees}
-              onChange={(e) => setFees(e.target.value)}
+              {...register('fees')}
               className="col-span-3"
               placeholder="0"
             />
@@ -287,10 +261,9 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
             </p>
           )}
 
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : 'הוסף'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : 'הוסף'}
             </Button>
           </DialogFooter>
         </form>

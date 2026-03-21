@@ -1,6 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { Database } from '@/types/database.types';
 import { Button } from '@/components/ui/button';
@@ -28,8 +32,9 @@ import {
   INSURANCE_TYPES,
   InsuranceType,
   FREQUENCY_TYPES,
-  FrequencyType,
 } from '@/lib/constants';
+import { PolicyFormSchema, PolicyFormData } from '@/lib/schemas';
+import type { Resolver } from 'react-hook-form';
 
 type PolicyRow = Database['public']['Tables']['policies']['Row'];
 
@@ -81,21 +86,8 @@ function PolicyForm({
   onSuccess: () => void;
 }) {
   const isEditMode = !!policy;
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const router = useRouter();
   const supabase = createClient();
-
-  const [name, setName] = useState(policy?.name || '');
-  const [provider, setProvider] = useState(policy?.provider || '');
-  const [type, setType] = useState<InsuranceType>((policy?.type as InsuranceType) || defaultType);
-  const [subtype, setSubtype] = useState(policy?.subtype || '');
-  const [premiumAmount, setPremiumAmount] = useState(policy?.premium_amount?.toString() || '');
-  const [premiumFrequency, setPremiumFrequency] = useState<FrequencyType>(
-    (policy?.premium_frequency as FrequencyType) || FREQUENCY_TYPES.MONTHLY,
-  );
-  const [renewalDate, setRenewalDate] = useState(policy?.renewal_date || '');
-  const [policyNumber, setPolicyNumber] = useState(policy?.policy_number || '');
-  const [linkedId, setLinkedId] = useState(policy?.vehicle_id || policy?.property_id || 'none');
   const [file, setFile] = useState<File | null>(null);
 
   const [vehicles, setVehicles] = useState<
@@ -105,12 +97,42 @@ function PolicyForm({
     Pick<Database['public']['Tables']['properties']['Row'], 'id' | 'name'>[]
   >([]);
 
+  const defaultValues: PolicyFormData = {
+    name: policy?.name ?? '',
+    provider: policy?.provider ?? '',
+    type: (policy?.type as InsuranceType) ?? defaultType,
+    subtype: policy?.subtype ?? null,
+    premium_amount: policy?.premium_amount ?? ('' as unknown as number),
+    premium_frequency:
+      (policy?.premium_frequency as 'monthly' | 'yearly') ?? FREQUENCY_TYPES.MONTHLY,
+    renewal_date: policy?.renewal_date ?? null,
+    policy_number: policy?.policy_number ?? null,
+    linked_id: policy?.vehicle_id ?? policy?.property_id ?? null,
+  };
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<PolicyFormData>({
+    resolver: zodResolver(PolicyFormSchema) as Resolver<PolicyFormData>,
+    defaultValues,
+  });
+
+  const type = watch('type');
+  const subtype = watch('subtype');
+  const premiumFrequency = watch('premium_frequency');
+  const linkedId = watch('linked_id');
+
+  // Reset subtype when type changes
   useEffect(() => {
     if (type) {
       const subtypeKey = type as keyof typeof INSURANCE_SUBTYPES;
       const validSubtypes = INSURANCE_SUBTYPES[subtypeKey] || [];
       if (!validSubtypes.find((st) => st.value === subtype)) {
-        setSubtype('');
+        setValue('subtype', null);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,7 +161,7 @@ function PolicyForm({
     }
   };
 
-  const uploadDocument = async () => {
+  const uploadDocument = async (): Promise<string | null> => {
     if (!file) return policy?.document_url || null;
 
     const fileExt = file.name.split('.').pop();
@@ -159,62 +181,54 @@ function PolicyForm({
     return data.publicUrl;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
-
+  const onSubmit = async (data: PolicyFormData) => {
     let documentUrl = policy?.document_url || null;
     if (file) {
       documentUrl = await uploadDocument();
     }
 
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('provider', provider);
-    formData.append('type', type);
-    if (subtype) formData.append('subtype', subtype);
-    formData.append('premium_amount', premiumAmount);
-    formData.append('premium_frequency', premiumFrequency);
-    if (renewalDate) formData.append('renewal_date', renewalDate);
-    if (policyNumber) formData.append('policy_number', policyNumber);
+    formData.append('name', data.name);
+    formData.append('provider', data.provider);
+    formData.append('type', data.type);
+    if (data.subtype) formData.append('subtype', data.subtype);
+    formData.append('premium_amount', String(data.premium_amount));
+    formData.append('premium_frequency', data.premium_frequency);
+    if (data.renewal_date) formData.append('renewal_date', data.renewal_date);
+    if (data.policy_number) formData.append('policy_number', data.policy_number);
     if (documentUrl) formData.append('document_url', documentUrl);
 
-    // Send vehicle_id or property_id based on type
-    if (linkedId && linkedId !== 'none') {
-      if (type === INSURANCE_TYPES.VEHICLE) {
-        formData.append('vehicle_id', linkedId);
-      } else if (type === INSURANCE_TYPES.PROPERTY) {
-        formData.append('property_id', linkedId);
+    if (data.linked_id && data.linked_id !== 'none') {
+      if (data.type === INSURANCE_TYPES.VEHICLE) {
+        formData.append('vehicle_id', data.linked_id);
+      } else if (data.type === INSURANCE_TYPES.PROPERTY) {
+        formData.append('property_id', data.linked_id);
       }
     }
 
-    let result;
-    if (isEditMode) {
-      result = await updatePolicyAction(policy.id, formData);
-    } else {
-      result = await addPolicyAction(formData);
-    }
-
-    setLoading(false);
+    const result = isEditMode
+      ? await updatePolicyAction(policy.id, formData)
+      : await addPolicyAction(formData);
 
     if (result?.error) {
-      setErrorMsg(result.error);
-    } else {
-      onSuccess();
+      toast.error(result.error);
+      return;
     }
+    toast.success(isEditMode ? 'הפוליסה עודכנה בהצלחה' : 'הפוליסה נוספה בהצלחה');
+    onSuccess();
+    router.refresh();
   };
 
   const subtypeKey = type as keyof typeof INSURANCE_SUBTYPES;
   const subtypeOptions = INSURANCE_SUBTYPES[subtypeKey] || [];
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="type" className="text-right pt-2 text-base md:text-lg">
           סוג הפוליסה
         </Label>
-        <Select value={type} onValueChange={(v: InsuranceType) => setType(v)}>
+        <Select value={type} onValueChange={(v: InsuranceType) => setValue('type', v)}>
           <SelectTrigger className="col-span-3" dir="rtl">
             <SelectValue placeholder="בחר סוג" />
           </SelectTrigger>
@@ -231,7 +245,7 @@ function PolicyForm({
           <Label htmlFor="subtype" className="text-right pt-2 text-base md:text-lg">
             תת-סוג
           </Label>
-          <Select value={subtype} onValueChange={setSubtype}>
+          <Select value={subtype ?? ''} onValueChange={(v) => setValue('subtype', v || null)}>
             <SelectTrigger className="col-span-3" dir="rtl">
               <SelectValue placeholder="בחר תת-סוג" />
             </SelectTrigger>
@@ -250,42 +264,36 @@ function PolicyForm({
         <Label htmlFor="provider" className="text-right pt-2 text-base md:text-lg">
           חברת ביטוח
         </Label>
-        <Input
-          id="provider"
-          value={provider}
-          onChange={(e) => setProvider(e.target.value)}
-          className="col-span-3"
-          placeholder="הראל, מנורה, מגדל..."
-          required
-        />
+        <div className="col-span-3 space-y-1">
+          <Input id="provider" {...register('provider')} placeholder="הראל, מנורה, מגדל..." />
+          {errors.provider && <p className="text-base text-rose-500">{errors.provider.message}</p>}
+        </div>
       </div>
 
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="name" className="text-right pt-2 text-base md:text-lg">
           שם פוליסה
         </Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="col-span-3"
-          placeholder={type === INSURANCE_TYPES.HEALTH ? 'ביטוח בריאות משפחתי מושלם' : ''}
-          required
-        />
+        <div className="col-span-3 space-y-1">
+          <Input
+            id="name"
+            {...register('name')}
+            placeholder={type === INSURANCE_TYPES.HEALTH ? 'ביטוח בריאות משפחתי מושלם' : ''}
+          />
+          {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+        </div>
       </div>
 
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="premiumAmount" className="text-right pt-2 text-base md:text-lg">
           עלות (₪)
         </Label>
-        <Input
-          id="premiumAmount"
-          type="number"
-          value={premiumAmount}
-          onChange={(e) => setPremiumAmount(e.target.value)}
-          className="col-span-3"
-          required
-        />
+        <div className="col-span-3 space-y-1">
+          <Input id="premiumAmount" type="number" {...register('premium_amount')} />
+          {errors.premium_amount && (
+            <p className="text-base text-rose-500">{errors.premium_amount.message}</p>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-4 items-start gap-4">
@@ -294,7 +302,7 @@ function PolicyForm({
         </Label>
         <Select
           value={premiumFrequency}
-          onValueChange={(v: FrequencyType) => setPremiumFrequency(v)}
+          onValueChange={(v: 'monthly' | 'yearly') => setValue('premium_frequency', v)}
         >
           <SelectTrigger className="col-span-3" dir="rtl">
             <SelectValue placeholder="בחר" />
@@ -310,13 +318,7 @@ function PolicyForm({
         <Label htmlFor="renewalDate" className="text-right pt-2 text-base md:text-lg">
           תאריך חידוש
         </Label>
-        <Input
-          id="renewalDate"
-          type="date"
-          value={renewalDate}
-          onChange={(e) => setRenewalDate(e.target.value)}
-          className="col-span-3"
-        />
+        <Input id="renewalDate" type="date" {...register('renewal_date')} className="col-span-3" />
       </div>
 
       <div className="grid grid-cols-4 items-start gap-4">
@@ -325,8 +327,7 @@ function PolicyForm({
         </Label>
         <Input
           id="policyNumber"
-          value={policyNumber}
-          onChange={(e) => setPolicyNumber(e.target.value)}
+          {...register('policy_number')}
           className="col-span-3 text-left"
           dir="ltr"
         />
@@ -337,7 +338,10 @@ function PolicyForm({
           <Label htmlFor="linked" className="text-right pt-2 text-base md:text-lg">
             שיוך לרכב (אופציונלי)
           </Label>
-          <Select value={linkedId} onValueChange={setLinkedId}>
+          <Select
+            value={linkedId ?? 'none'}
+            onValueChange={(v) => setValue('linked_id', v === 'none' ? null : v)}
+          >
             <SelectTrigger className="col-span-3" dir="rtl">
               <SelectValue placeholder="ללא שיוך" />
             </SelectTrigger>
@@ -358,7 +362,10 @@ function PolicyForm({
           <Label htmlFor="linked" className="text-right pt-2 text-base md:text-lg">
             שיוך לנכס (אופציונלי)
           </Label>
-          <Select value={linkedId} onValueChange={setLinkedId}>
+          <Select
+            value={linkedId ?? 'none'}
+            onValueChange={(v) => setValue('linked_id', v === 'none' ? null : v)}
+          >
             <SelectTrigger className="col-span-3" dir="rtl">
               <SelectValue placeholder="ללא שיוך" />
             </SelectTrigger>
@@ -398,13 +405,9 @@ function PolicyForm({
         </div>
       </div>
 
-      {errorMsg && (
-        <div className="text-lg font-medium text-destructive mt-2 text-right">{errorMsg}</div>
-      )}
-
       <DialogFooter className="mt-4">
-        <Button type="submit" disabled={loading}>
-          {loading ? 'שומר...' : isEditMode ? 'שמור פוליסה' : 'הוסף פוליסה'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'שומר...' : isEditMode ? 'שמור פוליסה' : 'הוסף פוליסה'}
         </Button>
       </DialogFooter>
     </form>

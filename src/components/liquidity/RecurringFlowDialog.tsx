@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Database } from '@/types/database.types';
-import { CategoryType, CATEGORY_TYPES, FREQUENCY_TYPES, FrequencyType } from '@/lib/constants';
+import { CATEGORY_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
+import { RecurringFlowFormSchema, RecurringFlowFormData } from '@/lib/schemas';
+import { upsertRecurringFlowAction } from '@/app/(app)/liquidity/actions';
+import type { Resolver } from 'react-hook-form';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 
@@ -39,103 +44,69 @@ export function RecurringFlowDialog({
   accounts?: { id: string; name: string }[];
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!flowToEdit;
 
-  // Form State
-  const [name, setName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [type, setType] = useState<CategoryType>(CATEGORY_TYPES.INCOME);
-  const [frequency, setFrequency] = useState<FrequencyType>(FREQUENCY_TYPES.MONTHLY);
-  const [accountId, setAccountId] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<RecurringFlowFormData>({
+    resolver: zodResolver(RecurringFlowFormSchema) as Resolver<RecurringFlowFormData>,
+    defaultValues: {
+      name: '',
+      amount: 0,
+      type: CATEGORY_TYPES.INCOME,
+      frequency: FREQUENCY_TYPES.MONTHLY,
+      account_id: null,
+      start_date: null,
+      end_date: null,
+    },
+  });
 
-  const [errors, setErrors] = useState<{ name?: string; amount?: string; dates?: string }>({});
-
-  const [prevOpen, setPrevOpen] = useState(open);
-  const [prevFlowToEdit, setPrevFlowToEdit] = useState(flowToEdit);
-
-  if (open !== prevOpen || flowToEdit !== prevFlowToEdit) {
-    setPrevOpen(open);
-    setPrevFlowToEdit(flowToEdit);
-
+  useEffect(() => {
     if (open && isEditing && flowToEdit) {
-      setName(flowToEdit.name || '');
-      setAmount(flowToEdit.amount ? flowToEdit.amount.toString() : '');
-      setType((flowToEdit.type as CategoryType) || CATEGORY_TYPES.INCOME);
-      setFrequency((flowToEdit.frequency as FrequencyType) || FREQUENCY_TYPES.MONTHLY);
-      setAccountId(flowToEdit.account_id || '');
-      setStartDate(flowToEdit.start_date || '');
-      setEndDate(flowToEdit.end_date || '');
-    } else if (!open && !isEditing) {
-      setName('');
-      setAmount('');
-      setType(CATEGORY_TYPES.INCOME);
-      setFrequency(FREQUENCY_TYPES.MONTHLY);
-      setAccountId('');
-      setStartDate('');
-      setEndDate('');
-      setErrors({});
+      reset({
+        name: flowToEdit.name || '',
+        amount: flowToEdit.amount ?? 0,
+        type: (flowToEdit.type as 'income' | 'expense') ?? CATEGORY_TYPES.INCOME,
+        frequency:
+          (flowToEdit.frequency as 'monthly' | 'yearly' | 'weekly') ?? FREQUENCY_TYPES.MONTHLY,
+        account_id: flowToEdit.account_id ?? null,
+        start_date: flowToEdit.start_date ?? null,
+        end_date: flowToEdit.end_date ?? null,
+      });
+    } else if (!open) {
+      reset({
+        name: '',
+        amount: 0,
+        type: CATEGORY_TYPES.INCOME,
+        frequency: FREQUENCY_TYPES.MONTHLY,
+        account_id: null,
+        start_date: null,
+        end_date: null,
+      });
     }
-  }
+  }, [open, isEditing, flowToEdit, reset]);
 
-  function validate(): boolean {
-    const errs: { name?: string; amount?: string; dates?: string } = {};
-    if (!name.trim()) errs.name = 'נדרש שם לתזרים';
-    const parsed = parseFloat(amount);
-    if (!amount || isNaN(parsed) || parsed <= 0) errs.amount = 'יש להזין סכום חיובי';
-    if (startDate && endDate && endDate < startDate)
-      errs.dates = 'תאריך סיום חייב להיות אחרי תאריך התחלה';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-    setLoading(true);
-    setErrorMsg('');
-
-    const payload = {
-      name,
-      amount: parseFloat(amount),
-      type,
-      frequency,
-      account_id: accountId === 'none' ? null : accountId || null,
-      start_date: startDate || null,
-      end_date: endDate || null,
-      is_active: true,
-    };
-
-    let error;
-
-    if (isEditing && flowToEdit) {
-      const { error: updateError } = await supabase
-        .from('recurring_flows')
-        .update(payload)
-        .eq('id', flowToEdit.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase.from('recurring_flows').insert(payload);
-      error = insertError;
+  const onSubmit = async (data: RecurringFlowFormData) => {
+    const result = await upsertRecurringFlowAction(data, flowToEdit?.id);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
-
-    setLoading(false);
-
-    if (error) {
-      console.error('Error saving recurring flow:', error);
-      setErrorMsg(isEditing ? 'שגיאה בעדכון התזרים' : 'שגיאה בהוספת תזרים קבוע');
-    } else {
-      setOpen(false);
-      // Refresh the page data
-      router.refresh();
-    }
+    toast.success(isEditing ? 'התזרים עודכן בהצלחה' : 'תזרים קבוע נוסף בהצלחה');
+    setOpen(false);
+    router.refresh();
   };
+
+  const typeValue = watch('type');
+  const frequencyValue = watch('frequency');
+  const accountIdValue = watch('account_id');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -165,30 +136,28 @@ export function RecurringFlowDialog({
             (flowToEdit?.property_id || flowToEdit?.vehicle_id || flowToEdit?.policy_id) && (
               <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-800 text-base">
                 תזרים זה מנוהל באופן אוטומטי על ידי {flowToEdit.policy_id ? 'פוליסת ביטוח' : 'נכס'}.
-                שינויים ידניים כאן עלולים להידרס בעיידכון הבא של המקור.
+                שינויים ידניים כאן עלולים להידרס בעדכון הבא של המקור.
               </div>
             )}
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם התזרים
             </Label>
             <div className="col-span-3 space-y-1">
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="למשל: משכורת - גל"
-              />
-              {errors.name && <p className="text-base text-rose-500">{errors.name}</p>}
+              <Input id="name" {...register('name')} placeholder="למשל: משכורת - גל" />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="type" className="text-right pt-2">
               סוג
             </Label>
-            <Select value={type} onValueChange={(val) => setType(val as CategoryType)}>
+            <Select
+              value={typeValue}
+              onValueChange={(val) => setValue('type', val as 'income' | 'expense')}
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג" />
               </SelectTrigger>
@@ -206,18 +175,21 @@ export function RecurringFlowDialog({
               <Input
                 id="amount"
                 type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                step="0.01"
+                {...register('amount')}
                 placeholder="₪"
               />
-              {errors.amount && <p className="text-base text-rose-500">{errors.amount}</p>}
+              {errors.amount && <p className="text-base text-rose-500">{errors.amount.message}</p>}
             </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="freq" className="text-right pt-2">
               תדירות
             </Label>
-            <Select value={frequency} onValueChange={(v) => setFrequency(v as FrequencyType)}>
+            <Select
+              value={frequencyValue}
+              onValueChange={(v) => setValue('frequency', v as 'monthly' | 'yearly' | 'weekly')}
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר תדירות" />
               </SelectTrigger>
@@ -232,33 +204,22 @@ export function RecurringFlowDialog({
             <Label htmlFor="start_date" className="text-right pt-2">
               תאריך התחלה
             </Label>
-            <Input
-              id="start_date"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="col-span-3"
-            />
+            <Input id="start_date" type="date" {...register('start_date')} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="end_date" className="text-right pt-2">
               תאריך סיום
             </Label>
-            <div className="col-span-3 space-y-1">
-              <Input
-                id="end_date"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-              {errors.dates && <p className="text-base text-rose-500">{errors.dates}</p>}
-            </div>
+            <Input id="end_date" type="date" {...register('end_date')} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="account" className="text-right pt-2">
               אמצעי תשלום
             </Label>
-            <Select value={accountId} onValueChange={setAccountId}>
+            <Select
+              value={accountIdValue ?? 'none'}
+              onValueChange={(v) => setValue('account_id', v === 'none' ? null : v)}
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר חשבון (אופציונלי)" />
               </SelectTrigger>
@@ -272,10 +233,9 @@ export function RecurringFlowDialog({
               </SelectContent>
             </Select>
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור תזרים'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור תזרים'}
             </Button>
           </DialogFooter>
         </form>

@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { addTripAction } from '@/app/(app)/planning/actions';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,44 +19,47 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
+import { TripFormSchema, TripFormData } from '@/lib/schemas';
+import type { Resolver } from 'react-hook-form';
 
 export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const router = useRouter();
 
-  // Form State
-  const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [budget, setBudget] = useState('');
+  const defaultValues: TripFormData = {
+    name: '',
+    start_date: null,
+    end_date: null,
+    budget: null,
+  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<TripFormData>({
+    resolver: zodResolver(TripFormSchema) as Resolver<TripFormData>,
+    defaultValues,
+  });
 
+  const onSubmit = async (data: TripFormData) => {
     const formData = new FormData();
-    formData.append('name', name);
-    if (startDate) formData.append('start_date', startDate);
-    if (endDate) formData.append('end_date', endDate);
-    if (budget) formData.append('budget', budget);
+    formData.append('name', data.name);
+    if (data.start_date) formData.append('start_date', data.start_date);
+    if (data.end_date) formData.append('end_date', data.end_date);
+    if (data.budget) formData.append('budget', String(data.budget));
 
     const result = await addTripAction(formData);
 
-    setLoading(false);
-
     if (result?.error) {
-      setErrorMsg(result.error);
-    } else {
-      setOpen(false);
-      // Reset form
-      setName('');
-      setStartDate('');
-      setEndDate('');
-      setBudget('');
-      setErrorMsg('');
+      toast.error(result.error);
+      return;
     }
+    toast.success('החופשה נוספה בהצלחה');
+    setOpen(false);
+    reset(defaultValues);
+    router.refresh();
   };
 
   return (
@@ -70,21 +77,20 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
           <DialogTitle>תכנון חופשה חדשה</DialogTitle>
           <DialogDescription>פתח תיקיית מסע חדש למעקב אחר תקציב והוצאות.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="trip_name" className="text-right pt-2">
               שם החופשה
             </Label>
-            <Input
-              id="trip_name"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: סקי 2026"
-              autoComplete="off"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="trip_name"
+                {...register('name')}
+                placeholder="למשל: סקי 2026"
+                autoComplete="off"
+              />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="start_date" className="text-right pt-2">
@@ -92,10 +98,8 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
             </Label>
             <Input
               id="start_date"
-              name="start_date"
               type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              {...register('start_date')}
               className="col-span-3"
               autoComplete="off"
             />
@@ -106,10 +110,8 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
             </Label>
             <Input
               id="end_date"
-              name="end_date"
               type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              {...register('end_date')}
               className="col-span-3"
               autoComplete="off"
             />
@@ -120,22 +122,17 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
             </Label>
             <Input
               id="trip_budget"
-              name="budget"
               type="number"
               inputMode="decimal"
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
+              {...register('budget')}
               className="col-span-3"
               placeholder="₪"
               autoComplete="off"
             />
           </div>
-          {errorMsg && (
-            <div className="text-lg font-medium text-destructive mt-2 text-right">{errorMsg}</div>
-          )}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'פותח תיק מסע...' : 'צור חופשה'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'פותח תיק מסע...' : 'צור חופשה'}
             </Button>
           </DialogFooter>
         </form>

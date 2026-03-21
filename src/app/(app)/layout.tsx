@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { GlobalFAB } from '@/components/layout/GlobalFAB';
 import { createClient } from '@/lib/supabase/server';
+import { Toaster } from 'sonner';
 
 const assistant = Assistant({
   subsets: ['hebrew', 'latin'],
@@ -40,6 +41,7 @@ export default async function RootLayout({
         <main className="flex-1 w-full min-h-screen flex flex-col pb-16 md:pb-0">{children}</main>
         <MobileNav />
         <GlobalFAB categories={categories} accounts={accounts} />
+        <Toaster richColors position="bottom-center" dir="rtl" />
       </body>
     </html>
   );

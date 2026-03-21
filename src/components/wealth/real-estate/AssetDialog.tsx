@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,12 +18,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Pencil } from 'lucide-react';
-
-import { Database } from '@/types/database.types';
 import type { PropertyRef } from '@/lib/schemas';
-
-type PropertyInsert = Database['public']['Tables']['properties']['Insert'];
-type FlowInsert = Database['public']['Tables']['recurring_flows']['Insert'];
+import { PropertyFormSchema, PropertyFormData } from '@/lib/schemas';
+import { upsertPropertyAction } from '@/app/(app)/wealth/actions';
+import type { Resolver } from 'react-hook-form';
 
 interface AssetDialogProps {
   triggerButton?: React.ReactNode;
@@ -31,101 +30,72 @@ interface AssetDialogProps {
 
 export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!propertyToEdit;
 
-  const [name, setName] = useState(propertyToEdit?.name || '');
-  const [estimatedValue, setEstimatedValue] = useState(
-    propertyToEdit?.estimated_value?.toString() || '',
-  );
-  const [address, setAddress] = useState(propertyToEdit?.address || '');
-  const [monthlyRent, setMonthlyRent] = useState(propertyToEdit?.monthly_rent?.toString() || '');
-  const [rentStartDate, setRentStartDate] = useState(propertyToEdit?.rent_start_date || '');
-  const [rentEndDate, setRentEndDate] = useState(propertyToEdit?.rent_end_date || '');
-  const [mortgagePayment, setMortgagePayment] = useState(
-    propertyToEdit?.mortgage_payment?.toString() || '',
-  );
-  const [mortgageStartDate, setMortgageStartDate] = useState(
-    propertyToEdit?.mortgage_start_date || '',
-  );
-  const [mortgageEndDate, setMortgageEndDate] = useState(propertyToEdit?.mortgage_end_date || '');
+  const defaultValues: PropertyFormData = {
+    name: '',
+    status: 'active',
+    address: null,
+    purchase_price: null,
+    purchase_date: null,
+    estimated_value: null,
+    is_rented: false,
+    monthly_rent: null,
+    rent_start_date: null,
+    rent_end_date: null,
+    mortgage_payment: null,
+    mortgage_start_date: null,
+    mortgage_end_date: null,
+    notes: null,
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<PropertyFormData>({
+    resolver: zodResolver(PropertyFormSchema) as Resolver<PropertyFormData>,
+    defaultValues,
+  });
 
-    const payload: PropertyInsert = {
-      name,
-      estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
-      status: 'active',
-      address: address || null,
-      monthly_rent: monthlyRent ? parseFloat(monthlyRent) : null,
-      rent_start_date: rentStartDate || null,
-      rent_end_date: rentEndDate || null,
-      is_rented: !!monthlyRent && parseFloat(monthlyRent) > 0,
-      mortgage_payment: mortgagePayment ? parseFloat(mortgagePayment) : null,
-      mortgage_start_date: mortgageStartDate || null,
-      mortgage_end_date: mortgageEndDate || null,
-    };
+  const rentEndDate = watch('rent_end_date');
 
-    let error;
-    let savedPropertyId = propertyToEdit?.id;
-
-    if (isEditing && propertyToEdit) {
-      const { error: updateError } = await supabase
-        .from('properties')
-        .update(payload)
-        .eq('id', propertyToEdit.id);
-      error = updateError;
-    } else {
-      const { data, error: insertError } = await supabase
-        .from('properties')
-        .insert(payload)
-        .select()
-        .single();
-      error = insertError;
-      if (data) savedPropertyId = data.id;
+  useEffect(() => {
+    if (open && isEditing && propertyToEdit) {
+      reset({
+        name: propertyToEdit.name,
+        status: propertyToEdit.status,
+        address: propertyToEdit.address ?? null,
+        purchase_price: propertyToEdit.purchase_price ?? null,
+        purchase_date: propertyToEdit.purchase_date ?? null,
+        estimated_value: propertyToEdit.estimated_value ?? null,
+        is_rented: propertyToEdit.is_rented,
+        monthly_rent: propertyToEdit.monthly_rent ?? null,
+        rent_start_date: propertyToEdit.rent_start_date ?? null,
+        rent_end_date: propertyToEdit.rent_end_date ?? null,
+        mortgage_payment: propertyToEdit.mortgage_payment ?? null,
+        mortgage_start_date: propertyToEdit.mortgage_start_date ?? null,
+        mortgage_end_date: propertyToEdit.mortgage_end_date ?? null,
+        notes: propertyToEdit.notes ?? null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, propertyToEdit, reset]);
 
-    if (!error && savedPropertyId) {
-      await syncPropertyFlows(
-        supabase,
-        savedPropertyId,
-        name,
-        monthlyRent,
-        rentStartDate,
-        rentEndDate,
-        mortgagePayment,
-        mortgageStartDate,
-        mortgageEndDate,
-      );
-    }
-
-    setLoading(false);
-
-    if (error) {
-      console.error('Error saving property:', error);
-      setErrorMsg(isEditing ? 'שגיאה בעדכון הנכס' : 'שגיאה בהוספת הנכס');
+  const onSubmit = async (data: PropertyFormData) => {
+    const result = await upsertPropertyAction(data, propertyToEdit?.id);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
+    toast.success(isEditing ? 'הנכס עודכן בהצלחה' : 'הנכס נוסף בהצלחה');
     setOpen(false);
-    if (!isEditing) {
-      setName('');
-      setEstimatedValue('');
-      setAddress('');
-      setMonthlyRent('');
-      setRentStartDate('');
-      setRentEndDate('');
-      setMortgagePayment('');
-      setMortgageStartDate('');
-      setMortgageEndDate('');
-    }
     router.refresh();
   };
 
@@ -153,34 +123,27 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
               : 'הוסף נכס נדל״ן כדי לעקוב אחר השווי, שכירות ומשכנתא.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם הנכס
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: דירה בחיפה"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="name" {...register('name')} placeholder="למשל: דירה בחיפה" />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="value" className="text-right pt-2">
               שווי מוערך
             </Label>
-            <Input
-              id="value"
-              type="number"
-              value={estimatedValue}
-              onChange={(e) => setEstimatedValue(e.target.value)}
-              className="col-span-3"
-              placeholder="₪"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="value" type="number" {...register('estimated_value')} placeholder="₪" />
+              {errors.estimated_value && (
+                <p className="text-base text-rose-500">{errors.estimated_value.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -189,8 +152,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
             </Label>
             <Input
               id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              {...register('address')}
               className="col-span-3"
               placeholder="רחוב, עיר"
             />
@@ -209,8 +171,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
                 <Input
                   id="rent"
                   type="number"
-                  value={monthlyRent}
-                  onChange={(e) => setMonthlyRent(e.target.value)}
+                  {...register('monthly_rent')}
                   className="col-span-3"
                   placeholder="₪"
                 />
@@ -222,8 +183,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
                 <Input
                   id="rent-start"
                   type="date"
-                  value={rentStartDate}
-                  onChange={(e) => setRentStartDate(e.target.value)}
+                  {...register('rent_start_date')}
                   className="col-span-3"
                 />
               </div>
@@ -232,12 +192,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
                   סיום חוזה
                 </Label>
                 <div className="col-span-3 space-y-1">
-                  <Input
-                    id="rent-end"
-                    type="date"
-                    value={rentEndDate}
-                    onChange={(e) => setRentEndDate(e.target.value)}
-                  />
+                  <Input id="rent-end" type="date" {...register('rent_end_date')} />
                   {rentEndDate && (
                     <p className="text-base text-emerald-600 dark:text-emerald-400">
                       📅 תזכורת חידוש תיווצר אוטומטית 3 חודשים לפני סיום החוזה
@@ -261,8 +216,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
                 <Input
                   id="mortgage"
                   type="number"
-                  value={mortgagePayment}
-                  onChange={(e) => setMortgagePayment(e.target.value)}
+                  {...register('mortgage_payment')}
                   className="col-span-3"
                   placeholder="₪"
                 />
@@ -274,8 +228,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
                 <Input
                   id="mortgage-start"
                   type="date"
-                  value={mortgageStartDate}
-                  onChange={(e) => setMortgageStartDate(e.target.value)}
+                  {...register('mortgage_start_date')}
                   className="col-span-3"
                 />
               </div>
@@ -286,108 +239,20 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
                 <Input
                   id="mortgage-end"
                   type="date"
-                  value={mortgageEndDate}
-                  onChange={(e) => setMortgageEndDate(e.target.value)}
+                  {...register('mortgage_end_date')}
                   className="col-span-3"
                 />
               </div>
             </div>
           </div>
 
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף נכס'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף נכס'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
-}
-
-async function syncPropertyFlows(
-  supabase: SupabaseClient<Database>,
-  propertyId: string,
-  propertyName: string,
-  monthlyRent: string,
-  rentStartDate: string,
-  rentEndDate: string,
-  mortgagePayment: string,
-  mortgageStartDate: string,
-  mortgageEndDate: string,
-) {
-  const flowsToUpsert: Array<FlowInsert> = [];
-
-  if (monthlyRent && parseFloat(monthlyRent) > 0) {
-    flowsToUpsert.push({
-      property_id: propertyId,
-      name: `${propertyName} (שכירות)`,
-      amount: parseFloat(monthlyRent),
-      type: 'income',
-      frequency: 'monthly',
-      is_active: true,
-      start_date: rentStartDate || null,
-      end_date: rentEndDate || null,
-    });
-  }
-
-  if (mortgagePayment && parseFloat(mortgagePayment) > 0) {
-    flowsToUpsert.push({
-      property_id: propertyId,
-      name: `${propertyName} (משכנתא)`,
-      amount: parseFloat(mortgagePayment),
-      type: 'expense',
-      frequency: 'monthly',
-      is_active: true,
-      start_date: mortgageStartDate || null,
-      end_date: mortgageEndDate || null,
-    });
-  }
-
-  for (const flow of flowsToUpsert) {
-    const { data: existing } = await supabase
-      .from('recurring_flows')
-      .select('id')
-      .eq('property_id', propertyId)
-      .eq('name', flow.name as string)
-      .maybeSingle();
-
-    if (existing) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { property_id: _pid, ...updatePayload } = flow;
-      await supabase.from('recurring_flows').update(updatePayload).eq('id', existing.id);
-    } else {
-      await supabase.from('recurring_flows').insert(flow);
-    }
-  }
-
-  // Auto-reminder: 3 months before rent contract end date
-  if (rentEndDate) {
-    const endDate = new Date(rentEndDate);
-    const reminderDate = new Date(endDate);
-    reminderDate.setMonth(reminderDate.getMonth() - 3);
-
-    const reminderTitle = `חידוש חוזה שכירות – ${propertyName}`;
-
-    const { data: existingReminder } = await supabase
-      .from('reminders')
-      .select('id')
-      .eq('title', reminderTitle)
-      .maybeSingle();
-
-    const reminderPayload = {
-      title: reminderTitle,
-      due_date: reminderDate.toISOString().split('T')[0],
-      type: 'maintenance' as const,
-      is_completed: false,
-      property_id: propertyId,
-    };
-
-    if (existingReminder) {
-      await supabase.from('reminders').update(reminderPayload).eq('id', existingReminder.id);
-    } else {
-      await supabase.from('reminders').insert(reminderPayload);
-    }
-  }
 }

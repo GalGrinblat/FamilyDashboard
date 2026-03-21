@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Database } from '@/types/database.types';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,6 +27,9 @@ import {
 } from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABELS } from '@/lib/constants';
+import { AccountFormSchema, AccountFormData } from '@/lib/schemas';
+import { upsertAccountAction } from '@/app/(app)/finance/actions';
+import type { Resolver } from 'react-hook-form';
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 
@@ -36,59 +41,58 @@ export function AccountDialog({
   accountToEdit?: AccountRow;
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!accountToEdit;
 
-  // Form State
-  const [name, setName] = useState(accountToEdit?.name || '');
-  const [type, setType] = useState<'bank' | 'credit_card'>(
-    accountToEdit?.type || ACCOUNT_TYPES.BANK,
-  );
-  const [balance, setBalance] = useState(
-    accountToEdit?.current_balance ? accountToEdit.current_balance.toString() : '0',
-  );
+  const defaultValues: AccountFormData = {
+    name: '',
+    type: ACCOUNT_TYPES.BANK,
+    currency: 'ILS',
+    current_balance: 0,
+    billing_day: null,
+    credit_limit: null,
+  };
 
-  // Credit Card specific fields
-  const [billingDay, setBillingDay] = useState(accountToEdit?.billing_day?.toString() || '');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<AccountFormData>({
+    resolver: zodResolver(AccountFormSchema) as Resolver<AccountFormData>,
+    defaultValues,
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+  const type = watch('type');
 
-    const payload = {
-      name,
-      type,
-      current_balance: parseFloat(balance),
-      billing_day: type === ACCOUNT_TYPES.CREDIT_CARD && billingDay ? parseInt(billingDay) : null,
-    };
-
-    let error;
-
-    if (isEditing && accountToEdit) {
-      const { error: updateError } = await supabase
-        .from('accounts')
-        .update(payload)
-        .eq('id', accountToEdit.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase.from('accounts').insert(payload);
-      error = insertError;
+  useEffect(() => {
+    if (open && isEditing && accountToEdit) {
+      reset({
+        name: accountToEdit.name,
+        type: accountToEdit.type as 'bank' | 'credit_card',
+        currency: accountToEdit.currency ?? 'ILS',
+        current_balance: accountToEdit.current_balance ?? 0,
+        billing_day: accountToEdit.billing_day ?? null,
+        credit_limit: accountToEdit.credit_limit ?? null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, accountToEdit, reset]);
 
-    setLoading(false);
-
-    if (error) {
-      console.error('Error saving account:', error);
-      setErrorMsg(isEditing ? 'שגיאה בעדכון החשבון' : 'שגיאה בהוספת החשבון');
-    } else {
-      setOpen(false);
-      router.refresh(); // Refresh page data
+  const onSubmit = async (data: AccountFormData) => {
+    const result = await upsertAccountAction(data, accountToEdit?.id);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
+    toast.success(isEditing ? 'החשבון עודכן בהצלחה' : 'החשבון נוסף בהצלחה');
+    setOpen(false);
+    router.refresh();
   };
 
   return (
@@ -118,25 +122,28 @@ export function AccountDialog({
               : 'הוסף חשבון בנק, כרטיס אשראי, או תיק השקעות למעקב.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם החשבון
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: לאומי עו״ש, מקס אקזקיוטיב"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="name"
+                {...register('name')}
+                placeholder="למשל: לאומי עו״ש, מקס אקזקיוטיב"
+              />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="type" className="text-right pt-2">
               סוג
             </Label>
-            <Select value={type} onValueChange={(v) => setType(v as 'bank' | 'credit_card')}>
+            <Select
+              value={type}
+              onValueChange={(v) => setValue('type', v as 'bank' | 'credit_card')}
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג חשבון" />
               </SelectTrigger>
@@ -154,15 +161,12 @@ export function AccountDialog({
             <Label htmlFor="balance" className="text-right pt-2">
               יתרה נוכחית
             </Label>
-            <Input
-              id="balance"
-              type="number"
-              value={balance}
-              onChange={(e) => setBalance(e.target.value)}
-              className="col-span-3"
-              placeholder="₪"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="balance" type="number" {...register('current_balance')} placeholder="₪" />
+              {errors.current_balance && (
+                <p className="text-base text-rose-500">{errors.current_balance.message}</p>
+              )}
+            </div>
           </div>
 
           {type === ACCOUNT_TYPES.CREDIT_CARD && (
@@ -172,18 +176,16 @@ export function AccountDialog({
               </Label>
               <Input
                 id="billingDay"
-                value={billingDay}
-                onChange={(e) => setBillingDay(e.target.value)}
+                {...register('billing_day')}
                 className="col-span-3"
                 placeholder="למשל: 2 או 10 או 15"
               />
             </div>
           )}
 
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור חשבון'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : isEditing ? 'שמור שינויים' : 'שמור חשבון'}
             </Button>
           </DialogFooter>
         </form>

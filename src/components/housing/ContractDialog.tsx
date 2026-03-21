@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,9 +25,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
-import { CATEGORY_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
-
+import { FREQUENCY_TYPES } from '@/lib/constants';
 import { Database } from '@/types/database.types';
+import { ContractFormSchema, ContractFormData } from '@/lib/schemas';
+import { upsertContractAction } from '@/app/(app)/housing/actions';
+import type { Resolver } from 'react-hook-form';
 
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 
@@ -36,54 +40,53 @@ interface ContractDialogProps {
 
 export function ContractDialog({ triggerButton, contractToEdit }: ContractDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!contractToEdit;
-  const [name, setName] = useState(contractToEdit?.name || '');
-  const [amount, setAmount] = useState(contractToEdit?.amount?.toString() || '');
-  const [frequency, setFrequency] = useState<'monthly' | 'yearly' | 'weekly'>(
-    contractToEdit?.frequency || FREQUENCY_TYPES.MONTHLY,
-  );
-  const [endDate, setEndDate] = useState(contractToEdit?.end_date || '');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+  const defaultValues: ContractFormData = {
+    name: '',
+    amount: '' as unknown as number,
+    frequency: FREQUENCY_TYPES.MONTHLY,
+    end_date: null,
+  };
 
-    const payload = {
-      name,
-      amount: parseFloat(amount),
-      type: CATEGORY_TYPES.EXPENSE,
-      frequency,
-      end_date: endDate || null,
-      is_active: true,
-    };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ContractFormData>({
+    resolver: zodResolver(ContractFormSchema) as Resolver<ContractFormData>,
+    defaultValues,
+  });
 
-    let error;
+  const frequency = watch('frequency');
 
-    if (isEditing && contractToEdit) {
-      const { error: updateError } = await supabase
-        .from('recurring_flows')
-        .update(payload)
-        .eq('id', contractToEdit.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase.from('recurring_flows').insert(payload);
-      error = insertError;
+  useEffect(() => {
+    if (open && isEditing && contractToEdit) {
+      reset({
+        name: contractToEdit.name,
+        amount: contractToEdit.amount ?? ('' as unknown as number),
+        frequency:
+          (contractToEdit.frequency as 'monthly' | 'yearly' | 'weekly') ?? FREQUENCY_TYPES.MONTHLY,
+        end_date: contractToEdit.end_date ?? null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, contractToEdit, reset]);
 
-    if (error) {
-      console.error('Error saving contract:', error);
-      setErrorMsg('שגיאה בשמירת הספק');
-      setLoading(false);
+  const onSubmit = async (data: ContractFormData) => {
+    const result = await upsertContractAction(data, contractToEdit?.id);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
-    setLoading(false);
+    toast.success(isEditing ? 'הספק עודכן בהצלחה' : 'הספק נוסף בהצלחה');
     setOpen(false);
     router.refresh();
   };
@@ -105,33 +108,24 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
             הזן את פרטי הספק (חשמל, תמי 4, ארנונה) והסכום החודשי הממוצע.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם הספק
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: תמי 4"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="name" {...register('name')} placeholder="למשל: תמי 4" />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="amount" className="text-right pt-2">
               סכום חודשי
             </Label>
-            <Input
-              id="amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="col-span-3"
-              placeholder="₪"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="amount" type="number" {...register('amount')} placeholder="₪" />
+              {errors.amount && <p className="text-base text-rose-500">{errors.amount.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="frequency" className="text-right pt-2">
@@ -139,7 +133,7 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
             </Label>
             <Select
               value={frequency}
-              onValueChange={(v) => setFrequency(v as 'monthly' | 'yearly' | 'weekly')}
+              onValueChange={(v) => setValue('frequency', v as 'monthly' | 'yearly' | 'weekly')}
             >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר תדירות" />
@@ -155,22 +149,15 @@ export function ContractDialog({ triggerButton, contractToEdit }: ContractDialog
             <Label htmlFor="end_date" className="text-right pt-2">
               תאריך סיום
             </Label>
-            <Input
-              id="end_date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="col-span-3"
-            />
+            <Input id="end_date" type="date" {...register('end_date')} className="col-span-3" />
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              {loading ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף ספק'}
+              {isSubmitting ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף ספק'}
             </Button>
           </DialogFooter>
         </form>

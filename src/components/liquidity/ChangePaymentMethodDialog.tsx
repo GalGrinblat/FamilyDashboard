@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Database } from '@/types/database.types';
-
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,6 +26,8 @@ import {
 } from '@/components/ui/select';
 import { CreditCard } from 'lucide-react';
 import { REMINDER_TYPES } from '@/lib/constants';
+import { ChangePaymentMethodFormSchema, ChangePaymentMethodFormData } from '@/lib/schemas';
+import { createClient } from '@/lib/supabase/client';
 
 type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
   accounts?: { name: string } | null;
@@ -38,41 +41,47 @@ export function ChangePaymentMethodDialog({
   accounts: { id: string; name: string }[];
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [selectedAccountId, setSelectedAccountId] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedAccountId) return;
+  const {
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<ChangePaymentMethodFormData>({
+    resolver: zodResolver(ChangePaymentMethodFormSchema),
+    defaultValues: {
+      account_id: '',
+    },
+  });
 
-    setLoading(true);
+  const accountId = watch('account_id');
 
+  const onSubmit = async (data: ChangePaymentMethodFormData) => {
     const targetAccountName =
-      accounts.find((a) => a.id === selectedAccountId)?.name || 'חשבון לא מוכר';
+      accounts.find((a) => a.id === data.account_id)?.name || 'חשבון לא מוכר';
 
-    // Create a new reminder
     const { error } = await supabase.from('reminders').insert({
       title: `החלפת אמצעי תשלום עבור ${flow.name} ל-${targetAccountName}`,
       type: REMINDER_TYPES.PAYMENT_METHOD_CHANGE,
       due_date: new Date().toISOString(),
       is_completed: false,
       recurring_flow_id: flow.id,
-      target_account_id: selectedAccountId,
+      target_account_id: data.account_id,
     });
-
-    setLoading(false);
 
     if (error) {
       console.error('Error creating reminder:', error);
-      setErrorMsg('שגיאה ביצירת המשימה');
-    } else {
-      setOpen(false);
-      router.refresh();
-      setSelectedAccountId('');
+      toast.error('שגיאה ביצירת המשימה');
+      return;
     }
+
+    toast.success('המשימה נוצרה בהצלחה');
+    setOpen(false);
+    reset();
+    router.refresh();
   };
 
   return (
@@ -91,12 +100,12 @@ export function ChangePaymentMethodDialog({
             (למשל ספק האינטרנט או הביטוח).
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="account" className="text-right pt-2">
               לאיזה חשבון להעביר?
             </Label>
-            <Select value={selectedAccountId} onValueChange={setSelectedAccountId} required>
+            <Select value={accountId} onValueChange={(v) => setValue('account_id', v)}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר חשבון חדש" />
               </SelectTrigger>
@@ -109,10 +118,9 @@ export function ChangePaymentMethodDialog({
               </SelectContent>
             </Select>
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading || !selectedAccountId}>
-              {loading ? 'יוצר משימה...' : 'צור משימה לביצוע'}
+            <Button type="submit" disabled={isSubmitting || !accountId}>
+              {isSubmitting ? 'יוצר משימה...' : 'צור משימה לביצוע'}
             </Button>
           </DialogFooter>
         </form>

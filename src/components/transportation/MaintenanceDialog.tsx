@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,8 +25,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
-
 import { Database } from '@/types/database.types';
+import { MaintenanceFormSchema, MaintenanceFormData } from '@/lib/schemas';
+import { upsertMaintenanceAction } from '@/app/(app)/transportation/actions';
+import type { Resolver } from 'react-hook-form';
 
 type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
 
@@ -34,55 +38,57 @@ interface AddMaintenanceDialogProps {
 
 export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
-  const [carId, setCarId] = useState(cars.length > 0 ? cars[0].id : '');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [type, setType] = useState('garage');
-  const [description, setDescription] = useState('');
-  const [cost, setCost] = useState('');
-  const [mileage, setMileage] = useState('');
+  const today = new Date().toISOString().split('T')[0];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!carId) return;
-    setLoading(true);
-    setErrorMsg('');
+  const defaultValues: MaintenanceFormData = {
+    vehicle_id: cars.length > 0 ? cars[0].id : '',
+    date: today,
+    type: 'garage',
+    description: '',
+    mileage: null,
+    cost: '' as unknown as number,
+  };
 
-    const payload = {
-      vehicle_id: carId,
-      date,
-      type,
-      description: description || null,
-      cost: cost ? parseFloat(cost) : null,
-      mileage: mileage ? parseInt(mileage) : null,
-    };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<MaintenanceFormData>({
+    resolver: zodResolver(MaintenanceFormSchema) as Resolver<MaintenanceFormData>,
+    defaultValues,
+  });
 
-    const { error } = await supabase.from('vehicle_maintenance').insert(payload);
+  const vehicleId = watch('vehicle_id');
+  const type = watch('type');
 
-    // Also update last_service_km on the vehicle if mileage provided
-    if (!error && mileage) {
-      await supabase
-        .from('vehicles')
-        .update({ last_service_km: parseInt(mileage), last_service_date: date })
-        .eq('id', carId);
+  useEffect(() => {
+    if (!open) {
+      reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
-    setLoading(false);
-
-    if (error) {
-      console.error('Error saving maintenance log:', error);
-      setErrorMsg('שגיאה בשמירת הטיפול');
+  const onSubmit = async (data: MaintenanceFormData) => {
+    const result = await upsertMaintenanceAction({
+      vehicle_id: data.vehicle_id,
+      date: data.date,
+      type: data.type,
+      description: data.description,
+      cost: data.cost,
+      mileage: data.mileage,
+      notes: null,
+    });
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
+    toast.success('הטיפול נשמר בהצלחה');
     setOpen(false);
-    setDescription('');
-    setCost('');
-    setMileage('');
     router.refresh();
   };
 
@@ -100,12 +106,12 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
           <DialogTitle>תיעוד טיפול או אירוע</DialogTitle>
           <DialogDescription>הוסף רשומת טיפול מוסך, טסט שנתי או אירוע תחזוקה.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="car_id" className="text-right pt-2">
               רכב
             </Label>
-            <Select value={carId} onValueChange={setCarId} required>
+            <Select value={vehicleId} onValueChange={(v) => setValue('vehicle_id', v)}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר רכב" />
               </SelectTrigger>
@@ -122,20 +128,16 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
             <Label htmlFor="date" className="text-right pt-2">
               תאריך
             </Label>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="col-span-3 text-left"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="date" type="date" {...register('date')} className="text-left" />
+              {errors.date && <p className="text-base text-rose-500">{errors.date.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="type" className="text-right pt-2">
               סוג אירוע
             </Label>
-            <Select value={type} onValueChange={setType}>
+            <Select value={type} onValueChange={(v) => setValue('type', v)}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue placeholder="בחר סוג" />
               </SelectTrigger>
@@ -152,14 +154,16 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
             <Label htmlFor="desc" className="text-right pt-2">
               תיאור קצר
             </Label>
-            <Input
-              id="desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: טיפול 15,000, החלפת בלמים"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="desc"
+                {...register('description')}
+                placeholder="למשל: טיפול 15,000, החלפת בלמים"
+              />
+              {errors.description && (
+                <p className="text-base text-rose-500">{errors.description.message}</p>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="mileage" className="text-right pt-2 text-base">
@@ -168,8 +172,7 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
             <Input
               id="mileage"
               type="number"
-              value={mileage}
-              onChange={(e) => setMileage(e.target.value)}
+              {...register('mileage')}
               className="col-span-3"
               placeholder="למשל: 45000"
             />
@@ -178,20 +181,14 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
             <Label htmlFor="cost" className="text-right pt-2">
               עלות (₪)
             </Label>
-            <Input
-              id="cost"
-              type="number"
-              value={cost}
-              onChange={(e) => setCost(e.target.value)}
-              className="col-span-3"
-              placeholder="עלות הטיפול"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="cost" type="number" {...register('cost')} placeholder="עלות הטיפול" />
+              {errors.cost && <p className="text-base text-rose-500">{errors.cost.message}</p>}
+            </div>
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : 'שמור טיפול'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : 'שמור טיפול'}
             </Button>
           </DialogFooter>
         </form>

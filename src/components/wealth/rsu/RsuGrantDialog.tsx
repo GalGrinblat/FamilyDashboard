@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -27,6 +29,9 @@ import { RSU_TAX_TRACKS, RSU_TAX_TRACK_LABELS, type RsuTaxTrack } from '@/lib/co
 import { generateVestSchedule } from '@/lib/rsu-schedule';
 import { isValidTicker } from '@/lib/stock-prices';
 import type { RsuGrantRef } from '@/lib/schemas';
+import { RsuGrantFormSchema, RsuGrantFormData } from '@/lib/schemas';
+import { upsertRsuGrantAction } from '@/app/(app)/wealth/actions';
+import type { Resolver } from 'react-hook-form';
 
 interface RsuGrantDialogProps {
   investmentAccountId?: string;
@@ -42,228 +47,150 @@ export function RsuGrantDialog({
   defaultEmployer,
 }: RsuGrantDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!grantToEdit;
 
-  const [ticker, setTicker] = useState(grantToEdit?.ticker ?? '');
-  const [employer, setEmployer] = useState(grantToEdit?.employer ?? defaultEmployer ?? '');
-  const [grantDate, setGrantDate] = useState(grantToEdit?.grant_date ?? '');
-  const [totalShares, setTotalShares] = useState(grantToEdit?.total_shares?.toString() ?? '');
-  const [grantPrice, setGrantPrice] = useState(grantToEdit?.grant_price_usd?.toString() ?? '');
-  const [cliffMonths, setCliffMonths] = useState(grantToEdit?.cliff_months?.toString() ?? '12');
-  const [vestFrequency, setVestFrequency] = useState(
-    grantToEdit?.vest_frequency_months?.toString() ?? '3',
-  );
-  const [taxTrack, setTaxTrack] = useState<RsuTaxTrack>(
-    (grantToEdit?.tax_track as RsuTaxTrack) ?? RSU_TAX_TRACKS.CAPITAL_GAINS,
-  );
-  const [notes, setNotes] = useState(grantToEdit?.notes ?? '');
-
-  // Vest amount: fixed shares vs percentage
-  const [vestMode, setVestMode] = useState<'shares' | 'percent'>(
-    grantToEdit?.vest_percentage != null ? 'percent' : 'shares',
-  );
-  const [sharesPerVest, setSharesPerVest] = useState(
-    grantToEdit?.shares_per_vest?.toString() ?? '',
-  );
-  const [vestPercentage, setVestPercentage] = useState(
-    grantToEdit?.vest_percentage?.toString() ?? '',
-  );
-
-  // Cliff vest override
-  const [hasCliffOverride, setHasCliffOverride] = useState(
-    grantToEdit != null &&
+  const defaultValues: RsuGrantFormData = {
+    ticker: grantToEdit?.ticker ?? '',
+    employer: grantToEdit?.employer ?? defaultEmployer ?? null,
+    grant_date: grantToEdit?.grant_date ?? '',
+    total_shares: grantToEdit?.total_shares ?? ('' as unknown as number),
+    grant_price_usd: grantToEdit?.grant_price_usd ?? null,
+    cliff_months: grantToEdit?.cliff_months ?? 12,
+    vest_frequency_months: grantToEdit?.vest_frequency_months ?? 3,
+    tax_track: grantToEdit?.tax_track ?? RSU_TAX_TRACKS.CAPITAL_GAINS,
+    notes: grantToEdit?.notes ?? null,
+    vest_mode: grantToEdit?.vest_percentage != null ? 'percent' : 'shares',
+    shares_per_vest: grantToEdit?.shares_per_vest ?? null,
+    vest_percentage: grantToEdit?.vest_percentage ?? null,
+    has_cliff_override:
+      grantToEdit != null &&
       (grantToEdit.cliff_vest_shares != null || grantToEdit.cliff_vest_percentage != null),
-  );
-  const [cliffMode, setCliffMode] = useState<'shares' | 'percent'>(
-    grantToEdit?.cliff_vest_percentage != null ? 'percent' : 'shares',
-  );
-  const [cliffVestShares, setCliffVestShares] = useState(
-    grantToEdit?.cliff_vest_shares?.toString() ?? '',
-  );
-  const [cliffVestPercentage, setCliffVestPercentage] = useState(
-    grantToEdit?.cliff_vest_percentage?.toString() ?? '',
-  );
+    cliff_mode: grantToEdit?.cliff_vest_percentage != null ? 'percent' : 'shares',
+    cliff_vest_shares: grantToEdit?.cliff_vest_shares ?? null,
+    cliff_vest_percentage: grantToEdit?.cliff_vest_percentage ?? null,
+  };
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<RsuGrantFormData>({
+    resolver: zodResolver(RsuGrantFormSchema) as Resolver<RsuGrantFormData>,
+    defaultValues,
+  });
+
+  const grantDate = watch('grant_date');
+  const totalShares = watch('total_shares');
+  const cliffMonths = watch('cliff_months');
+  const vestFrequencyMonths = watch('vest_frequency_months');
+  const vestMode = watch('vest_mode');
+  const sharesPerVest = watch('shares_per_vest');
+  const vestPercentage = watch('vest_percentage');
+  const hasCliffOverride = watch('has_cliff_override');
+  const cliffMode = watch('cliff_mode');
+  const cliffVestShares = watch('cliff_vest_shares');
+  const cliffVestPercentage = watch('cliff_vest_percentage');
+  const taxTrack = watch('tax_track');
+
+  useEffect(() => {
+    if (open && isEditing && grantToEdit) {
+      reset({
+        ticker: grantToEdit.ticker,
+        employer: grantToEdit.employer ?? null,
+        grant_date: grantToEdit.grant_date,
+        total_shares: grantToEdit.total_shares,
+        grant_price_usd: grantToEdit.grant_price_usd ?? null,
+        cliff_months: grantToEdit.cliff_months ?? 12,
+        vest_frequency_months: grantToEdit.vest_frequency_months ?? 3,
+        tax_track: grantToEdit.tax_track,
+        notes: grantToEdit.notes ?? null,
+        vest_mode: grantToEdit.vest_percentage != null ? 'percent' : 'shares',
+        shares_per_vest: grantToEdit.shares_per_vest ?? null,
+        vest_percentage: grantToEdit.vest_percentage ?? null,
+        has_cliff_override:
+          grantToEdit.cliff_vest_shares != null || grantToEdit.cliff_vest_percentage != null,
+        cliff_mode: grantToEdit.cliff_vest_percentage != null ? 'percent' : 'shares',
+        cliff_vest_shares: grantToEdit.cliff_vest_shares ?? null,
+        cliff_vest_percentage: grantToEdit.cliff_vest_percentage ?? null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, grantToEdit, reset]);
 
   // Live schedule preview (create mode only)
   const schedulePreview =
-    !isEditing && totalShares && grantDate && cliffMonths && vestFrequency
+    !isEditing && totalShares && grantDate && cliffMonths && vestFrequencyMonths
       ? generateVestSchedule({
           grant_date: grantDate,
-          total_shares: parseFloat(totalShares) || 0,
-          cliff_months: parseInt(cliffMonths) || 12,
-          vest_frequency_months: parseInt(vestFrequency) || 3,
-          shares_per_vest:
-            vestMode === 'shares' && sharesPerVest ? parseFloat(sharesPerVest) : null,
-          vest_percentage:
-            vestMode === 'percent' && vestPercentage ? parseFloat(vestPercentage) : null,
+          total_shares: Number(totalShares) || 0,
+          cliff_months: Number(cliffMonths) || 12,
+          vest_frequency_months: Number(vestFrequencyMonths) || 3,
+          shares_per_vest: vestMode === 'shares' && sharesPerVest ? Number(sharesPerVest) : null,
+          vest_percentage: vestMode === 'percent' && vestPercentage ? Number(vestPercentage) : null,
           cliff_vest_shares:
             hasCliffOverride && cliffMode === 'shares' && cliffVestShares
-              ? parseFloat(cliffVestShares)
+              ? Number(cliffVestShares)
               : null,
           cliff_vest_percentage:
             hasCliffOverride && cliffMode === 'percent' && cliffVestPercentage
-              ? parseFloat(cliffVestPercentage)
+              ? Number(cliffVestPercentage)
               : null,
         })
       : null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    setErrorMsg('');
-    const normalizedTicker = ticker.toUpperCase().trim();
+  const onSubmit = async (data: RsuGrantFormData) => {
+    const normalizedTicker = data.ticker.toUpperCase().trim();
     if (!isValidTicker(normalizedTicker)) {
-      setErrorMsg('סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, MSFT).');
+      setError('ticker', {
+        message: 'סימול לא תקין. השתמש באותיות, ספרות, נקודות ומקפים בלבד (לדוגמה: AAPL, MSFT).',
+      });
       return;
     }
 
-    setLoading(true);
-    const grantPriceUsd = grantPrice ? parseFloat(grantPrice) : null;
+    const result = await upsertRsuGrantAction(
+      {
+        investment_account_id: investmentAccountId,
+        ticker: normalizedTicker,
+        employer: data.employer || null,
+        grant_date: data.grant_date,
+        total_shares: data.total_shares,
+        grant_price_usd: data.grant_price_usd ?? null,
+        cliff_months: Number(data.cliff_months) || 12,
+        vest_frequency_months: Number(data.vest_frequency_months) || 3,
+        shares_per_vest:
+          data.vest_mode === 'shares' && data.shares_per_vest ? Number(data.shares_per_vest) : null,
+        vest_percentage:
+          data.vest_mode === 'percent' && data.vest_percentage
+            ? Number(data.vest_percentage)
+            : null,
+        cliff_vest_shares:
+          data.has_cliff_override && data.cliff_mode === 'shares' && data.cliff_vest_shares
+            ? Number(data.cliff_vest_shares)
+            : null,
+        cliff_vest_percentage:
+          data.has_cliff_override && data.cliff_mode === 'percent' && data.cliff_vest_percentage
+            ? Number(data.cliff_vest_percentage)
+            : null,
+        tax_track: data.tax_track,
+        notes: data.notes || null,
+        schedulePreview: schedulePreview ?? null,
+      },
+      grantToEdit?.id,
+    );
 
-    let accountId = investmentAccountId;
-    if (!accountId) {
-      const { data: newAccount, error: accountError } = await supabase
-        .from('investment_accounts')
-        .insert({
-          name: employer ? `RSU - ${employer}` : 'RSU',
-          account_type: 'rsu',
-          is_managed: false,
-          is_active: true,
-        })
-        .select('id')
-        .single();
-
-      if (accountError || !newAccount) {
-        console.error('Error creating investment account:', accountError);
-        setErrorMsg('שגיאה ביצירת חשבון השקעות');
-        setLoading(false);
-        return;
-      }
-      accountId = newAccount.id;
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
-
-    const payload = {
-      investment_account_id: accountId,
-      ticker: normalizedTicker,
-      employer: employer || null,
-      grant_date: grantDate,
-      total_shares: parseFloat(totalShares),
-      grant_price_usd: grantPriceUsd,
-      cliff_months: cliffMonths ? parseInt(cliffMonths) : 12,
-      vest_frequency_months: vestFrequency ? parseInt(vestFrequency) : 3,
-      shares_per_vest: vestMode === 'shares' && sharesPerVest ? parseFloat(sharesPerVest) : null,
-      vest_percentage: vestMode === 'percent' && vestPercentage ? parseFloat(vestPercentage) : null,
-      cliff_vest_shares:
-        hasCliffOverride && cliffMode === 'shares' && cliffVestShares
-          ? parseFloat(cliffVestShares)
-          : null,
-      cliff_vest_percentage:
-        hasCliffOverride && cliffMode === 'percent' && cliffVestPercentage
-          ? parseFloat(cliffVestPercentage)
-          : null,
-      tax_track: taxTrack,
-      notes: notes || null,
-      is_active: true,
-    };
-
-    if (isEditing) {
-      const { error } = await supabase.from('rsu_grants').update(payload).eq('id', grantToEdit.id);
-      setLoading(false);
-      if (error) {
-        console.error('Error updating RSU grant:', error);
-        setErrorMsg('שגיאה בעדכון המענק');
-        return;
-      }
-    } else {
-      const { data: newGrant, error: grantError } = await supabase
-        .from('rsu_grants')
-        .insert(payload)
-        .select('id')
-        .single();
-
-      if (grantError || !newGrant) {
-        console.error('Error inserting RSU grant:', grantError);
-        setErrorMsg('שגיאה בהוספת המענק');
-        setLoading(false);
-        return;
-      }
-
-      const grantId = newGrant.id;
-
-      if (schedulePreview && schedulePreview.length > 0 && grantPriceUsd != null) {
-        // Ensure holding exists
-        const { data: existingHolding } = await supabase
-          .from('portfolio_holdings')
-          .select('id')
-          .eq('investment_account_id', accountId)
-          .eq('ticker', normalizedTicker)
-          .maybeSingle();
-
-        let holdingId: string;
-
-        if (existingHolding) {
-          holdingId = existingHolding.id;
-        } else {
-          const { data: newHolding, error: holdingError } = await supabase
-            .from('portfolio_holdings')
-            .insert({
-              investment_account_id: accountId,
-              ticker: normalizedTicker,
-              asset_class: 'stock',
-              currency: 'USD',
-              is_active: true,
-            })
-            .select('id')
-            .single();
-
-          if (holdingError || !newHolding) {
-            console.error('Error creating holding:', holdingError);
-            setErrorMsg('המענק נוסף אך שגיאה ביצירת הנייר ערך');
-            setLoading(false);
-            router.refresh();
-            return;
-          }
-          holdingId = newHolding.id;
-        }
-
-        // Create lot + vest for each scheduled event
-        for (const item of schedulePreview) {
-          const { data: lot, error: lotError } = await supabase
-            .from('portfolio_lots')
-            .insert({
-              holding_id: holdingId,
-              lot_type: 'rsu_vest',
-              purchase_date: item.vest_date,
-              quantity: item.shares_vested,
-              price_per_unit: grantPriceUsd,
-              total_cost: item.shares_vested * grantPriceUsd,
-              fees: 0,
-            })
-            .select('id')
-            .single();
-
-          if (lotError || !lot) {
-            console.error('Error creating lot:', lotError);
-            continue;
-          }
-
-          await supabase.from('rsu_vests').insert({
-            grant_id: grantId,
-            vest_date: item.vest_date,
-            shares_vested: item.shares_vested,
-            linked_lot_id: lot.id,
-          });
-        }
-      }
-
-      setLoading(false);
-    }
-
+    toast.success(isEditing ? 'המענק עודכן בהצלחה' : 'המענק נוסף בהצלחה');
     setOpen(false);
     router.refresh();
   };
@@ -287,19 +214,20 @@ export function RsuGrantDialog({
         <DialogHeader>
           <DialogTitle>{isEditing ? 'עריכת מענק RSU' : 'הוספת מענק RSU חדש'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="rsu-ticker" className="text-right pt-2">
               טיקר
             </Label>
-            <Input
-              id="rsu-ticker"
-              value={ticker}
-              onChange={(e) => setTicker(e.target.value)}
-              className="col-span-3 uppercase"
-              placeholder="GOOGL, MSFT, AAPL"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="rsu-ticker"
+                {...register('ticker')}
+                className="uppercase"
+                placeholder="GOOGL, MSFT, AAPL"
+              />
+              {errors.ticker && <p className="text-base text-rose-500">{errors.ticker.message}</p>}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -308,8 +236,7 @@ export function RsuGrantDialog({
             </Label>
             <Input
               id="rsu-employer"
-              value={employer}
-              onChange={(e) => setEmployer(e.target.value)}
+              {...register('employer')}
               className="col-span-3"
               placeholder="למשל: Google LLC"
             />
@@ -319,30 +246,30 @@ export function RsuGrantDialog({
             <Label htmlFor="rsu-grant-date" className="text-right pt-2">
               תאריך מענק
             </Label>
-            <Input
-              id="rsu-grant-date"
-              type="date"
-              value={grantDate}
-              onChange={(e) => setGrantDate(e.target.value)}
-              className="col-span-3"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="rsu-grant-date" type="date" {...register('grant_date')} />
+              {errors.grant_date && (
+                <p className="text-base text-rose-500">{errors.grant_date.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="rsu-total" className="text-right pt-2">
               סה״כ מניות
             </Label>
-            <Input
-              id="rsu-total"
-              type="number"
-              step="any"
-              value={totalShares}
-              onChange={(e) => setTotalShares(e.target.value)}
-              className="col-span-3"
-              placeholder="400"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="rsu-total"
+                type="number"
+                step="any"
+                {...register('total_shares')}
+                placeholder="400"
+              />
+              {errors.total_shares && (
+                <p className="text-base text-rose-500">{errors.total_shares.message}</p>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
@@ -353,8 +280,7 @@ export function RsuGrantDialog({
               id="rsu-grant-price"
               type="number"
               step="any"
-              value={grantPrice}
-              onChange={(e) => setGrantPrice(e.target.value)}
+              {...register('grant_price_usd')}
               className="col-span-3"
               placeholder="FMV ביום המענק"
             />
@@ -367,8 +293,7 @@ export function RsuGrantDialog({
             <Input
               id="rsu-cliff"
               type="number"
-              value={cliffMonths}
-              onChange={(e) => setCliffMonths(e.target.value)}
+              {...register('cliff_months')}
               className="col-span-3"
               placeholder="12"
             />
@@ -378,7 +303,10 @@ export function RsuGrantDialog({
             <Label htmlFor="rsu-freq" className="text-right pt-2">
               תדירות הבשלה
             </Label>
-            <Select value={vestFrequency} onValueChange={setVestFrequency}>
+            <Select
+              value={String(vestFrequencyMonths)}
+              onValueChange={(v) => setValue('vest_frequency_months', Number(v))}
+            >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
@@ -400,7 +328,7 @@ export function RsuGrantDialog({
                 type="button"
                 size="sm"
                 variant={vestMode === 'shares' ? 'default' : 'outline'}
-                onClick={() => setVestMode('shares')}
+                onClick={() => setValue('vest_mode', 'shares')}
               >
                 כמות קבועה
               </Button>
@@ -408,7 +336,7 @@ export function RsuGrantDialog({
                 type="button"
                 size="sm"
                 variant={vestMode === 'percent' ? 'default' : 'outline'}
-                onClick={() => setVestMode('percent')}
+                onClick={() => setValue('vest_mode', 'percent')}
               >
                 אחוז מהמענק
               </Button>
@@ -424,11 +352,9 @@ export function RsuGrantDialog({
                 id="rsu-per-vest"
                 type="number"
                 step="any"
-                value={sharesPerVest}
-                onChange={(e) => setSharesPerVest(e.target.value)}
+                {...register('shares_per_vest')}
                 className="col-span-3"
                 placeholder="כמות לאירוע"
-                required={vestMode === 'shares'}
               />
             </div>
           ) : (
@@ -443,10 +369,8 @@ export function RsuGrantDialog({
                   step="any"
                   min="0"
                   max="100"
-                  value={vestPercentage}
-                  onChange={(e) => setVestPercentage(e.target.value)}
+                  {...register('vest_percentage')}
                   placeholder="25"
-                  required={vestMode === 'percent'}
                 />
                 <span className="text-lg text-muted-foreground">%</span>
               </div>
@@ -460,7 +384,7 @@ export function RsuGrantDialog({
               type="checkbox"
               id="cliff-override"
               checked={hasCliffOverride}
-              onChange={(e) => setHasCliffOverride(e.target.checked)}
+              onChange={(e) => setValue('has_cliff_override', e.target.checked)}
               className="h-4 w-4"
             />
             <Label htmlFor="cliff-override" className="cursor-pointer font-normal">
@@ -477,7 +401,7 @@ export function RsuGrantDialog({
                     type="button"
                     size="sm"
                     variant={cliffMode === 'shares' ? 'default' : 'outline'}
-                    onClick={() => setCliffMode('shares')}
+                    onClick={() => setValue('cliff_mode', 'shares')}
                   >
                     כמות קבועה
                   </Button>
@@ -485,7 +409,7 @@ export function RsuGrantDialog({
                     type="button"
                     size="sm"
                     variant={cliffMode === 'percent' ? 'default' : 'outline'}
-                    onClick={() => setCliffMode('percent')}
+                    onClick={() => setValue('cliff_mode', 'percent')}
                   >
                     אחוז מהמענק
                   </Button>
@@ -501,8 +425,7 @@ export function RsuGrantDialog({
                     id="cliff-shares"
                     type="number"
                     step="any"
-                    value={cliffVestShares}
-                    onChange={(e) => setCliffVestShares(e.target.value)}
+                    {...register('cliff_vest_shares')}
                     className="col-span-3"
                     placeholder="כמות לאירוע ראשון"
                   />
@@ -519,8 +442,7 @@ export function RsuGrantDialog({
                       step="any"
                       min="0"
                       max="100"
-                      value={cliffVestPercentage}
-                      onChange={(e) => setCliffVestPercentage(e.target.value)}
+                      {...register('cliff_vest_percentage')}
                       placeholder="25"
                     />
                     <span className="text-lg text-muted-foreground">%</span>
@@ -553,7 +475,7 @@ export function RsuGrantDialog({
             <Label htmlFor="rsu-tax-track" className="text-right pt-2">
               מסלול מס
             </Label>
-            <Select value={taxTrack} onValueChange={(v) => setTaxTrack(v as RsuTaxTrack)}>
+            <Select value={taxTrack} onValueChange={(v) => setValue('tax_track', v as RsuTaxTrack)}>
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
               </SelectTrigger>
@@ -573,17 +495,15 @@ export function RsuGrantDialog({
             </Label>
             <Input
               id="rsu-notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              {...register('notes')}
               className="col-span-3"
               placeholder="אופציונלי"
             />
           </div>
 
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף מענק'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף מענק'}
             </Button>
           </DialogFooter>
         </form>

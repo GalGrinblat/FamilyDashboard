@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,11 +18,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
-
 import { Database } from '@/types/database.types';
+import { VehicleFormSchema, VehicleFormData } from '@/lib/schemas';
+import { upsertVehicleAction, markVehicleSoldAction } from '@/app/(app)/transportation/actions';
+import type { Resolver } from 'react-hook-form';
 
 type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
-type ReminderInsert = Database['public']['Tables']['reminders']['Insert'];
 
 interface CarAssetDialogProps {
   triggerButton?: React.ReactNode;
@@ -29,135 +32,66 @@ interface CarAssetDialogProps {
 
 export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [isSelling, setIsSelling] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!vehicleToEdit;
 
-  const [name, setName] = useState(vehicleToEdit?.name || '');
-  const [estimatedValue, setEstimatedValue] = useState(
-    vehicleToEdit?.estimated_value?.toString() || '',
-  );
-  const [licensePlate, setLicensePlate] = useState(vehicleToEdit?.license_plate || '');
-  const [registrationDate, setRegistrationDate] = useState(vehicleToEdit?.registration_date || '');
-  const [insuranceEndDate, setInsuranceEndDate] = useState(vehicleToEdit?.insurance_end_date || '');
-  const [lastServiceDate, setLastServiceDate] = useState(vehicleToEdit?.last_service_date || '');
-  const [lastServiceKm, setLastServiceKm] = useState(
-    vehicleToEdit?.last_service_km?.toString() || '',
-  );
+  const defaultValues: VehicleFormData = {
+    name: '',
+    license_plate: null,
+    registration_date: '',
+    insurance_end_date: '',
+    last_service_date: null,
+    last_service_km: null,
+    estimated_value: null,
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<VehicleFormData>({
+    resolver: zodResolver(VehicleFormSchema) as Resolver<VehicleFormData>,
+    defaultValues,
+  });
 
-    const year = registrationDate ? new Date(registrationDate).getFullYear() : undefined;
-
-    const payload = {
-      name,
-      status: 'active' as const,
-      estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
-      license_plate: licensePlate || null,
-      year: year || null,
-      registration_date: registrationDate || null,
-      insurance_end_date: insuranceEndDate || null,
-      last_service_date: lastServiceDate || null,
-      last_service_km: lastServiceKm ? parseInt(lastServiceKm) : null,
-    };
-
-    let savedVehicleId = vehicleToEdit?.id;
-    let error;
-
-    if (isEditing && vehicleToEdit) {
-      const { error: updateError } = await supabase
-        .from('vehicles')
-        .update(payload)
-        .eq('id', vehicleToEdit.id);
-      error = updateError;
-    } else {
-      const { data, error: insertError } = await supabase
-        .from('vehicles')
-        .insert(payload)
-        .select()
-        .single();
-      error = insertError;
-      if (data) savedVehicleId = data.id;
+  useEffect(() => {
+    if (open && isEditing && vehicleToEdit) {
+      reset({
+        name: vehicleToEdit.name,
+        license_plate: vehicleToEdit.license_plate ?? null,
+        registration_date: vehicleToEdit.registration_date ?? '',
+        insurance_end_date: vehicleToEdit.insurance_end_date ?? '',
+        last_service_date: vehicleToEdit.last_service_date ?? null,
+        last_service_km: vehicleToEdit.last_service_km ?? null,
+        estimated_value: vehicleToEdit.estimated_value ?? null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, vehicleToEdit, reset]);
 
-    if (error || !savedVehicleId) {
-      console.error('Error saving vehicle:', error);
-      setErrorMsg('שגיאה בשמירת הרכב');
-      setLoading(false);
+  const onSubmit = async (data: VehicleFormData) => {
+    const result = await upsertVehicleAction(
+      {
+        name: data.name,
+        license_plate: data.license_plate,
+        registration_date: data.registration_date,
+        insurance_end_date: data.insurance_end_date,
+        last_service_date: data.last_service_date,
+        last_service_km: data.last_service_km,
+        estimated_value: data.estimated_value,
+      },
+      vehicleToEdit?.id,
+    );
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
-    // Delete old uncompleted reminders for this vehicle before recreating
-    if (isEditing && vehicleToEdit) {
-      await supabase
-        .from('reminders')
-        .delete()
-        .eq('vehicle_id', vehicleToEdit.id)
-        .eq('is_completed', false)
-        .in('type', ['car_test', 'insurance', 'maintenance']);
-    }
-
-    // Auto-generate reminders
-    const remindersToInsert: ReminderInsert[] = [];
-
-    if (registrationDate) {
-      const regDate = new Date(registrationDate);
-      const today = new Date();
-      const nextTest = new Date(today.getFullYear(), regDate.getMonth(), regDate.getDate());
-      if (nextTest < today) {
-        nextTest.setFullYear(today.getFullYear() + 1);
-      }
-      nextTest.setMonth(nextTest.getMonth() - 1);
-      remindersToInsert.push({
-        title: `טסט שנתי: ${name}`,
-        due_date: nextTest.toISOString().split('T')[0],
-        type: 'car_test' as const,
-        vehicle_id: savedVehicleId,
-      });
-    }
-
-    if (insuranceEndDate) {
-      const insDate = new Date(insuranceEndDate);
-      insDate.setMonth(insDate.getMonth() - 1);
-      remindersToInsert.push({
-        title: `חידוש ביטוח: ${name}`,
-        due_date: insDate.toISOString().split('T')[0],
-        type: 'insurance' as const,
-        vehicle_id: savedVehicleId,
-      });
-    }
-
-    const baseServiceDate = lastServiceDate
-      ? new Date(lastServiceDate)
-      : registrationDate
-        ? new Date(registrationDate)
-        : null;
-    if (baseServiceDate) {
-      const nextService = new Date(baseServiceDate);
-      nextService.setFullYear(nextService.getFullYear() + 1);
-      nextService.setDate(nextService.getDate() - 7);
-      remindersToInsert.push({
-        title: `טיפול תקופתי: ${name}`,
-        due_date: nextService.toISOString().split('T')[0],
-        type: 'maintenance' as const,
-        vehicle_id: savedVehicleId,
-      });
-    }
-
-    if (remindersToInsert.length > 0) {
-      const { error: remError } = await supabase.from('reminders').insert(remindersToInsert);
-      if (remError) {
-        console.error('Error inserting reminders:', remError);
-      }
-    }
-
-    setLoading(false);
+    toast.success(isEditing ? 'פרטי הרכב עודכנו בהצלחה' : 'הרכב נוסף בהצלחה');
     setOpen(false);
     router.refresh();
   };
@@ -171,20 +105,15 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
     )
       return;
 
-    setLoading(true);
-    const { error } = await supabase
-      .from('vehicles')
-      .update({ status: 'sold' })
-      .eq('id', vehicleToEdit.id);
+    setIsSelling(true);
+    const result = await markVehicleSoldAction(vehicleToEdit.id);
+    setIsSelling(false);
 
-    if (error) {
-      console.error('Error archiving car:', error);
-      setErrorMsg('שגיאה בארכוב הרכב');
-      setLoading(false);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
-    setLoading(false);
+    toast.success('הרכב סומן כנמכר');
     setOpen(false);
     router.refresh();
   };
@@ -208,19 +137,15 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
               : 'הזן את פרטי הרכב. רכבים משפיעים על השווי הנקי (Net Worth) של המשפחה.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם הרכב
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: מאזדה 3 שחורה"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="name" {...register('name')} placeholder="למשל: מאזדה 3 שחורה" />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="license" className="text-right pt-2">
@@ -228,8 +153,7 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
             </Label>
             <Input
               id="license"
-              value={licensePlate}
-              onChange={(e) => setLicensePlate(e.target.value)}
+              {...register('license_plate')}
               className="col-span-3"
               placeholder="123-45-678"
             />
@@ -238,27 +162,33 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
             <Label htmlFor="registrationDate" className="text-right pt-2 whitespace-nowrap">
               תאריך עלייה לכביש
             </Label>
-            <Input
-              id="registrationDate"
-              type="date"
-              value={registrationDate}
-              onChange={(e) => setRegistrationDate(e.target.value)}
-              className="col-span-3 text-left"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="registrationDate"
+                type="date"
+                {...register('registration_date')}
+                className="text-left"
+              />
+              {errors.registration_date && (
+                <p className="text-base text-rose-500">{errors.registration_date.message}</p>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="insuranceEndDate" className="text-right pt-2 whitespace-nowrap">
               תאריך תפוגת ביטוח
             </Label>
-            <Input
-              id="insuranceEndDate"
-              type="date"
-              value={insuranceEndDate}
-              onChange={(e) => setInsuranceEndDate(e.target.value)}
-              className="col-span-3 text-left"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input
+                id="insuranceEndDate"
+                type="date"
+                {...register('insurance_end_date')}
+                className="text-left"
+              />
+              {errors.insurance_end_date && (
+                <p className="text-base text-rose-500">{errors.insurance_end_date.message}</p>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="lastServiceDate" className="text-right pt-2 whitespace-nowrap">
@@ -267,8 +197,7 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
             <Input
               id="lastServiceDate"
               type="date"
-              value={lastServiceDate}
-              onChange={(e) => setLastServiceDate(e.target.value)}
+              {...register('last_service_date')}
               className="col-span-3 text-left"
             />
           </div>
@@ -279,8 +208,7 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
             <Input
               id="lastServiceKm"
               type="number"
-              value={lastServiceKm}
-              onChange={(e) => setLastServiceKm(e.target.value)}
+              {...register('last_service_km')}
               className="col-span-3"
               placeholder="למשל: 45000"
             />
@@ -292,13 +220,11 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
             <Input
               id="value"
               type="number"
-              value={estimatedValue}
-              onChange={(e) => setEstimatedValue(e.target.value)}
+              {...register('estimated_value')}
               className="col-span-3"
               placeholder="₪"
             />
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter className="flex items-center justify-between sm:justify-between pt-2">
             {isEditing ? (
               <Button
@@ -306,15 +232,19 @@ export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogP
                 variant="destructive"
                 className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40"
                 onClick={handleMarkAsSold}
-                disabled={loading}
+                disabled={isSelling || isSubmitting}
               >
-                סמן רכב כנמכר
+                {isSelling ? 'מסמן...' : 'סמן רכב כנמכר'}
               </Button>
             ) : (
               <div />
             )}
-            <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-              {loading ? 'שומר...' : isEditing ? 'עדכן את פרטי הרכב' : 'הוסף רכב'}
+            <Button
+              type="submit"
+              disabled={isSubmitting || isSelling}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isSubmitting ? 'שומר...' : isEditing ? 'עדכן את פרטי הרכב' : 'הוסף רכב'}
             </Button>
           </DialogFooter>
         </form>

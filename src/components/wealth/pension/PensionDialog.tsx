@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,8 +26,10 @@ import {
 } from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
 import { INVESTMENT_ACCOUNT_TYPES, INVESTMENT_ACCOUNT_TYPE_LABELS } from '@/lib/constants';
-
 import type { InvestmentAccountRef } from '@/lib/schemas';
+import { PensionFormSchema, PensionFormData } from '@/lib/schemas';
+import { upsertPensionAction } from '@/app/(app)/wealth/actions';
+import type { Resolver } from 'react-hook-form';
 
 interface PensionDialogProps {
   triggerButton?: React.ReactNode;
@@ -34,59 +38,54 @@ interface PensionDialogProps {
 
 export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const supabase = createClient();
 
   const isEditing = !!accountToEdit;
-  const [name, setName] = useState(accountToEdit?.name || '');
-  const [accountType, setAccountType] = useState<'pension' | 'gemel'>(
-    (accountToEdit?.account_type as 'pension' | 'gemel') || 'pension',
-  );
-  const [currentBalance, setCurrentBalance] = useState(
-    accountToEdit?.current_balance?.toString() || '',
-  );
-  const [broker, setBroker] = useState(accountToEdit?.broker || '');
-  const [monthlyContribution, setMonthlyContribution] = useState(
-    accountToEdit?.monthly_contribution_ils?.toString() || '',
-  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const defaultValues: PensionFormData = {
+    name: '',
+    account_type: 'pension',
+    current_balance: null,
+    broker: null,
+    monthly_contribution_ils: null,
+  };
 
-    const payload = {
-      name,
-      account_type: accountType,
-      current_balance: currentBalance ? parseFloat(currentBalance) : null,
-      broker: broker || null,
-      monthly_contribution_ils: monthlyContribution ? parseFloat(monthlyContribution) : null,
-      is_managed: true,
-      is_active: true,
-    };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<PensionFormData>({
+    resolver: zodResolver(PensionFormSchema) as Resolver<PensionFormData>,
+    defaultValues,
+  });
 
-    let error;
+  const accountType = watch('account_type');
 
-    if (isEditing && accountToEdit) {
-      const { error: updateError } = await supabase
-        .from('investment_accounts')
-        .update(payload)
-        .eq('id', accountToEdit.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await supabase.from('investment_accounts').insert(payload);
-      error = insertError;
+  useEffect(() => {
+    if (open && isEditing && accountToEdit) {
+      reset({
+        name: accountToEdit.name,
+        account_type: (accountToEdit.account_type as 'pension' | 'gemel') ?? 'pension',
+        current_balance: accountToEdit.current_balance ?? null,
+        broker: accountToEdit.broker ?? null,
+        monthly_contribution_ils: accountToEdit.monthly_contribution_ils ?? null,
+      });
+    } else if (!open) {
+      reset(defaultValues);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, accountToEdit, reset]);
 
-    if (error) {
-      console.error('Error saving pension account:', error);
-      setErrorMsg('שגיאה בשמירת הקרן');
-      setLoading(false);
+  const onSubmit = async (data: PensionFormData) => {
+    const result = await upsertPensionAction(data, accountToEdit?.id);
+    if (!result.success) {
+      toast.error(result.error);
       return;
     }
-
-    setLoading(false);
+    toast.success(isEditing ? 'הקרן עודכנה בהצלחה' : 'הקרן נוספה בהצלחה');
     setOpen(false);
     router.refresh();
   };
@@ -108,19 +107,15 @@ export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogPro
             הזן את שם הקרן והיתרה העדכנית כפי שמופיעה בדוח הרבעוני או באתר הקופה.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם הקופה
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="למשל: אלטשולר שחם פנסיה"
-              required
-            />
+            <div className="col-span-3 space-y-1">
+              <Input id="name" {...register('name')} placeholder="למשל: אלטשולר שחם פנסיה" />
+              {errors.name && <p className="text-base text-rose-500">{errors.name.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="account_type" className="text-right pt-2">
@@ -128,7 +123,7 @@ export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogPro
             </Label>
             <Select
               value={accountType}
-              onValueChange={(v) => setAccountType(v as 'pension' | 'gemel')}
+              onValueChange={(v) => setValue('account_type', v as 'pension' | 'gemel')}
             >
               <SelectTrigger className="col-span-3" dir="rtl">
                 <SelectValue />
@@ -150,8 +145,7 @@ export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogPro
             <Input
               id="balance"
               type="number"
-              value={currentBalance}
-              onChange={(e) => setCurrentBalance(e.target.value)}
+              {...register('current_balance')}
               className="col-span-3"
               placeholder="₪"
             />
@@ -162,8 +156,7 @@ export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogPro
             </Label>
             <Input
               id="broker"
-              value={broker}
-              onChange={(e) => setBroker(e.target.value)}
+              {...register('broker')}
               className="col-span-3"
               placeholder="למשל: מיטב, הראל, אלטשולר"
             />
@@ -175,16 +168,18 @@ export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogPro
             <Input
               id="contribution"
               type="number"
-              value={monthlyContribution}
-              onChange={(e) => setMonthlyContribution(e.target.value)}
+              {...register('monthly_contribution_ils')}
               className="col-span-3"
               placeholder="₪"
             />
           </div>
-          {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
-            <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700">
-              {loading ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף לנכסים'}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-indigo-600 hover:bg-indigo-700"
+            >
+              {isSubmitting ? 'שומר...' : isEditing ? 'עדכן פרטים' : 'הוסף לנכסים'}
             </Button>
           </DialogFooter>
         </form>
