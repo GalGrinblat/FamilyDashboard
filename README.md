@@ -1,81 +1,74 @@
 # Family Dashboard (Family ERP)
 
-A comprehensive family management system designed for tracking finances, assets, insurances, and life planning. The system natively supports Hebrew (RTL) while maintaining strong security and automated data processing.
+A comprehensive Hebrew-first family management system for tracking finances, assets, insurances, and life planning. Built on Next.js 16 + Supabase with full RTL support, AI-powered transaction classification, and PWA offline capabilities.
 
-## 🎯 Features
+## Pillars
 
-- **Monthly Balance (מאזן חודשי):** Dashboard correlating Liquidity and Transactions for burnout projections.
-- **Daily Liquidity (עו״ש ותזרים):** Manage day-to-day cash availability, bank balances, credit cards, and recurring obligations.
-- **Transaction Hub (יומן תנועות):** Data entry, classification, and audit log with AI-powered Expense Engine for automated CSV classification.
-- **Wealth & Assets (הון ונכסים):** Long-term net worth tracking, strategic growth, investment accounts, and portfolio management.
-- **Housing & Household:** Manage contracts, utilities, and track inventory (appliances, furniture, electronics).
-- **Vehicles:** Overview fleet values and log maintenance and licensing.
-- **Insurances:** Track health, life, property, and vehicle insurances in one place.
-- **Planning:** Periodic reminders and trip budgeting.
-- **Mobile & PWA Ready:** Responsive design with bottom navigation, touch-first UI, and offline caching support for core views.
+| Pillar | Hebrew | Route | Description |
+|--------|--------|-------|-------------|
+| Monthly Balance | מאזן חודשי | `/` | Dashboard — KPIs, net worth snapshot, upcoming reminders, cash flow overview |
+| Daily Liquidity | עו״ש ותזרים | `/liquidity` | Bank/credit-card balances, recurring budget flows, monthly & yearly projections |
+| Transaction Hub | יומן תנועות | `/transactions` | CSV upload with AI classification, review queue, global search |
+| Wealth & Assets | הון ונכסים | `/wealth` | Investments, real estate, pension/Gemel, RSU vesting |
+| Housing | מגורים | `/housing` | Properties, contracts, household inventory |
+| Transportation | תחבורה | `/transportation` | Vehicles, maintenance log |
+| Insurances | ביטוחים | `/insurances` | Health, property, vehicle policies |
+| Planning | תכנון | `/planning` | Reminders, financial goals, trip budgeting, calendar |
+| Analytics | אנליטיקס | `/analytics` | Budget vs actual, cash flow trends, domain spending |
+| Settings | הגדרות | `/settings` | Category management |
 
-## 🛠 Tech Stack
-
-- **Framework:** [Next.js 15](https://nextjs.org) (App Router)
-- **Language:** TypeScript
-- **Database/Auth:** [Supabase](https://supabase.com) (PostgreSQL)
-- **Styling:** Tailwind CSS + Shadcn/ui
-- **Icons:** Lucide-react
-
-## 🚀 Getting Started
-
-First, install dependencies:
+## Getting Started
 
 ```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
-```
-
-Set up your environment variables by copying the example file:
-
-```bash
-cp .env.example .env.local
-```
-
-Fill in `.env.local` with your Supabase credentials.
-
-Then, run the development server:
-
-```bash
+cp .env.example .env.local   # fill in Supabase + Gemini credentials
 npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-## 📏 Development Rules (Critical)
+### Environment variables
 
-1. **RTL First:** The root layout must have `dir="rtl"` and `lang="he"`. All UI components (Sidebar, Tabs, Tables) must be mirrored for Hebrew.
-2. **Naming Conventions:** All file names, variables, and logic must be in **English**. All UI labels, buttons, and display text must be in **Hebrew**.
-3. **Architecture:** Use Server Components for data fetching and Client Components for interactive UI (forms, tabs, uploads).
-4. **Shadcn/ui:** Use Shadcn for the base components, ensuring they are adjusted for RTL (check animation directions).
-5. **TypeScript Guidelines:**
-   - **Strict Typing**: NEVER use the `any` type under any circumstances.
-   - **Defined Types**: ALWAYS use strictly defined types or interfaces for variables, function parameters, and return types.
-   - **Supabase**: When working with database payloads, always import and use the strictly generated types from the `Database` schema (e.g., `Database['public']['Tables']['table_name']['Row']`).
-   - **Unknown Data**: If the exact shape of data is truly unknown at runtime, use the `unknown` type and employ type-narrowing/validation before use, but prefer explicitly mapping the expected structure.
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-side only) |
+| `GEMINI_API_KEY` | Google Gemini API key (server-side classification) |
+| `NEXT_PUBLIC_GEMINI_API_KEY` | Google Gemini API key (client-side fallback) |
 
-## 💾 Database Schema (Supabase)
+## Dev Commands
 
-- **Tables:** `categories`, `accounts`, `trips`, `transactions`, `assets`, `household_items`, `reminders`, `merchant_mappings`.
-- **Security:** Implement Row Level Security (RLS) so users only see their family's data.
-- **Optimization:** Add a mapping table for merchants to cache AI classifications.
+```bash
+npm run dev        # Start dev server (db:watch + next dev with Turbopack)
+npm run build      # Production build
+npm run lint       # ESLint
+npm run db:combine # Combine Supabase migrations into a single file
+```
 
-## 🚀 Advanced Features (Phase 2 Roadmap)
+To add a Shadcn component: `npx shadcn@latest add <component>`
 
-- **Currency Handling:** Automated conversion from USD/EUR to ILS for investments.
-- **Deduplication:** Logic to merge identical transactions appearing in both Bank and Credit Card exports.
+## Critical Development Rules
 
-## Deploy on Vercel
+1. **RTL/Hebrew** — root layout has `dir="rtl"` and `lang="he"`. All UI text in Hebrew; all identifiers/filenames in English.
+2. **TypeScript strict** — never use `any`; use `unknown` + type narrowing. Always use generated types from `src/types/database.types.ts`.
+3. **Server Components** — fetch data in Server Components; use Client Components only for interactivity. Mutations call Supabase browser client then `router.refresh()`.
+4. **Forms** — React Hook Form + Zod validation. All forms live in dialogs.
+5. **Font sizes** — minimum `text-base` (16 px). Never use `text-xs` or `text-sm`.
+6. **Constants** — new enums and labels go in `src/lib/constants.ts`, not inline.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new) from the creators of Next.js.
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Docs
+
+- [Tech Stack](docs/tech-stack.md)
+- [Deployment Guide](docs/deployment.md)
+- **Pillars:**
+  - [Monthly Balance](docs/pillars/monthly-balance.md)
+  - [Daily Liquidity](docs/pillars/liquidity.md)
+  - [Transaction Hub](docs/pillars/transactions.md)
+  - [Wealth & Assets](docs/pillars/wealth.md)
+  - [Housing](docs/pillars/housing.md)
+  - [Transportation](docs/pillars/transportation.md)
+  - [Insurances](docs/pillars/insurances.md)
+  - [Planning](docs/pillars/planning.md)
+  - [Analytics](docs/pillars/analytics.md)
+  - [Settings](docs/pillars/settings.md)
