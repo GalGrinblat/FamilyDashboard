@@ -27,7 +27,6 @@ import { formatCurrency, getAmountColorClass, getBadgeColorClass } from '@/lib/u
 
 export interface ClassifiedTransactionRow extends ParsedTransactionRow {
   suggested_category_id: string | null;
-  suggested_asset_id?: string | null;
   is_ai_classified: boolean;
   suggested_new_category?: { name_he: string; name_en: string; type: string } | null;
   is_duplicate?: boolean;
@@ -37,7 +36,6 @@ export interface ClassifiedTransactionRow extends ParsedTransactionRow {
 interface ReviewTransactionsTableProps {
   rows: ClassifiedTransactionRow[];
   categories: { id: string; name_he: string; domain?: string | null }[];
-  activeAssets?: { id: string; name: string; domain?: string | null }[];
   onConfirm: (finalRows: ClassifiedTransactionRow[]) => void;
   onCancel: () => void;
   isSubmitting: boolean;
@@ -46,7 +44,6 @@ interface ReviewTransactionsTableProps {
 export function ReviewTransactionsTable({
   rows,
   categories,
-  activeAssets = [],
   onConfirm,
   onCancel,
   isSubmitting,
@@ -84,15 +81,6 @@ export function ReviewTransactionsTable({
         newCategoryId === 'NEW' || newCategoryId.startsWith('CUSTOM_')
           ? updatedRows[index].suggested_new_category
           : null,
-    };
-    setReviewedRows(updatedRows);
-  };
-
-  const handleAssetChange = (index: number, newAssetId: string) => {
-    const updatedRows = [...reviewedRows];
-    updatedRows[index] = {
-      ...updatedRows[index],
-      suggested_asset_id: newAssetId === 'NONE' ? null : newAssetId,
     };
     setReviewedRows(updatedRows);
   };
@@ -169,7 +157,6 @@ export function ReviewTransactionsTable({
               <TableHead className="text-right w-[120px]">תאריך</TableHead>
               <TableHead className="text-right">תיאור / בית עסק</TableHead>
               <TableHead className="text-right w-[150px]">סכום</TableHead>
-              <TableHead className="text-right w-[200px]">שיוך לנכס (אופציונלי)</TableHead>
               <TableHead className="text-right w-[250px]">קטגוריה (סיווג חכם)</TableHead>
             </TableRow>
           </TableHeader>
@@ -289,43 +276,6 @@ export function ReviewTransactionsTable({
                           ✓ סווג ע״י המשתמש או מערכת
                         </span>
                       )}
-                  </TableCell>
-                  <TableCell>
-                    <select
-                      className="w-full text-lg border-0 bg-transparent ring-0 focus:ring-0 cursor-pointer text-zinc-700 dark:text-zinc-300"
-                      value={row.suggested_asset_id || 'NONE'}
-                      onChange={(e) => handleAssetChange(idx, e.target.value)}
-                      dir="rtl"
-                    >
-                      <option value="NONE">- ללא שיוך -</option>
-                      {(() => {
-                        // Find the domain of the selected category
-                        let domain = null;
-                        if (row.suggested_category_id) {
-                          const cat = categories.find((c) => c.id === row.suggested_category_id);
-                          if (cat) domain = cat.domain;
-                        }
-
-                        // Filter active assets
-                        const filteredAssets = domain
-                          ? activeAssets.filter((a) => a.domain === domain)
-                          : activeAssets;
-
-                        if (activeAssets.length > 0 && filteredAssets.length === 0) {
-                          return (
-                            <option disabled value="NONE_AVAIL">
-                              - אין נכסים תואמים לסיווג -
-                            </option>
-                          );
-                        }
-
-                        return filteredAssets.map((asset) => (
-                          <option key={asset.id} value={asset.id}>
-                            {asset.name}
-                          </option>
-                        ));
-                      })()}
-                    </select>
                   </TableCell>
                 </TableRow>
               );

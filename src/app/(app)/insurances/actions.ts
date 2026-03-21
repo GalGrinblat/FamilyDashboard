@@ -15,7 +15,8 @@ export async function addPolicyAction(formData: FormData) {
   const premiumFrequency = formData.get('premium_frequency') as FrequencyType;
   let renewalDate: string | null = formData.get('renewal_date') as string;
   let policyNumber: string | null = formData.get('policy_number') as string;
-  let assetId: string | null = formData.get('asset_id') as string;
+  let vehicleId: string | null = formData.get('vehicle_id') as string;
+  let propertyId: string | null = formData.get('property_id') as string;
   let documentUrl: string | null = formData.get('document_url') as string;
 
   if (!name || !provider || !type || !premiumAmountStr) {
@@ -24,7 +25,8 @@ export async function addPolicyAction(formData: FormData) {
 
   if (!renewalDate) renewalDate = null;
   if (!policyNumber) policyNumber = null;
-  if (assetId === 'none' || !assetId) assetId = null;
+  if (!vehicleId) vehicleId = null;
+  if (!propertyId) propertyId = null;
   if (!documentUrl) documentUrl = null;
 
   const payload = {
@@ -36,7 +38,8 @@ export async function addPolicyAction(formData: FormData) {
     premium_frequency: premiumFrequency as 'monthly' | 'yearly',
     renewal_date: renewalDate,
     policy_number: policyNumber,
-    asset_id: assetId,
+    vehicle_id: vehicleId,
+    property_id: propertyId,
     document_url: documentUrl,
   };
 
@@ -47,7 +50,6 @@ export async function addPolicyAction(formData: FormData) {
     return { error: 'שגיאה בהוספת הפוליסה' };
   }
 
-  // Sync with recurring_flows
   const { data: newPolicy } = await supabase
     .from('policies')
     .select('id')
@@ -76,7 +78,8 @@ export async function updatePolicyAction(id: string, formData: FormData) {
   const premiumFrequency = formData.get('premium_frequency') as FrequencyType;
   let renewalDate: string | null = formData.get('renewal_date') as string;
   let policyNumber: string | null = formData.get('policy_number') as string;
-  let assetId: string | null = formData.get('asset_id') as string;
+  let vehicleId: string | null = formData.get('vehicle_id') as string;
+  let propertyId: string | null = formData.get('property_id') as string;
   let documentUrl: string | null = formData.get('document_url') as string;
 
   if (!name || !provider || !type || !premiumAmountStr) {
@@ -85,7 +88,8 @@ export async function updatePolicyAction(id: string, formData: FormData) {
 
   if (!renewalDate) renewalDate = null;
   if (!policyNumber) policyNumber = null;
-  if (assetId === 'none' || !assetId) assetId = null;
+  if (!vehicleId) vehicleId = null;
+  if (!propertyId) propertyId = null;
   if (!documentUrl) documentUrl = null;
 
   const payload = {
@@ -97,7 +101,8 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     premium_frequency: premiumFrequency as 'monthly' | 'yearly',
     renewal_date: renewalDate,
     policy_number: policyNumber,
-    asset_id: assetId,
+    vehicle_id: vehicleId,
+    property_id: propertyId,
     document_url: documentUrl,
   };
 
@@ -108,7 +113,6 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     return { error: 'שגיאה בעדכון הפוליסה' };
   }
 
-  // Sync with recurring_flows
   await syncPolicyToFlow(supabase, id, name, payload.premium_amount, premiumFrequency);
 
   revalidatePath('/insurances');

@@ -12,7 +12,6 @@ interface ParsedPayloadRow {
   description?: string;
   suggested_category_id?: string | null;
   suggested_new_category?: { name_he: string; name_en: string; type: string } | null;
-  suggested_asset_id?: string | null;
   account_id?: string | null;
 }
 
@@ -64,8 +63,7 @@ export async function POST(req: Request) {
       amount: Math.abs(typeof row.amount === 'string' ? parseFloat(row.amount) : row.amount) || 0, // Ensure amount is absolute
       description: row.description || 'Unknown',
       merchant: row.description?.trim() || 'Unknown', // Temporarily same as description
-      category_id: row.suggested_category_id || null, // Map the verified string
-      asset_id: row.suggested_asset_id || null,
+      category_id: row.suggested_category_id || null,
       account_id: row.account_id || '',
     }));
 

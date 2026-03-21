@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { AssetSchema } from '@/lib/schemas';
-import { ASSET_TYPES } from '@/lib/constants';
+import { InvestmentAccountSchema } from '@/lib/schemas';
 import { PensionSummaryKpis } from './PensionSummaryKpis';
 import { PensionTable } from './PensionTable';
 
@@ -9,13 +8,13 @@ export async function PensionTab() {
   const supabase = await createClient();
 
   const { data } = await supabase
-    .from('assets')
+    .from('investment_accounts')
     .select('*')
-    .eq('type', ASSET_TYPES.PENSION)
-    .eq('status', 'active')
+    .in('account_type', ['pension', 'gemel'])
+    .eq('is_active', true)
     .order('name', { ascending: true });
 
-  const pensions = z.array(AssetSchema).parse(data ?? []);
+  const pensions = z.array(InvestmentAccountSchema).parse(data ?? []);
 
   return (
     <div className="space-y-4">

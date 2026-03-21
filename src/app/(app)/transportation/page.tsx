@@ -19,18 +19,19 @@ import { CATEGORY_DOMAINS } from '@/lib/constants';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
+type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
+type MaintenanceRow = Database['public']['Tables']['vehicle_maintenance']['Row'];
 type ReminderRow = Database['public']['Tables']['reminders']['Row'];
 
-interface CarAssetWithCost extends AssetRow {
+interface VehicleWithCost extends VehicleRow {
   total_spent: number;
 }
 
-function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: ReminderRow[] }) {
+function CarsTable({ cars, reminders }: { cars: VehicleWithCost[]; reminders: ReminderRow[] }) {
   if (!cars || cars.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground border-t border-zinc-100 dark:border-zinc-800">
-        <p>אין רכבים רשומים המנוהלים כנכסים במשפחה.</p>
+        <p>אין רכבים רשומים במשפחה.</p>
         <CarAssetDialog
           triggerButton={
             <Button variant="outline" className="mt-4">
@@ -58,91 +59,79 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
             </TableRow>
           </TableHeader>
           <TableBody>
-            {cars.map((car) => {
-              const metadata = (car.metadata || {}) as { license_plate?: string; year?: string };
-              return (
-                <CarAssetDialog
-                  key={car.id}
-                  assetToEdit={car}
-                  triggerButton={
-                    <TableRow className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                      <TableCell className="font-medium text-blue-600 dark:text-blue-400 font-semibold">
-                        {car.name}
-                      </TableCell>
-                      <TableCell>{metadata.license_plate || '-'}</TableCell>
-                      <TableCell>{metadata.year || '-'}</TableCell>
-                      <TableCell
-                        className={`font-medium ${getAmountColorClass('income')}`}
-                        dir="ltr"
-                      >
-                        {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
-                      </TableCell>
-                      <TableCell
-                        className={`font-semibold ${getAmountColorClass('expense')}`}
-                        dir="ltr"
-                      >
-                        {car.total_spent > 0
-                          ? formatCurrency(-car.total_spent, true)
-                          : formatCurrency(0)}
-                      </TableCell>
-                    </TableRow>
-                  }
-                />
-              );
-            })}
+            {cars.map((car) => (
+              <CarAssetDialog
+                key={car.id}
+                vehicleToEdit={car}
+                triggerButton={
+                  <TableRow className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                    <TableCell className="font-medium text-blue-600 dark:text-blue-400 font-semibold">
+                      {car.name}
+                    </TableCell>
+                    <TableCell>{car.license_plate || '-'}</TableCell>
+                    <TableCell>{car.year || '-'}</TableCell>
+                    <TableCell className={`font-medium ${getAmountColorClass('income')}`} dir="ltr">
+                      {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
+                    </TableCell>
+                    <TableCell
+                      className={`font-semibold ${getAmountColorClass('expense')}`}
+                      dir="ltr"
+                    >
+                      {car.total_spent > 0
+                        ? formatCurrency(-car.total_spent, true)
+                        : formatCurrency(0)}
+                    </TableCell>
+                  </TableRow>
+                }
+              />
+            ))}
           </TableBody>
         </Table>
       </div>
 
       {/* Mobile View */}
       <div className="md:hidden flex flex-col space-y-3 p-4 pt-2">
-        {cars.map((car) => {
-          const metadata = (car.metadata || {}) as { license_plate?: string; year?: string };
-          return (
-            <CarAssetDialog
-              key={car.id}
-              assetToEdit={car}
-              triggerButton={
-                <div
-                  key={car.id}
-                  className="flex flex-col space-y-2 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 cursor-pointer hover:border-zinc-300 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">
-                      {car.name}
-                    </span>
-                    <span className={`font-bold ${getAmountColorClass('income')}`} dir="ltr">
-                      {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-lg text-zinc-600 dark:text-zinc-400">
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium text-zinc-500">מספר רישוי:</span>{' '}
-                      {metadata.license_plate || '-'}
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium text-zinc-500">שנתון:</span>{' '}
-                      {metadata.year || '-'}
-                    </span>
-                  </div>
-                  <div
-                    className={`pt-1 text-lg font-medium ${getAmountColorClass('expense')}`}
-                    dir="ltr"
-                  >
-                    סך הוצאות מצטבר:{' '}
-                    {car.total_spent > 0
-                      ? formatCurrency(-car.total_spent, true)
-                      : formatCurrency(0)}
-                  </div>
+        {cars.map((car) => (
+          <CarAssetDialog
+            key={car.id}
+            vehicleToEdit={car}
+            triggerButton={
+              <div
+                key={car.id}
+                className="flex flex-col space-y-2 p-4 rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 cursor-pointer hover:border-zinc-300 transition-colors"
+              >
+                <div className="flex justify-between items-start">
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg">
+                    {car.name}
+                  </span>
+                  <span className={`font-bold ${getAmountColorClass('income')}`} dir="ltr">
+                    {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
+                  </span>
                 </div>
-              }
-            />
-          );
-        })}
+                <div className="flex items-center gap-3 text-lg text-zinc-600 dark:text-zinc-400">
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium text-zinc-500">מספר רישוי:</span>{' '}
+                    {car.license_plate || '-'}
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium text-zinc-500">שנתון:</span> {car.year || '-'}
+                  </span>
+                </div>
+                <div
+                  className={`pt-1 text-lg font-medium ${getAmountColorClass('expense')}`}
+                  dir="ltr"
+                >
+                  סך הוצאות מצטבר:{' '}
+                  {car.total_spent > 0 ? formatCurrency(-car.total_spent, true) : formatCurrency(0)}
+                </div>
+              </div>
+            }
+          />
+        ))}
       </div>
 
-      {/* Display relevant reminders */}
+      {/* Reminders */}
       {reminders && reminders.length > 0 && (
         <div className="px-4 md:px-6 pb-6">
           <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 text-zinc-900 border-b pb-2 dark:text-zinc-100 dark:border-zinc-800">
@@ -183,38 +172,31 @@ function CarsTable({ cars, reminders }: { cars: CarAssetWithCost[]; reminders: R
 export default async function TransportationPage() {
   const supabase = await createClient();
 
-  // 1. Fetch active Car Assets exclusively
-  const { data: assetsData } = await supabase
-    .from('assets')
-    .select(
-      `
-            *,
-            transactions ( amount )
-        `,
-    )
-    .eq('type', 'vehicle')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false });
+  const [{ data: vehiclesData }, { data: maintenanceData }, { data: remindersData }] =
+    await Promise.all([
+      supabase
+        .from('vehicles')
+        .select('*, transactions(amount)')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false }),
+      supabase.from('vehicle_maintenance').select('*').order('date', { ascending: false }),
+      supabase
+        .from('reminders')
+        .select('*')
+        .in('type', ['car_test', 'insurance', 'maintenance'])
+        .eq('is_completed', false)
+        .order('due_date', { ascending: true }),
+    ]);
 
-  // Process accumulated transactions
-  const cars: CarAssetWithCost[] = (assetsData || []).map((rawCar) => {
-    const car = rawCar as unknown as AssetRow & {
+  const cars: VehicleWithCost[] = (vehiclesData || []).map((rawCar) => {
+    const car = rawCar as unknown as VehicleRow & {
       transactions?: { amount: number | null }[] | null;
     };
     const total = (car.transactions || []).reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
-    return {
-      ...car,
-      total_spent: total,
-    };
+    return { ...car, total_spent: total };
   });
 
-  // 2. Fetch Car alerts (tests / insurance)
-  const { data: remindersData } = await supabase
-    .from('reminders')
-    .select('*')
-    .in('type', ['car_test', 'insurance', 'maintenance'])
-    .eq('is_completed', false)
-    .order('due_date', { ascending: true });
+  const maintenance = (maintenanceData as MaintenanceRow[]) || [];
   const notifications = (remindersData as ReminderRow[]) || [];
 
   return (
@@ -255,7 +237,7 @@ export default async function TransportationPage() {
         </TabsContent>
 
         <TabsContent value="maintenance" className="mt-4">
-          <MaintenanceLog cars={cars} />
+          <MaintenanceLog cars={cars} maintenance={maintenance} />
         </TabsContent>
 
         <DomainTransactionsTab

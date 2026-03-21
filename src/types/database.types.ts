@@ -16,66 +16,33 @@ export type Database = {
           currency: string | null;
           current_balance: number | null;
           id: string;
-          name: string;
-          type: Database['public']['Enums']['account_type'];
-          updated_at: string | null;
-        };
-        Insert: {
-          billing_day?: number | null;
-          created_at?: string | null;
-          credit_limit?: number | null;
-          currency?: string | null;
-          current_balance?: number | null;
-          id?: string;
-          name: string;
-          type: Database['public']['Enums']['account_type'];
-          updated_at?: string | null;
-        };
-        Update: {
-          billing_day?: number | null;
-          created_at?: string | null;
-          credit_limit?: number | null;
-          currency?: string | null;
-          current_balance?: number | null;
-          id?: string;
-          name?: string;
-          type?: Database['public']['Enums']['account_type'];
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
-      assets: {
-        Row: {
-          attachments: Json | null;
-          created_at: string | null;
-          estimated_value: number | null;
-          id: string;
           metadata: Json | null;
           name: string;
-          status: Database['public']['Enums']['asset_status'] | null;
-          type: string;
+          type: Database['public']['Enums']['account_type'];
           updated_at: string | null;
         };
         Insert: {
-          attachments?: Json | null;
+          billing_day?: number | null;
           created_at?: string | null;
-          estimated_value?: number | null;
+          credit_limit?: number | null;
+          currency?: string | null;
+          current_balance?: number | null;
           id?: string;
           metadata?: Json | null;
           name: string;
-          status?: Database['public']['Enums']['asset_status'] | null;
-          type: string;
+          type: Database['public']['Enums']['account_type'];
           updated_at?: string | null;
         };
         Update: {
-          attachments?: Json | null;
+          billing_day?: number | null;
           created_at?: string | null;
-          estimated_value?: number | null;
+          credit_limit?: number | null;
+          currency?: string | null;
+          current_balance?: number | null;
           id?: string;
           metadata?: Json | null;
           name?: string;
-          status?: Database['public']['Enums']['asset_status'] | null;
-          type?: string;
+          type?: Database['public']['Enums']['account_type'];
           updated_at?: string | null;
         };
         Relationships: [];
@@ -373,7 +340,6 @@ export type Database = {
       };
       policies: {
         Row: {
-          asset_id: string | null;
           covered_individuals: string[] | null;
           created_at: string;
           document_url: string | null;
@@ -382,13 +348,14 @@ export type Database = {
           policy_number: string | null;
           premium_amount: number;
           premium_frequency: Database['public']['Enums']['policy_frequency'];
+          property_id: string | null;
           provider: string;
           renewal_date: string | null;
           subtype: string | null;
           type: Database['public']['Enums']['policy_type'];
+          vehicle_id: string | null;
         };
         Insert: {
-          asset_id?: string | null;
           covered_individuals?: string[] | null;
           created_at?: string;
           document_url?: string | null;
@@ -397,13 +364,14 @@ export type Database = {
           policy_number?: string | null;
           premium_amount: number;
           premium_frequency?: Database['public']['Enums']['policy_frequency'];
+          property_id?: string | null;
           provider: string;
           renewal_date?: string | null;
           subtype?: string | null;
           type: Database['public']['Enums']['policy_type'];
+          vehicle_id?: string | null;
         };
         Update: {
-          asset_id?: string | null;
           covered_individuals?: string[] | null;
           created_at?: string;
           document_url?: string | null;
@@ -412,17 +380,26 @@ export type Database = {
           policy_number?: string | null;
           premium_amount?: number;
           premium_frequency?: Database['public']['Enums']['policy_frequency'];
+          property_id?: string | null;
           provider?: string;
           renewal_date?: string | null;
           subtype?: string | null;
           type?: Database['public']['Enums']['policy_type'];
+          vehicle_id?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: 'policies_asset_id_fkey';
-            columns: ['asset_id'];
+            foreignKeyName: 'policies_property_id_fkey';
+            columns: ['property_id'];
             isOneToOne: false;
-            referencedRelation: 'assets';
+            referencedRelation: 'properties';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'policies_vehicle_id_fkey';
+            columns: ['vehicle_id'];
+            isOneToOne: false;
+            referencedRelation: 'vehicles';
             referencedColumns: ['id'];
           },
         ];
@@ -575,54 +552,123 @@ export type Database = {
           },
         ];
       };
+      properties: {
+        Row: {
+          address: string | null;
+          attachment_urls: string[] | null;
+          created_at: string | null;
+          estimated_value: number | null;
+          id: string;
+          is_rented: boolean;
+          monthly_rent: number | null;
+          mortgage_end_date: string | null;
+          mortgage_payment: number | null;
+          mortgage_start_date: string | null;
+          name: string;
+          notes: string | null;
+          purchase_date: string | null;
+          purchase_price: number | null;
+          rent_end_date: string | null;
+          rent_start_date: string | null;
+          status: Database['public']['Enums']['asset_status'];
+          updated_at: string | null;
+        };
+        Insert: {
+          address?: string | null;
+          attachment_urls?: string[] | null;
+          created_at?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          is_rented?: boolean;
+          monthly_rent?: number | null;
+          mortgage_end_date?: string | null;
+          mortgage_payment?: number | null;
+          mortgage_start_date?: string | null;
+          name: string;
+          notes?: string | null;
+          purchase_date?: string | null;
+          purchase_price?: number | null;
+          rent_end_date?: string | null;
+          rent_start_date?: string | null;
+          status?: Database['public']['Enums']['asset_status'];
+          updated_at?: string | null;
+        };
+        Update: {
+          address?: string | null;
+          attachment_urls?: string[] | null;
+          created_at?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          is_rented?: boolean;
+          monthly_rent?: number | null;
+          mortgage_end_date?: string | null;
+          mortgage_payment?: number | null;
+          mortgage_start_date?: string | null;
+          name?: string;
+          notes?: string | null;
+          purchase_date?: string | null;
+          purchase_price?: number | null;
+          rent_end_date?: string | null;
+          rent_start_date?: string | null;
+          status?: Database['public']['Enums']['asset_status'];
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       recurring_flows: {
         Row: {
           account_id: string | null;
           amount: number;
-          asset_id: string | null;
           category_id: string | null;
           created_at: string | null;
+          domain: string | null;
           end_date: string | null;
           frequency: Database['public']['Enums']['flow_frequency'];
           id: string;
           is_active: boolean | null;
           name: string;
           policy_id: string | null;
+          property_id: string | null;
           start_date: string | null;
           type: Database['public']['Enums']['flow_type'];
           updated_at: string | null;
+          vehicle_id: string | null;
         };
         Insert: {
           account_id?: string | null;
           amount: number;
-          asset_id?: string | null;
           category_id?: string | null;
           created_at?: string | null;
+          domain?: string | null;
           end_date?: string | null;
           frequency: Database['public']['Enums']['flow_frequency'];
           id?: string;
           is_active?: boolean | null;
           name: string;
           policy_id?: string | null;
+          property_id?: string | null;
           start_date?: string | null;
           type: Database['public']['Enums']['flow_type'];
           updated_at?: string | null;
+          vehicle_id?: string | null;
         };
         Update: {
           account_id?: string | null;
           amount?: number;
-          asset_id?: string | null;
           category_id?: string | null;
           created_at?: string | null;
+          domain?: string | null;
           end_date?: string | null;
           frequency?: Database['public']['Enums']['flow_frequency'];
           id?: string;
           is_active?: boolean | null;
           name?: string;
           policy_id?: string | null;
+          property_id?: string | null;
           start_date?: string | null;
           type?: Database['public']['Enums']['flow_type'];
           updated_at?: string | null;
+          vehicle_id?: string | null;
         };
         Relationships: [
           {
@@ -630,13 +676,6 @@ export type Database = {
             columns: ['account_id'];
             isOneToOne: false;
             referencedRelation: 'accounts';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'recurring_flows_asset_id_fkey';
-            columns: ['asset_id'];
-            isOneToOne: false;
-            referencedRelation: 'assets';
             referencedColumns: ['id'];
           },
           {
@@ -653,60 +692,80 @@ export type Database = {
             referencedRelation: 'policies';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'recurring_flows_property_id_fkey';
+            columns: ['property_id'];
+            isOneToOne: false;
+            referencedRelation: 'properties';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recurring_flows_vehicle_id_fkey';
+            columns: ['vehicle_id'];
+            isOneToOne: false;
+            referencedRelation: 'vehicles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       reminders: {
         Row: {
-          asset_id: string | null;
           created_at: string | null;
           due_date: string;
           frequency: Database['public']['Enums']['flow_frequency'] | null;
           id: string;
           is_completed: boolean | null;
           is_recurring: boolean;
+          property_id: string | null;
+          recurrence_frequency: Database['public']['Enums']['flow_frequency'] | null;
           recurring_flow_id: string | null;
           start_date: string | null;
           target_account_id: string | null;
           title: string;
           type: Database['public']['Enums']['reminder_type'];
           updated_at: string | null;
+          vehicle_id: string | null;
         };
         Insert: {
-          asset_id?: string | null;
           created_at?: string | null;
           due_date: string;
           frequency?: Database['public']['Enums']['flow_frequency'] | null;
           id?: string;
           is_completed?: boolean | null;
           is_recurring?: boolean;
+          property_id?: string | null;
+          recurrence_frequency?: Database['public']['Enums']['flow_frequency'] | null;
           recurring_flow_id?: string | null;
           start_date?: string | null;
           target_account_id?: string | null;
           title: string;
           type: Database['public']['Enums']['reminder_type'];
           updated_at?: string | null;
+          vehicle_id?: string | null;
         };
         Update: {
-          asset_id?: string | null;
           created_at?: string | null;
           due_date?: string;
           frequency?: Database['public']['Enums']['flow_frequency'] | null;
           id?: string;
           is_completed?: boolean | null;
           is_recurring?: boolean;
+          property_id?: string | null;
+          recurrence_frequency?: Database['public']['Enums']['flow_frequency'] | null;
           recurring_flow_id?: string | null;
           start_date?: string | null;
           target_account_id?: string | null;
           title?: string;
           type?: Database['public']['Enums']['reminder_type'];
           updated_at?: string | null;
+          vehicle_id?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: 'reminders_asset_id_fkey';
-            columns: ['asset_id'];
+            foreignKeyName: 'reminders_property_id_fkey';
+            columns: ['property_id'];
             isOneToOne: false;
-            referencedRelation: 'assets';
+            referencedRelation: 'properties';
             referencedColumns: ['id'];
           },
           {
@@ -721,6 +780,13 @@ export type Database = {
             columns: ['target_account_id'];
             isOneToOne: false;
             referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reminders_vehicle_id_fkey';
+            columns: ['vehicle_id'];
+            isOneToOne: false;
+            referencedRelation: 'vehicles';
             referencedColumns: ['id'];
           },
         ];
@@ -848,7 +914,6 @@ export type Database = {
         Row: {
           account_id: string | null;
           amount: number;
-          asset_id: string | null;
           category_id: string | null;
           created_at: string | null;
           date: string;
@@ -858,15 +923,16 @@ export type Database = {
           is_duplicate: boolean | null;
           merchant: string | null;
           original_amount: number | null;
+          property_id: string | null;
           recurring_flow_id: string | null;
           total_installments: number | null;
           trip_id: string | null;
           updated_at: string | null;
+          vehicle_id: string | null;
         };
         Insert: {
           account_id?: string | null;
           amount: number;
-          asset_id?: string | null;
           category_id?: string | null;
           created_at?: string | null;
           date: string;
@@ -876,15 +942,16 @@ export type Database = {
           is_duplicate?: boolean | null;
           merchant?: string | null;
           original_amount?: number | null;
+          property_id?: string | null;
           recurring_flow_id?: string | null;
           total_installments?: number | null;
           trip_id?: string | null;
           updated_at?: string | null;
+          vehicle_id?: string | null;
         };
         Update: {
           account_id?: string | null;
           amount?: number;
-          asset_id?: string | null;
           category_id?: string | null;
           created_at?: string | null;
           date?: string;
@@ -894,10 +961,12 @@ export type Database = {
           is_duplicate?: boolean | null;
           merchant?: string | null;
           original_amount?: number | null;
+          property_id?: string | null;
           recurring_flow_id?: string | null;
           total_installments?: number | null;
           trip_id?: string | null;
           updated_at?: string | null;
+          vehicle_id?: string | null;
         };
         Relationships: [
           {
@@ -908,13 +977,6 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'transactions_asset_id_fkey';
-            columns: ['asset_id'];
-            isOneToOne: false;
-            referencedRelation: 'assets';
-            referencedColumns: ['id'];
-          },
-          {
             foreignKeyName: 'transactions_category_id_fkey';
             columns: ['category_id'];
             isOneToOne: false;
@@ -922,10 +984,24 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'transactions_property_id_fkey';
+            columns: ['property_id'];
+            isOneToOne: false;
+            referencedRelation: 'properties';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'transactions_trip_id_fkey';
             columns: ['trip_id'];
             isOneToOne: false;
             referencedRelation: 'trips';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'transactions_vehicle_id_fkey';
+            columns: ['vehicle_id'];
+            isOneToOne: false;
+            referencedRelation: 'vehicles';
             referencedColumns: ['id'];
           },
         ];
@@ -957,6 +1033,116 @@ export type Database = {
           name?: string;
           start_date?: string | null;
           updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      vehicle_maintenance: {
+        Row: {
+          cost: number | null;
+          created_at: string | null;
+          date: string;
+          description: string | null;
+          id: string;
+          mileage: number | null;
+          notes: string | null;
+          type: string;
+          updated_at: string | null;
+          vehicle_id: string;
+        };
+        Insert: {
+          cost?: number | null;
+          created_at?: string | null;
+          date: string;
+          description?: string | null;
+          id?: string;
+          mileage?: number | null;
+          notes?: string | null;
+          type?: string;
+          updated_at?: string | null;
+          vehicle_id: string;
+        };
+        Update: {
+          cost?: number | null;
+          created_at?: string | null;
+          date?: string;
+          description?: string | null;
+          id?: string;
+          mileage?: number | null;
+          notes?: string | null;
+          type?: string;
+          updated_at?: string | null;
+          vehicle_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vehicle_maintenance_vehicle_id_fkey';
+            columns: ['vehicle_id'];
+            isOneToOne: false;
+            referencedRelation: 'vehicles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      vehicles: {
+        Row: {
+          created_at: string | null;
+          estimated_value: number | null;
+          id: string;
+          insurance_end_date: string | null;
+          is_leased: boolean;
+          last_service_date: string | null;
+          last_service_km: number | null;
+          leasing_payment: number | null;
+          license_plate: string | null;
+          make: string | null;
+          model: string | null;
+          name: string;
+          purchase_date: string | null;
+          purchase_price: number | null;
+          registration_date: string | null;
+          status: Database['public']['Enums']['asset_status'];
+          updated_at: string | null;
+          year: number | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          insurance_end_date?: string | null;
+          is_leased?: boolean;
+          last_service_date?: string | null;
+          last_service_km?: number | null;
+          leasing_payment?: number | null;
+          license_plate?: string | null;
+          make?: string | null;
+          model?: string | null;
+          name: string;
+          purchase_date?: string | null;
+          purchase_price?: number | null;
+          registration_date?: string | null;
+          status?: Database['public']['Enums']['asset_status'];
+          updated_at?: string | null;
+          year?: number | null;
+        };
+        Update: {
+          created_at?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          insurance_end_date?: string | null;
+          is_leased?: boolean;
+          last_service_date?: string | null;
+          last_service_km?: number | null;
+          leasing_payment?: number | null;
+          license_plate?: string | null;
+          make?: string | null;
+          model?: string | null;
+          name?: string;
+          purchase_date?: string | null;
+          purchase_price?: number | null;
+          registration_date?: string | null;
+          status?: Database['public']['Enums']['asset_status'];
+          updated_at?: string | null;
+          year?: number | null;
         };
         Relationships: [];
       };

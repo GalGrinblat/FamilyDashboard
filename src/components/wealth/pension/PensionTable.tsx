@@ -1,44 +1,39 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, Landmark, PiggyBank, GraduationCap, Trash2 } from 'lucide-react';
+import { Briefcase, PiggyBank, GraduationCap, Trash2 } from 'lucide-react';
 import { PensionDialog } from './PensionDialog';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
-import type { AssetRef } from '@/lib/schemas';
+import type { InvestmentAccountRef } from '@/lib/schemas';
+import { INVESTMENT_ACCOUNT_TYPE_LABELS } from '@/lib/constants';
 
-export function PensionTable({ pensions }: { pensions: AssetRef[] }) {
+export function PensionTable({ pensions }: { pensions: InvestmentAccountRef[] }) {
   const router = useRouter();
   const supabase = createClient();
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('האם למחוק קופה זו? הפעולה אינה הפיכה.')) return;
-    const { error } = await supabase.from('assets').delete().eq('id', id);
+    const { error } = await supabase
+      .from('investment_accounts')
+      .update({ is_active: false })
+      .eq('id', id);
     if (error) {
       console.error(error);
-      alert('שגיאה במחיקת הקופה');
+      alert('שגיאה בהסרת הקופה');
     } else {
       router.refresh();
     }
   };
 
   const typeIcons: Record<string, React.ReactNode> = {
-    pension_fund: <Briefcase className="h-4 w-4 text-blue-500" />,
-    managers_insurance: <Landmark className="h-4 w-4 text-indigo-500" />,
-    study_fund: <GraduationCap className="h-4 w-4 text-emerald-500" />,
-    provident_fund: <PiggyBank className="h-4 w-4 text-orange-500" />,
+    pension: <Briefcase className="h-4 w-4 text-blue-500" />,
+    gemel: <GraduationCap className="h-4 w-4 text-orange-500" />,
   };
 
-  const typeLabels: Record<string, string> = {
-    pension_fund: 'קרן פנסיה',
-    managers_insurance: 'ביטוח מנהלים',
-    study_fund: 'קרן השתלמות',
-    provident_fund: 'קופת גמל',
-  };
-
-  const totalValue = pensions.reduce((sum, p) => sum + Number(p.estimated_value || 0), 0);
+  const totalValue = pensions.reduce((sum, p) => sum + Number(p.current_balance || 0), 0);
 
   return (
     <Card>
@@ -64,49 +59,43 @@ export function PensionTable({ pensions }: { pensions: AssetRef[] }) {
           </div>
         ) : (
           <div className="space-y-4 mt-4">
-            {pensions.map((pension) => {
-              const meta =
-                (pension.metadata as {
-                  pension_type?: string;
-                  employee_percent?: number | string;
-                  employer_percent?: number | string;
-                } | null) || {};
-              const pType = meta.pension_type || 'pension_fund';
-              return (
-                <div
-                  key={pension.id}
-                  className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
-                >
-                  <div className="flex flex-col">
-                    <span className="font-medium flex items-center gap-2">
-                      {typeIcons[pType]}
-                      {pension.name}
+            {pensions.map((pension) => (
+              <div
+                key={pension.id}
+                className="flex justify-between items-center text-lg border-b border-zinc-100 dark:border-zinc-800 pb-3 last:border-0 last:pb-0 group"
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium flex items-center gap-2">
+                    {typeIcons[pension.account_type] || (
+                      <PiggyBank className="h-4 w-4 text-zinc-400" />
+                    )}
+                    {pension.name}
+                  </span>
+                  <div className="text-base text-muted-foreground flex gap-3 mt-1">
+                    <span>
+                      {INVESTMENT_ACCOUNT_TYPE_LABELS[
+                        pension.account_type as keyof typeof INVESTMENT_ACCOUNT_TYPE_LABELS
+                      ] || pension.account_type}
                     </span>
-                    <div className="text-base text-muted-foreground flex gap-3 mt-1">
-                      <span>{typeLabels[pType]}</span>
-                      {(meta.employee_percent || meta.employer_percent) && (
-                        <span>
-                          הפרשות: {meta.employee_percent ? `עובד ${meta.employee_percent}%` : ''}
-                          {meta.employee_percent && meta.employer_percent ? ' | ' : ''}
-                          {meta.employer_percent ? `מעסיק ${meta.employer_percent}%` : ''}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`font-semibold ${getAmountColorClass('income')}`} dir="ltr">
-                      {formatCurrency(Number(pension.estimated_value))}
-                    </span>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <PensionDialog assetToEdit={pension} />
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(pension.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
+                    {pension.broker && <span>{pension.broker}</span>}
+                    {pension.monthly_contribution_ils && pension.monthly_contribution_ils > 0 && (
+                      <span>הפרשה: {formatCurrency(pension.monthly_contribution_ils)}/חודש</span>
+                    )}
                   </div>
                 </div>
-              );
-            })}
+                <div className="flex items-center gap-4">
+                  <span className={`font-semibold ${getAmountColorClass('income')}`} dir="ltr">
+                    {formatCurrency(Number(pension.current_balance))}
+                  </span>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PensionDialog accountToEdit={pension} />
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(pension.id)}>
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>

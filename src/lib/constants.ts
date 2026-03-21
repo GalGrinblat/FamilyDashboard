@@ -98,26 +98,6 @@ export const INSURANCE_SUBTYPES = {
   ],
 };
 
-export const ASSET_TYPES = {
-  STOCK: 'stock',
-  CRYPTO: 'crypto',
-  REAL_ESTATE: 'real_estate',
-  PENSION: 'pension',
-  VEHICLE: 'vehicle',
-  OTHER: 'other',
-} as const;
-
-export type AssetType = (typeof ASSET_TYPES)[keyof typeof ASSET_TYPES];
-
-export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
-  [ASSET_TYPES.STOCK]: 'מניות ושוק ההון',
-  [ASSET_TYPES.CRYPTO]: 'מטבעות קריפטו',
-  [ASSET_TYPES.REAL_ESTATE]: 'נדל״ן',
-  [ASSET_TYPES.PENSION]: 'פנסיה וגמל',
-  [ASSET_TYPES.VEHICLE]: 'רכב',
-  [ASSET_TYPES.OTHER]: 'אחר',
-};
-
 export const ACCOUNT_TYPES = {
   BANK: 'bank',
   CREDIT_CARD: 'credit_card',

@@ -25,12 +25,11 @@ import {
 import { Plus } from 'lucide-react';
 
 import { Database } from '@/types/database.types';
-import { MaintenanceLogEntry, AssetMetadata } from '@/types/maintenance';
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
+type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
 
 interface AddMaintenanceDialogProps {
-  cars: AssetRow[];
+  cars: VehicleRow[];
 }
 
 export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
@@ -53,37 +52,30 @@ export function MaintenanceDialog({ cars }: AddMaintenanceDialogProps) {
     setLoading(true);
     setErrorMsg('');
 
-    const selectedCar = cars.find((c) => c.id === carId);
-    if (!selectedCar) return;
-
-    const metadata = (selectedCar.metadata as unknown as AssetMetadata) || {};
-    const existingLogs = metadata.maintenance_log || [];
-
-    const newLogEntry: MaintenanceLogEntry = {
-      id: crypto.randomUUID(),
+    const payload = {
+      vehicle_id: carId,
       date,
-      type: type as MaintenanceLogEntry['type'],
-      description,
-      cost: cost ? parseFloat(cost) : 0,
+      type,
+      description: description || null,
+      cost: cost ? parseFloat(cost) : null,
       mileage: mileage ? parseInt(mileage) : null,
     };
 
-    const payload: Database['public']['Tables']['assets']['Update'] = {
-      metadata: {
-        ...metadata,
-        maintenance_log: [...existingLogs, newLogEntry],
-        last_service_km: mileage ? parseInt(mileage) : metadata.last_service_km,
-      } as unknown as Database['public']['Tables']['assets']['Update']['metadata'],
-    };
+    const { error } = await supabase.from('vehicle_maintenance').insert(payload);
 
-    const { error } = await supabase.from('assets').update(payload).eq('id', carId);
+    // Also update last_service_km on the vehicle if mileage provided
+    if (!error && mileage) {
+      await supabase
+        .from('vehicles')
+        .update({ last_service_km: parseInt(mileage), last_service_date: date })
+        .eq('id', carId);
+    }
 
     setLoading(false);
 
     if (error) {
       console.error('Error saving maintenance log:', error);
       setErrorMsg('שגיאה בשמירת הטיפול');
-      setLoading(false);
       return;
     }
 

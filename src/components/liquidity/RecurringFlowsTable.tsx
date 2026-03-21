@@ -95,7 +95,7 @@ function FlowTable({
   };
 
   const renderActions = (flow: FlowRow) => {
-    const linked = !!(flow.asset_id || flow.policy_id);
+    const linked = !!(flow.property_id || flow.vehicle_id || flow.policy_id);
     const pendingChange = pendingChanges.find((r) => r.recurring_flow_id === flow.id);
     return (
       <div className="flex items-center gap-0.5 flex-wrap">
@@ -169,7 +169,7 @@ function FlowTable({
               <TableCell className="font-medium">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className={inactive ? 'line-through text-zinc-400' : ''}>{flow.name}</span>
-                  {(flow.asset_id || flow.policy_id) && (
+                  {(flow.property_id || flow.vehicle_id || flow.policy_id) && (
                     <span title="תזרים מנוהל אוטומטית">
                       <Link className="h-3 w-3 text-zinc-400" />
                     </span>
@@ -242,7 +242,7 @@ function MobileCard({
 }: MobileCardProps) {
   const inactive = isRetired(flow) || isExpired(flow);
   const expired = isExpired(flow);
-  const linked = !!(flow.asset_id || flow.policy_id);
+  const linked = !!(flow.property_id || flow.vehicle_id || flow.policy_id);
   const pendingChange = pendingChanges.find((r) => r.recurring_flow_id === flow.id);
 
   const statusBadge = isRetired(flow) ? (

@@ -138,7 +138,8 @@ export function MonthlyProjectionTab() {
     isActual: boolean; // boolean if it happened or if it's expected
     originalRecurringId?: string; // used for inline override
     domain?: string | null;
-    asset_id?: string | null;
+    property_id?: string | null;
+    vehicle_id?: string | null;
     policy_id?: string | null;
     oneOffId?: string;
   }
@@ -170,7 +171,8 @@ export function MonthlyProjectionTab() {
         isActual: false,
         originalRecurringId: flow.id,
         domain: flow.categories?.domain ?? null,
-        asset_id: flow.asset_id,
+        property_id: flow.property_id,
+        vehicle_id: flow.vehicle_id,
         policy_id: flow.policy_id,
       });
     });
@@ -436,7 +438,7 @@ export function MonthlyProjectionTab() {
                   </div>
                   <div className="flex-1 font-medium text-lg flex items-center gap-2">
                     {item.title}
-                    {(item.asset_id || item.policy_id) && (
+                    {(item.property_id || item.vehicle_id || item.policy_id) && (
                       <span title="תזרים מנוהל אוטומטית">
                         <LinkIcon className="h-4 w-4 text-zinc-400" />
                       </span>

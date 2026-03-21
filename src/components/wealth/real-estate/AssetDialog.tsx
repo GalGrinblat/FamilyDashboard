@@ -16,89 +16,100 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
-import { ASSET_TYPES, ASSET_TYPE_LABELS } from '@/lib/constants';
 
-import { Database, Json } from '@/types/database.types';
-import { AssetMetadata, RealEstateMetadata, VehicleMetadata } from '@/types/wealth';
+import { Database } from '@/types/database.types';
+import type { PropertyRef } from '@/lib/schemas';
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
-type AssetInsert = Database['public']['Tables']['assets']['Insert'];
+type PropertyInsert = Database['public']['Tables']['properties']['Insert'];
 type FlowInsert = Database['public']['Tables']['recurring_flows']['Insert'];
 
 interface AssetDialogProps {
   triggerButton?: React.ReactNode;
-  assetToEdit?: AssetRow;
+  propertyToEdit?: PropertyRef;
 }
 
-export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
+export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
-  const isEditing = !!assetToEdit;
+  const isEditing = !!propertyToEdit;
 
-  const [name, setName] = useState(assetToEdit?.name || '');
-  const [type, setType] = useState(assetToEdit?.type || ASSET_TYPES.STOCK);
+  const [name, setName] = useState(propertyToEdit?.name || '');
   const [estimatedValue, setEstimatedValue] = useState(
-    assetToEdit?.estimated_value?.toString() || '',
+    propertyToEdit?.estimated_value?.toString() || '',
   );
-  const [metadata, setMetadata] = useState<AssetMetadata>(
-    (assetToEdit?.metadata as AssetMetadata) || ({} as AssetMetadata),
+  const [address, setAddress] = useState(propertyToEdit?.address || '');
+  const [monthlyRent, setMonthlyRent] = useState(propertyToEdit?.monthly_rent?.toString() || '');
+  const [rentStartDate, setRentStartDate] = useState(propertyToEdit?.rent_start_date || '');
+  const [rentEndDate, setRentEndDate] = useState(propertyToEdit?.rent_end_date || '');
+  const [mortgagePayment, setMortgagePayment] = useState(
+    propertyToEdit?.mortgage_payment?.toString() || '',
   );
-
-  const re = metadata as RealEstateMetadata;
-  const ve = metadata as VehicleMetadata;
+  const [mortgageStartDate, setMortgageStartDate] = useState(
+    propertyToEdit?.mortgage_start_date || '',
+  );
+  const [mortgageEndDate, setMortgageEndDate] = useState(propertyToEdit?.mortgage_end_date || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
 
-    const payload: AssetInsert = {
+    const payload: PropertyInsert = {
       name,
-      type,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
       status: 'active',
-      metadata: type === ASSET_TYPES.REAL_ESTATE ? (metadata as Json) : null,
+      address: address || null,
+      monthly_rent: monthlyRent ? parseFloat(monthlyRent) : null,
+      rent_start_date: rentStartDate || null,
+      rent_end_date: rentEndDate || null,
+      is_rented: !!monthlyRent && parseFloat(monthlyRent) > 0,
+      mortgage_payment: mortgagePayment ? parseFloat(mortgagePayment) : null,
+      mortgage_start_date: mortgageStartDate || null,
+      mortgage_end_date: mortgageEndDate || null,
     };
 
     let error;
-    let savedAssetId = assetToEdit?.id;
+    let savedPropertyId = propertyToEdit?.id;
 
-    if (isEditing) {
+    if (isEditing && propertyToEdit) {
       const { error: updateError } = await supabase
-        .from('assets')
+        .from('properties')
         .update(payload)
-        .eq('id', assetToEdit.id);
+        .eq('id', propertyToEdit.id);
       error = updateError;
     } else {
       const { data, error: insertError } = await supabase
-        .from('assets')
+        .from('properties')
         .insert(payload)
         .select()
         .single();
       error = insertError;
-      if (data) savedAssetId = data.id;
+      if (data) savedPropertyId = data.id;
     }
 
-    if (!error && savedAssetId) {
-      await syncAssetFlows(supabase, savedAssetId, name, metadata, type);
+    if (!error && savedPropertyId) {
+      await syncPropertyFlows(
+        supabase,
+        savedPropertyId,
+        name,
+        monthlyRent,
+        rentStartDate,
+        rentEndDate,
+        mortgagePayment,
+        mortgageStartDate,
+        mortgageEndDate,
+      );
     }
 
     setLoading(false);
 
     if (error) {
-      console.error('Error saving asset:', error);
+      console.error('Error saving property:', error);
       setErrorMsg(isEditing ? 'שגיאה בעדכון הנכס' : 'שגיאה בהוספת הנכס');
       return;
     }
@@ -106,9 +117,14 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
     setOpen(false);
     if (!isEditing) {
       setName('');
-      setType(ASSET_TYPES.STOCK);
       setEstimatedValue('');
-      setMetadata({});
+      setAddress('');
+      setMonthlyRent('');
+      setRentStartDate('');
+      setRentEndDate('');
+      setMortgagePayment('');
+      setMortgageStartDate('');
+      setMortgageEndDate('');
     }
     router.refresh();
   };
@@ -130,15 +146,14 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'עריכת נכס' : 'הוספת נכס חדש'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'עריכת נכס נדל״ן' : 'הוספת נכס נדל״ן'}</DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'עדכן את שווי הנכס או את סיווגו כדי לשמור על תמונת מצב עדכנית.'
-              : 'הוסף מנייה, קרן, מטבע קריפטו או נדל״ן כדי לעקוב אחר השווי הכולל.'}
+              ? 'עדכן את שווי הנכס ופרטיו כדי לשמור על תמונת מצב עדכנית.'
+              : 'הוסף נכס נדל״ן כדי לעקוב אחר השווי, שכירות ומשכנתא.'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          {/* Name */}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="name" className="text-right pt-2">
               שם הנכס
@@ -148,34 +163,14 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="col-span-3"
-              placeholder="למשל: תיק השקעות IBI, דירה בחיפה"
+              placeholder="למשל: דירה בחיפה"
               required
             />
           </div>
 
-          {/* Type */}
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="type" className="text-right pt-2">
-              סוג
-            </Label>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="col-span-3" dir="rtl">
-                <SelectValue placeholder="בחר סוג נכס" />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                {Object.entries(ASSET_TYPE_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Estimated Value */}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="value" className="text-right pt-2">
-              שווי מעודכן
+              שווי מוערך
             </Label>
             <Input
               id="value"
@@ -188,154 +183,121 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
             />
           </div>
 
-          {/* Real Estate fields */}
-          {type === ASSET_TYPES.REAL_ESTATE && (
-            <>
-              {/* Address */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="address" className="text-right pt-2 text-base">
+              כתובת
+            </Label>
+            <Input
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="col-span-3"
+              placeholder="רחוב, עיר"
+            />
+          </div>
+
+          {/* Rent section */}
+          <div className="col-span-4 border-t pt-3 mt-1">
+            <p className="text-base font-semibold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1">
+              📥 שכירות (הכנסה)
+            </p>
+            <div className="grid gap-3">
               <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="address" className="text-right pt-2 text-base">
-                  כתובת
+                <Label htmlFor="rent" className="text-right pt-2 text-base">
+                  סכום חודשי
                 </Label>
                 <Input
-                  id="address"
-                  value={re?.address || ''}
-                  onChange={(e) => setMetadata({ ...metadata, address: e.target.value })}
+                  id="rent"
+                  type="number"
+                  value={monthlyRent}
+                  onChange={(e) => setMonthlyRent(e.target.value)}
                   className="col-span-3"
-                  placeholder="רחוב, עיר"
+                  placeholder="₪"
                 />
               </div>
-
-              {/* --- Rent section --- */}
-              <div className="col-span-4 border-t pt-3 mt-1">
-                <p className="text-base font-semibold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1">
-                  📥 שכירות (הכנסה)
-                </p>
-                <div className="grid gap-3">
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="rent" className="text-right pt-2 text-base">
-                      סכום חודשי
-                    </Label>
-                    <Input
-                      id="rent"
-                      type="number"
-                      value={re?.monthly_rent || ''}
-                      onChange={(e) => setMetadata({ ...metadata, monthly_rent: e.target.value })}
-                      className="col-span-3"
-                      placeholder="₪"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="rent-start" className="text-right pt-2 text-base">
-                      תחילת חוזה
-                    </Label>
-                    <Input
-                      id="rent-start"
-                      type="date"
-                      value={re?.rent_start_date || ''}
-                      onChange={(e) =>
-                        setMetadata({ ...metadata, rent_start_date: e.target.value })
-                      }
-                      className="col-span-3"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="rent-end" className="text-right pt-2 text-base">
-                      סיום חוזה
-                    </Label>
-                    <div className="col-span-3 space-y-1">
-                      <Input
-                        id="rent-end"
-                        type="date"
-                        value={re?.rent_end_date || ''}
-                        onChange={(e) =>
-                          setMetadata({ ...metadata, rent_end_date: e.target.value })
-                        }
-                      />
-                      {re?.rent_end_date && (
-                        <p className="text-base text-emerald-600 dark:text-emerald-400">
-                          📅 תזכורת חידוש תיווצר אוטומטית 3 חודשים לפני סיום החוזה
-                        </p>
-                      )}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="rent-start" className="text-right pt-2 text-base">
+                  תחילת חוזה
+                </Label>
+                <Input
+                  id="rent-start"
+                  type="date"
+                  value={rentStartDate}
+                  onChange={(e) => setRentStartDate(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="rent-end" className="text-right pt-2 text-base">
+                  סיום חוזה
+                </Label>
+                <div className="col-span-3 space-y-1">
+                  <Input
+                    id="rent-end"
+                    type="date"
+                    value={rentEndDate}
+                    onChange={(e) => setRentEndDate(e.target.value)}
+                  />
+                  {rentEndDate && (
+                    <p className="text-base text-emerald-600 dark:text-emerald-400">
+                      📅 תזכורת חידוש תיווצר אוטומטית 3 חודשים לפני סיום החוזה
+                    </p>
+                  )}
                 </div>
               </div>
-
-              {/* --- Mortgage section --- */}
-              <div className="col-span-4 border-t pt-3 mt-1">
-                <p className="text-base font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1">
-                  🏦 משכנתא (הוצאה)
-                </p>
-                <div className="grid gap-3">
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="mortgage" className="text-right pt-2 text-base">
-                      החזר חודשי
-                    </Label>
-                    <Input
-                      id="mortgage"
-                      type="number"
-                      value={re?.mortgage_payment || ''}
-                      onChange={(e) =>
-                        setMetadata({ ...metadata, mortgage_payment: e.target.value })
-                      }
-                      className="col-span-3"
-                      placeholder="₪"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="mortgage-start" className="text-right pt-2 text-base">
-                      תחילת משכנתא
-                    </Label>
-                    <Input
-                      id="mortgage-start"
-                      type="date"
-                      value={re?.mortgage_start_date || ''}
-                      onChange={(e) =>
-                        setMetadata({ ...metadata, mortgage_start_date: e.target.value })
-                      }
-                      className="col-span-3"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="mortgage-end" className="text-right pt-2 text-base">
-                      סיום משכנתא
-                    </Label>
-                    <Input
-                      id="mortgage-end"
-                      type="date"
-                      value={re?.mortgage_end_date || ''}
-                      onChange={(e) =>
-                        setMetadata({ ...metadata, mortgage_end_date: e.target.value })
-                      }
-                      className="col-span-3"
-                    />
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Vehicle fields */}
-          {type === ASSET_TYPES.VEHICLE && (
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="leasing" className="text-right pt-2 text-base">
-                תשלום ליסינג/הלוואה
-              </Label>
-              <Input
-                id="leasing"
-                type="number"
-                value={ve?.leasing_payment || ''}
-                onChange={(e) => setMetadata({ ...metadata, leasing_payment: e.target.value })}
-                className="col-span-3"
-                placeholder="₪"
-              />
             </div>
-          )}
+          </div>
+
+          {/* Mortgage section */}
+          <div className="col-span-4 border-t pt-3 mt-1">
+            <p className="text-base font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1">
+              🏦 משכנתא (הוצאה)
+            </p>
+            <div className="grid gap-3">
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="mortgage" className="text-right pt-2 text-base">
+                  החזר חודשי
+                </Label>
+                <Input
+                  id="mortgage"
+                  type="number"
+                  value={mortgagePayment}
+                  onChange={(e) => setMortgagePayment(e.target.value)}
+                  className="col-span-3"
+                  placeholder="₪"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="mortgage-start" className="text-right pt-2 text-base">
+                  תחילת משכנתא
+                </Label>
+                <Input
+                  id="mortgage-start"
+                  type="date"
+                  value={mortgageStartDate}
+                  onChange={(e) => setMortgageStartDate(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="mortgage-end" className="text-right pt-2 text-base">
+                  סיום משכנתא
+                </Label>
+                <Input
+                  id="mortgage-end"
+                  type="date"
+                  value={mortgageEndDate}
+                  onChange={(e) => setMortgageEndDate(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+          </div>
 
           {errorMsg && <div className="text-destructive text-base text-right mt-1">{errorMsg}</div>}
           <DialogFooter>
             <Button type="submit" disabled={loading}>
-              {loading ? 'שומר...' : isEditing ? 'שמור פריט' : 'הוסף נכס'}
+              {loading ? 'שומר...' : isEditing ? 'שמור שינויים' : 'הוסף נכס'}
             </Button>
           </DialogFooter>
         </form>
@@ -344,71 +306,56 @@ export function AssetDialog({ triggerButton, assetToEdit }: AssetDialogProps) {
   );
 }
 
-// Helper to sync recurring flows for an asset
-async function syncAssetFlows(
+async function syncPropertyFlows(
   supabase: SupabaseClient<Database>,
-  assetId: string,
-  assetName: string,
-  metadata: AssetMetadata,
-  type: string,
+  propertyId: string,
+  propertyName: string,
+  monthlyRent: string,
+  rentStartDate: string,
+  rentEndDate: string,
+  mortgagePayment: string,
+  mortgageStartDate: string,
+  mortgageEndDate: string,
 ) {
-  if (!metadata) return;
-  const re = metadata as RealEstateMetadata;
-  const ve = metadata as VehicleMetadata;
   const flowsToUpsert: Array<FlowInsert> = [];
 
-  if (type === ASSET_TYPES.REAL_ESTATE) {
-    if (re.monthly_rent && parseFloat(re.monthly_rent.toString()) > 0) {
-      flowsToUpsert.push({
-        asset_id: assetId,
-        name: `${assetName} (שכירות)`,
-        amount: parseFloat(re.monthly_rent.toString()),
-        type: 'income',
-        frequency: 'monthly',
-        is_active: true,
-        start_date: re.rent_start_date || null,
-        end_date: re.rent_end_date || null,
-      });
-    }
-    if (re.mortgage_payment && parseFloat(re.mortgage_payment.toString()) > 0) {
-      flowsToUpsert.push({
-        asset_id: assetId,
-        name: `${assetName} (משכנתא)`,
-        amount: parseFloat(re.mortgage_payment.toString()),
-        type: 'expense',
-        frequency: 'monthly',
-        is_active: true,
-        start_date: re.mortgage_start_date || null,
-        end_date: re.mortgage_end_date || null,
-      });
-    }
+  if (monthlyRent && parseFloat(monthlyRent) > 0) {
+    flowsToUpsert.push({
+      property_id: propertyId,
+      name: `${propertyName} (שכירות)`,
+      amount: parseFloat(monthlyRent),
+      type: 'income',
+      frequency: 'monthly',
+      is_active: true,
+      start_date: rentStartDate || null,
+      end_date: rentEndDate || null,
+    });
   }
 
-  if (type === ASSET_TYPES.VEHICLE) {
-    if (ve.leasing_payment && parseFloat(ve.leasing_payment.toString()) > 0) {
-      flowsToUpsert.push({
-        asset_id: assetId,
-        name: `${assetName} (ליסינג/מימון)`,
-        amount: parseFloat(ve.leasing_payment.toString()),
-        type: 'expense',
-        frequency: 'monthly',
-        is_active: true,
-      });
-    }
+  if (mortgagePayment && parseFloat(mortgagePayment) > 0) {
+    flowsToUpsert.push({
+      property_id: propertyId,
+      name: `${propertyName} (משכנתא)`,
+      amount: parseFloat(mortgagePayment),
+      type: 'expense',
+      frequency: 'monthly',
+      is_active: true,
+      start_date: mortgageStartDate || null,
+      end_date: mortgageEndDate || null,
+    });
   }
 
-  // Upsert each flow by asset_id + name
   for (const flow of flowsToUpsert) {
     const { data: existing } = await supabase
       .from('recurring_flows')
       .select('id')
-      .eq('asset_id', assetId)
+      .eq('property_id', propertyId)
       .eq('name', flow.name as string)
       .maybeSingle();
 
     if (existing) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { asset_id: _aid, ...updatePayload } = flow;
+      const { property_id: _pid, ...updatePayload } = flow;
       await supabase.from('recurring_flows').update(updatePayload).eq('id', existing.id);
     } else {
       await supabase.from('recurring_flows').insert(flow);
@@ -416,14 +363,13 @@ async function syncAssetFlows(
   }
 
   // Auto-reminder: 3 months before rent contract end date
-  if (type === ASSET_TYPES.REAL_ESTATE && re.rent_end_date) {
-    const endDate = new Date(re.rent_end_date);
+  if (rentEndDate) {
+    const endDate = new Date(rentEndDate);
     const reminderDate = new Date(endDate);
     reminderDate.setMonth(reminderDate.getMonth() - 3);
 
-    const reminderTitle = `חידוש חוזה שכירות – ${assetName}`;
+    const reminderTitle = `חידוש חוזה שכירות – ${propertyName}`;
 
-    // Check if a reminder with this title already exists for this asset
     const { data: existingReminder } = await supabase
       .from('reminders')
       .select('id')
@@ -435,7 +381,7 @@ async function syncAssetFlows(
       due_date: reminderDate.toISOString().split('T')[0],
       type: 'maintenance' as const,
       is_completed: false,
-      notes: `חוזה השכירות של ${assetName} מסתיים בתאריך ${endDate.toLocaleDateString('he-IL')}. יש לחדש או לסיים את החוזה.`,
+      property_id: propertyId,
     };
 
     if (existingReminder) {

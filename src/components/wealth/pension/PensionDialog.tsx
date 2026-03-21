@@ -15,29 +15,41 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, Pencil } from 'lucide-react';
-import { ASSET_TYPES } from '@/lib/constants';
+import { INVESTMENT_ACCOUNT_TYPES, INVESTMENT_ACCOUNT_TYPE_LABELS } from '@/lib/constants';
 
-import { Database } from '@/types/database.types';
-
-type AssetRow = Database['public']['Tables']['assets']['Row'];
+import type { InvestmentAccountRef } from '@/lib/schemas';
 
 interface PensionDialogProps {
   triggerButton?: React.ReactNode;
-  assetToEdit?: AssetRow;
+  accountToEdit?: InvestmentAccountRef;
 }
 
-export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps) {
+export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
-  const isEditing = !!assetToEdit;
-  const [name, setName] = useState(assetToEdit?.name || '');
-  const [estimatedValue, setEstimatedValue] = useState(
-    assetToEdit?.estimated_value?.toString() || '',
+  const isEditing = !!accountToEdit;
+  const [name, setName] = useState(accountToEdit?.name || '');
+  const [accountType, setAccountType] = useState<'pension' | 'gemel'>(
+    (accountToEdit?.account_type as 'pension' | 'gemel') || 'pension',
+  );
+  const [currentBalance, setCurrentBalance] = useState(
+    accountToEdit?.current_balance?.toString() || '',
+  );
+  const [broker, setBroker] = useState(accountToEdit?.broker || '');
+  const [monthlyContribution, setMonthlyContribution] = useState(
+    accountToEdit?.monthly_contribution_ils?.toString() || '',
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,27 +58,29 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
 
     const payload = {
       name,
-      type: ASSET_TYPES.PENSION,
-      estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
-      status: 'active' as const,
-      metadata: {},
+      account_type: accountType,
+      current_balance: currentBalance ? parseFloat(currentBalance) : null,
+      broker: broker || null,
+      monthly_contribution_ils: monthlyContribution ? parseFloat(monthlyContribution) : null,
+      is_managed: true,
+      is_active: true,
     };
 
     let error;
 
-    if (isEditing && assetToEdit) {
+    if (isEditing && accountToEdit) {
       const { error: updateError } = await supabase
-        .from('assets')
+        .from('investment_accounts')
         .update(payload)
-        .eq('id', assetToEdit.id);
+        .eq('id', accountToEdit.id);
       error = updateError;
     } else {
-      const { error: insertError } = await supabase.from('assets').insert(payload);
+      const { error: insertError } = await supabase.from('investment_accounts').insert(payload);
       error = insertError;
     }
 
     if (error) {
-      console.error('Error saving pension asset:', error);
+      console.error('Error saving pension account:', error);
       setErrorMsg('שגיאה בשמירת הקרן');
       setLoading(false);
       return;
@@ -89,9 +103,7 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'עריכת קרן פנסיה/השתלמות' : 'הוספת קרן פנסיה/השתלמות'}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'עריכת קרן פנסיה/גמל' : 'הוספת קרן פנסיה/גמל'}</DialogTitle>
           <DialogDescription>
             הזן את שם הקרן והיתרה העדכנית כפי שמופיעה בדוח הרבעוני או באתר הקופה.
           </DialogDescription>
@@ -111,14 +123,60 @@ export function PensionDialog({ triggerButton, assetToEdit }: PensionDialogProps
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="value" className="text-right pt-2">
+            <Label htmlFor="account_type" className="text-right pt-2">
+              סוג קופה
+            </Label>
+            <Select
+              value={accountType}
+              onValueChange={(v) => setAccountType(v as 'pension' | 'gemel')}
+            >
+              <SelectTrigger className="col-span-3" dir="rtl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value={INVESTMENT_ACCOUNT_TYPES.PENSION}>
+                  {INVESTMENT_ACCOUNT_TYPE_LABELS[INVESTMENT_ACCOUNT_TYPES.PENSION]}
+                </SelectItem>
+                <SelectItem value={INVESTMENT_ACCOUNT_TYPES.GEMEL}>
+                  {INVESTMENT_ACCOUNT_TYPE_LABELS[INVESTMENT_ACCOUNT_TYPES.GEMEL]}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="balance" className="text-right pt-2">
               יתרה עדכנית
             </Label>
             <Input
-              id="value"
+              id="balance"
               type="number"
-              value={estimatedValue}
-              onChange={(e) => setEstimatedValue(e.target.value)}
+              value={currentBalance}
+              onChange={(e) => setCurrentBalance(e.target.value)}
+              className="col-span-3"
+              placeholder="₪"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="broker" className="text-right pt-2">
+              חברה מנהלת
+            </Label>
+            <Input
+              id="broker"
+              value={broker}
+              onChange={(e) => setBroker(e.target.value)}
+              className="col-span-3"
+              placeholder="למשל: מיטב, הראל, אלטשולר"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="contribution" className="text-right pt-2">
+              הפרשה חודשית
+            </Label>
+            <Input
+              id="contribution"
+              type="number"
+              value={monthlyContribution}
+              onChange={(e) => setMonthlyContribution(e.target.value)}
               className="col-span-3"
               placeholder="₪"
             />

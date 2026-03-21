@@ -161,12 +161,13 @@ export function RecurringFlowDialog({
               ? 'עדכן את פרטי התזרים הקיים. השינוי ישפיע על התחזיות העתידיות.'
               : 'הגדר הכנסה או הוצאה קבועה (כגון משכורת, שכר דירה, או ארנונה) לצורך תחזית ומעקב חריגות.'}
           </DialogDescription>
-          {isEditing && (flowToEdit?.asset_id || flowToEdit?.policy_id) && (
-            <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-800 text-base">
-              תזרים זה מנוהל באופן אוטומטי על ידי {flowToEdit.asset_id ? 'נכס' : 'פוליסת ביטוח'}.
-              שינויים ידניים כאן עלולים להידרס בעיידכון הבא של המקור.
-            </div>
-          )}
+          {isEditing &&
+            (flowToEdit?.property_id || flowToEdit?.vehicle_id || flowToEdit?.policy_id) && (
+              <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-800 text-base">
+                תזרים זה מנוהל באופן אוטומטי על ידי {flowToEdit.policy_id ? 'פוליסת ביטוח' : 'נכס'}.
+                שינויים ידניים כאן עלולים להידרס בעיידכון הבא של המקור.
+              </div>
+            )}
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-start gap-4">

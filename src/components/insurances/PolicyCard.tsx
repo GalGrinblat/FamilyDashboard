@@ -1,4 +1,4 @@
-import { PolicyWithAsset } from '@/types/insurance';
+import { PolicyWithLinked } from '@/types/insurance';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, FileText, Calendar, Edit2, Link } from 'lucide-react';
 import { PolicyDialog } from './PolicyDialog';
@@ -6,7 +6,7 @@ import { INSURANCE_SUBTYPES, INSURANCE_TYPES, FREQUENCY_TYPES } from '@/lib/cons
 import { differenceInDays, startOfDay } from 'date-fns';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
-export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
+export function PolicyCard({ policy }: { policy: PolicyWithLinked }) {
   // Map life to health since it's grouped there
   const typeKey = policy.type as keyof typeof INSURANCE_SUBTYPES;
   const subtypes = INSURANCE_SUBTYPES[typeKey] || [];
@@ -113,17 +113,15 @@ export function PolicyCard({ policy }: { policy: PolicyWithAsset }) {
             </div>
           )}
 
-          {policy.assets && (
+          {(policy.vehicles || policy.properties) && (
             <div className="flex items-center gap-1.5 col-span-2">
               <Link className="w-4 h-4 text-zinc-400" />
               <span>
                 משויך ל:{' '}
                 <span className="font-medium text-zinc-700 dark:text-zinc-300 ml-1">
-                  {policy.assets.name}{' '}
-                  {policy.assets.type === 'vehicle' &&
-                  (policy.assets.metadata as Record<string, unknown>)?.license_plate
-                    ? `(${(policy.assets.metadata as Record<string, unknown>).license_plate})`
-                    : ''}
+                  {policy.vehicles
+                    ? `${policy.vehicles.name}${policy.vehicles.license_plate ? ` (${policy.vehicles.license_plate})` : ''}`
+                    : policy.properties?.name}
                 </span>
               </span>
             </div>

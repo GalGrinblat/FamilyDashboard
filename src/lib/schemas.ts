@@ -12,14 +12,57 @@ export const AccountSchema = z.object({
   updated_at: z.string().nullable(),
 });
 
-export const AssetSchema = z.object({
+export const PropertySchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.string(),
+  status: z.enum(['active', 'sold', 'archived']),
+  address: z.string().nullable(),
+  purchase_price: z.number().nullable(),
+  purchase_date: z.string().nullable(),
   estimated_value: z.number().nullable(),
-  status: z.enum(['active', 'sold', 'archived']).nullable(),
-  metadata: z.any().nullable(),
-  attachments: z.any().nullable(),
+  is_rented: z.boolean(),
+  monthly_rent: z.number().nullable(),
+  rent_start_date: z.string().nullable(),
+  rent_end_date: z.string().nullable(),
+  mortgage_payment: z.number().nullable(),
+  mortgage_start_date: z.string().nullable(),
+  mortgage_end_date: z.string().nullable(),
+  attachment_urls: z.array(z.string()).nullable(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const VehicleSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.enum(['active', 'sold', 'archived']),
+  license_plate: z.string().nullable(),
+  year: z.number().nullable(),
+  make: z.string().nullable(),
+  model: z.string().nullable(),
+  estimated_value: z.number().nullable(),
+  is_leased: z.boolean(),
+  leasing_payment: z.number().nullable(),
+  purchase_price: z.number().nullable(),
+  purchase_date: z.string().nullable(),
+  registration_date: z.string().nullable(),
+  insurance_end_date: z.string().nullable(),
+  last_service_date: z.string().nullable(),
+  last_service_km: z.number().nullable(),
+  created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
+});
+
+export const VehicleMaintenanceSchema = z.object({
+  id: z.string(),
+  vehicle_id: z.string(),
+  date: z.string(),
+  type: z.string(),
+  description: z.string().nullable(),
+  cost: z.number().nullable(),
+  mileage: z.number().nullable(),
+  notes: z.string().nullable(),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
 });
@@ -38,7 +81,8 @@ export const TransactionSchema = z.object({
   original_amount: z.number().nullable(),
   installment_number: z.number(),
   total_installments: z.number(),
-  asset_id: z.string().nullable(),
+  property_id: z.string().nullable(),
+  vehicle_id: z.string().nullable(),
   categories: z
     .preprocess(
       (val) => {
@@ -56,7 +100,6 @@ export const TransactionSchema = z.object({
     )
     .nullable()
     .default(null),
-  metadata: z.any().nullable(),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
 });
@@ -66,16 +109,16 @@ export const PolicySchema = z.object({
   created_at: z.string(),
   name: z.string(),
   policy_number: z.string().nullable(),
-  type: z.enum(['health', 'property', 'vehicle']),
+  type: z.enum(['health', 'property', 'vehicle', 'life']),
   provider: z.string(),
   premium_amount: z.number(),
   premium_frequency: z.enum(['monthly', 'yearly']),
   renewal_date: z.string().nullable(),
   covered_individuals: z.array(z.string()).nullable(),
-  asset_id: z.string().nullable(),
+  property_id: z.string().nullable(),
+  vehicle_id: z.string().nullable(),
   document_url: z.string().nullable(),
   subtype: z.string().nullable(),
-  assets: AssetSchema.nullable().default(null),
 });
 
 export const ReminderSchema = z.object({
@@ -85,13 +128,18 @@ export const ReminderSchema = z.object({
   start_date: z.string().nullable(),
   type: z.string(),
   is_completed: z.boolean().nullable(),
-  asset_id: z.string().nullable(),
+  is_recurring: z.boolean(),
+  recurrence_frequency: z.string().nullable(),
+  vehicle_id: z.string().nullable(),
+  property_id: z.string().nullable(),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
 });
 
 export type AccountRef = z.infer<typeof AccountSchema>;
-export type AssetRef = z.infer<typeof AssetSchema>;
+export type PropertyRef = z.infer<typeof PropertySchema>;
+export type VehicleRef = z.infer<typeof VehicleSchema>;
+export type VehicleMaintenanceRef = z.infer<typeof VehicleMaintenanceSchema>;
 export type TransactionRef = z.infer<typeof TransactionSchema>;
 export type PolicyRef = z.infer<typeof PolicySchema>;
 export type ReminderRef = z.infer<typeof ReminderSchema>;

@@ -11,18 +11,18 @@ import { PageHeader } from '@/components/layout/PageHeader';
 
 import { PolicySchema } from '@/lib/schemas';
 import { z } from 'zod';
-import { PolicyWithAsset } from '@/types/insurance';
+import { PolicyWithLinked } from '@/types/insurance';
 
 export default async function InsurancesPage() {
   const supabase = await createClient();
 
-  // Fetch all policies
+  // Fetch all policies with linked vehicles/properties
   const { data: policiesData } = await supabase
     .from('policies')
-    .select('*, assets(*)')
+    .select('*, vehicles(id, name, license_plate), properties(id, name, address)')
     .order('created_at', { ascending: false });
 
-  const policies = z.array(PolicySchema).parse(policiesData || []) as unknown as PolicyWithAsset[];
+  const policies = z.array(PolicySchema).parse(policiesData || []) as unknown as PolicyWithLinked[];
 
   const healthPolicies = policies.filter((p) => p.type === INSURANCE_TYPES.HEALTH);
   const propertyPolicies = policies.filter((p) => p.type === INSURANCE_TYPES.PROPERTY);

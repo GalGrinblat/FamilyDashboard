@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 import Link from 'next/link';
 
-import { AccountSchema, AssetSchema, TransactionSchema, ReminderSchema } from '@/lib/schemas';
+import { AccountSchema, TransactionSchema, ReminderSchema } from '@/lib/schemas';
 import { z } from 'zod';
 
 const getTypeIcon = (type: string) => {
@@ -45,12 +45,21 @@ export default async function Home() {
 
   const [
     { data: accountsRaw },
-    { data: assetsRaw },
+    { data: propertiesRaw },
+    { data: vehiclesRaw },
+    { data: pensionRaw },
     { data: transactionsRaw },
     { data: remindersRaw },
   ] = await Promise.all([
     supabase.from('accounts').select('current_balance'),
-    supabase.from('assets').select('estimated_value').eq('status', 'active'),
+    supabase.from('properties').select('estimated_value'),
+    supabase.from('vehicles').select('estimated_value').eq('status', 'active'),
+    supabase
+      .from('investment_accounts')
+      .select('current_balance')
+      .in('account_type', ['pension', 'gemel'])
+      .eq('is_active', true)
+      .eq('is_managed', true),
     supabase
       .from('transactions')
       .select(
@@ -71,11 +80,21 @@ export default async function Home() {
 
   // 2. Process results — parse only the fields we actually selected
   const accounts = z.array(AccountSchema.pick({ current_balance: true })).parse(accountsRaw || []);
-  const assets = z.array(AssetSchema.pick({ estimated_value: true })).parse(assetsRaw || []);
 
   const totalBalance = accounts.reduce((acc, curr) => acc + (curr.current_balance || 0), 0);
-  const totalAssetsValue = assets.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0);
-  const netWorth = totalBalance + totalAssetsValue;
+  const totalPropertiesValue = (propertiesRaw || []).reduce(
+    (acc, curr) => acc + (Number(curr.estimated_value) || 0),
+    0,
+  );
+  const totalVehiclesValue = (vehiclesRaw || []).reduce(
+    (acc, curr) => acc + (Number(curr.estimated_value) || 0),
+    0,
+  );
+  const totalPensionValue = (pensionRaw || []).reduce(
+    (acc, curr) => acc + (Number(curr.current_balance) || 0),
+    0,
+  );
+  const netWorth = totalBalance + totalPropertiesValue + totalVehiclesValue + totalPensionValue;
 
   const transactions = z.array(TransactionSchema).parse(transactionsRaw || []);
 

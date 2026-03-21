@@ -85,12 +85,9 @@ function PolicyForm({
   const [errorMsg, setErrorMsg] = useState('');
   const supabase = createClient();
 
-  // Form State
   const [name, setName] = useState(policy?.name || '');
   const [provider, setProvider] = useState(policy?.provider || '');
-
   const [type, setType] = useState<InsuranceType>((policy?.type as InsuranceType) || defaultType);
-
   const [subtype, setSubtype] = useState(policy?.subtype || '');
   const [premiumAmount, setPremiumAmount] = useState(policy?.premium_amount?.toString() || '');
   const [premiumFrequency, setPremiumFrequency] = useState<FrequencyType>(
@@ -98,13 +95,16 @@ function PolicyForm({
   );
   const [renewalDate, setRenewalDate] = useState(policy?.renewal_date || '');
   const [policyNumber, setPolicyNumber] = useState(policy?.policy_number || '');
-  const [assetId, setAssetId] = useState(policy?.asset_id || 'none');
+  const [linkedId, setLinkedId] = useState(policy?.vehicle_id || policy?.property_id || 'none');
   const [file, setFile] = useState<File | null>(null);
-  const [assets, setAssets] = useState<
-    Pick<Database['public']['Tables']['assets']['Row'], 'id' | 'name' | 'type' | 'metadata'>[]
+
+  const [vehicles, setVehicles] = useState<
+    Pick<Database['public']['Tables']['vehicles']['Row'], 'id' | 'name' | 'license_plate'>[]
+  >([]);
+  const [properties, setProperties] = useState<
+    Pick<Database['public']['Tables']['properties']['Row'], 'id' | 'name'>[]
   >([]);
 
-  // Reset subtype when primary type changes
   useEffect(() => {
     if (type) {
       const subtypeKey = type as keyof typeof INSURANCE_SUBTYPES;
@@ -116,16 +116,22 @@ function PolicyForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
-  // Fetch assets when the form mounts
   useEffect(() => {
-    const fetchAssets = async () => {
-      const { data } = await supabase.from('assets').select('id, name, type, metadata');
-      if (data) {
-        setAssets(data);
+    const fetchLinkedAssets = async () => {
+      if (type === INSURANCE_TYPES.VEHICLE) {
+        const { data } = await supabase
+          .from('vehicles')
+          .select('id, name, license_plate')
+          .eq('status', 'active');
+        if (data) setVehicles(data);
+      } else if (type === INSURANCE_TYPES.PROPERTY) {
+        const { data } = await supabase.from('properties').select('id, name');
+        if (data) setProperties(data);
       }
     };
-    fetchAssets();
-  }, [supabase]);
+    fetchLinkedAssets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -172,8 +178,16 @@ function PolicyForm({
     formData.append('premium_frequency', premiumFrequency);
     if (renewalDate) formData.append('renewal_date', renewalDate);
     if (policyNumber) formData.append('policy_number', policyNumber);
-    if (assetId && assetId !== 'none') formData.append('asset_id', assetId);
     if (documentUrl) formData.append('document_url', documentUrl);
+
+    // Send vehicle_id or property_id based on type
+    if (linkedId && linkedId !== 'none') {
+      if (type === INSURANCE_TYPES.VEHICLE) {
+        formData.append('vehicle_id', linkedId);
+      } else if (type === INSURANCE_TYPES.PROPERTY) {
+        formData.append('property_id', linkedId);
+      }
+    }
 
     let result;
     if (isEditMode) {
@@ -318,31 +332,43 @@ function PolicyForm({
         />
       </div>
 
-      {(type === 'vehicle' || type === 'property') && (
+      {type === INSURANCE_TYPES.VEHICLE && vehicles.length > 0 && (
         <div className="grid grid-cols-4 items-start gap-4">
-          <Label htmlFor="asset" className="text-right pt-2 text-base md:text-lg">
-            שיוך לנכס (אופציונלי)
+          <Label htmlFor="linked" className="text-right pt-2 text-base md:text-lg">
+            שיוך לרכב (אופציונלי)
           </Label>
-          <Select value={assetId} onValueChange={(v: string) => setAssetId(v)}>
+          <Select value={linkedId} onValueChange={setLinkedId}>
             <SelectTrigger className="col-span-3" dir="rtl">
               <SelectValue placeholder="ללא שיוך" />
             </SelectTrigger>
             <SelectContent dir="rtl">
               <SelectItem value="none">ללא שיוך</SelectItem>
-              {assets
-                .filter((a) =>
-                  type === INSURANCE_TYPES.VEHICLE
-                    ? a.type === 'vehicle'
-                    : a.type === 'property' || a.type === 'real_estate',
-                )
-                .map((a) => (
-                  <SelectItem key={a.id} value={a.id}>
-                    {a.name}{' '}
-                    {(a.metadata as Record<string, unknown>)?.license_plate
-                      ? `(${(a.metadata as Record<string, unknown>).license_plate})`
-                      : ''}
-                  </SelectItem>
-                ))}
+              {vehicles.map((v) => (
+                <SelectItem key={v.id} value={v.id}>
+                  {v.name} {v.license_plate ? `(${v.license_plate})` : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {type === INSURANCE_TYPES.PROPERTY && properties.length > 0 && (
+        <div className="grid grid-cols-4 items-start gap-4">
+          <Label htmlFor="linked" className="text-right pt-2 text-base md:text-lg">
+            שיוך לנכס (אופציונלי)
+          </Label>
+          <Select value={linkedId} onValueChange={setLinkedId}>
+            <SelectTrigger className="col-span-3" dir="rtl">
+              <SelectValue placeholder="ללא שיוך" />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="none">ללא שיוך</SelectItem>
+              {properties.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

@@ -19,46 +19,33 @@ import { Plus } from 'lucide-react';
 
 import { Database } from '@/types/database.types';
 
+type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
 type ReminderInsert = Database['public']['Tables']['reminders']['Insert'];
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
-
-interface AddCarAssetDialogProps {
+interface CarAssetDialogProps {
   triggerButton?: React.ReactNode;
-  assetToEdit?: AssetRow;
+  vehicleToEdit?: VehicleRow;
 }
 
-export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialogProps) {
+export function CarAssetDialog({ triggerButton, vehicleToEdit }: CarAssetDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const supabase = createClient();
 
-  // Form State
-  const isEditing = !!assetToEdit;
-  const [metadata] = useState<Record<string, unknown>>(
-    (assetToEdit?.metadata as Record<string, unknown>) || {},
-  );
+  const isEditing = !!vehicleToEdit;
 
-  const [name, setName] = useState(assetToEdit?.name || '');
+  const [name, setName] = useState(vehicleToEdit?.name || '');
   const [estimatedValue, setEstimatedValue] = useState(
-    assetToEdit?.estimated_value?.toString() || '',
+    vehicleToEdit?.estimated_value?.toString() || '',
   );
-  const [licensePlate, setLicensePlate] = useState(
-    ((metadata as Record<string, unknown>).license_plate as string) || '',
-  );
-  const [registrationDate, setRegistrationDate] = useState(
-    ((metadata as Record<string, unknown>).registration_date as string) || '',
-  );
-  const [insuranceEndDate, setInsuranceEndDate] = useState(
-    ((metadata as Record<string, unknown>).insurance_end_date as string) || '',
-  );
-  const [lastServiceDate, setLastServiceDate] = useState(
-    ((metadata as Record<string, unknown>).last_service_date as string) || '',
-  );
+  const [licensePlate, setLicensePlate] = useState(vehicleToEdit?.license_plate || '');
+  const [registrationDate, setRegistrationDate] = useState(vehicleToEdit?.registration_date || '');
+  const [insuranceEndDate, setInsuranceEndDate] = useState(vehicleToEdit?.insurance_end_date || '');
+  const [lastServiceDate, setLastServiceDate] = useState(vehicleToEdit?.last_service_date || '');
   const [lastServiceKm, setLastServiceKm] = useState(
-    ((metadata as Record<string, unknown>).last_service_km as number | null)?.toString() || '',
+    vehicleToEdit?.last_service_km?.toString() || '',
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,71 +53,61 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
     setLoading(true);
     setErrorMsg('');
 
-    const productionYear = registrationDate
-      ? new Date(registrationDate as string).getFullYear().toString()
-      : '';
+    const year = registrationDate ? new Date(registrationDate).getFullYear() : undefined;
 
     const payload = {
       name,
-      type: 'vehicle' as const,
       status: 'active' as const,
       estimated_value: estimatedValue ? parseFloat(estimatedValue) : null,
-      metadata: {
-        license_plate: licensePlate,
-        year: productionYear,
-        registration_date: registrationDate || null,
-        insurance_end_date: insuranceEndDate || null,
-        last_service_date: lastServiceDate || null,
-        last_service_km: lastServiceKm ? parseInt(lastServiceKm) : null,
-      },
+      license_plate: licensePlate || null,
+      year: year || null,
+      registration_date: registrationDate || null,
+      insurance_end_date: insuranceEndDate || null,
+      last_service_date: lastServiceDate || null,
+      last_service_km: lastServiceKm ? parseInt(lastServiceKm) : null,
     };
 
-    let insertedAsset;
+    let savedVehicleId = vehicleToEdit?.id;
     let error;
 
-    if (isEditing) {
-      const { data, error: updateError } = await supabase
-        .from('assets')
+    if (isEditing && vehicleToEdit) {
+      const { error: updateError } = await supabase
+        .from('vehicles')
         .update(payload)
-        .eq('id', assetToEdit.id)
-        .select()
-        .single();
+        .eq('id', vehicleToEdit.id);
       error = updateError;
-      insertedAsset = data;
     } else {
       const { data, error: insertError } = await supabase
-        .from('assets')
+        .from('vehicles')
         .insert(payload)
         .select()
         .single();
       error = insertError;
-      insertedAsset = data;
+      if (data) savedVehicleId = data.id;
     }
 
-    if (error || !insertedAsset) {
-      console.error('Error saving car asset:', error);
+    if (error || !savedVehicleId) {
+      console.error('Error saving vehicle:', error);
       setErrorMsg('שגיאה בשמירת הרכב');
       setLoading(false);
       return;
     }
 
-    // In an editing scenario, to prevent duplicate reminders, we would ideally wipe the old uncompleted ones or UPSERT them.
-    if (isEditing && assetToEdit) {
+    // Delete old uncompleted reminders for this vehicle before recreating
+    if (isEditing && vehicleToEdit) {
       await supabase
         .from('reminders')
         .delete()
-        .eq('asset_id', assetToEdit.id)
+        .eq('vehicle_id', vehicleToEdit.id)
         .eq('is_completed', false)
         .in('type', ['car_test', 'insurance', 'maintenance']);
     }
-
-    const assetId = (insertedAsset as AssetRow).id;
 
     // Auto-generate reminders
     const remindersToInsert: ReminderInsert[] = [];
 
     if (registrationDate) {
-      const regDate = new Date(registrationDate as string);
+      const regDate = new Date(registrationDate);
       const today = new Date();
       const nextTest = new Date(today.getFullYear(), regDate.getMonth(), regDate.getDate());
       if (nextTest < today) {
@@ -141,25 +118,25 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
         title: `טסט שנתי: ${name}`,
         due_date: nextTest.toISOString().split('T')[0],
         type: 'car_test' as const,
-        asset_id: assetId,
+        vehicle_id: savedVehicleId,
       });
     }
 
     if (insuranceEndDate) {
-      const insDate = new Date(insuranceEndDate as string);
+      const insDate = new Date(insuranceEndDate);
       insDate.setMonth(insDate.getMonth() - 1);
       remindersToInsert.push({
         title: `חידוש ביטוח: ${name}`,
         due_date: insDate.toISOString().split('T')[0],
         type: 'insurance' as const,
-        asset_id: assetId,
+        vehicle_id: savedVehicleId,
       });
     }
 
     const baseServiceDate = lastServiceDate
-      ? new Date(lastServiceDate as string)
+      ? new Date(lastServiceDate)
       : registrationDate
-        ? new Date(registrationDate as string)
+        ? new Date(registrationDate)
         : null;
     if (baseServiceDate) {
       const nextService = new Date(baseServiceDate);
@@ -169,7 +146,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
         title: `טיפול תקופתי: ${name}`,
         due_date: nextService.toISOString().split('T')[0],
         type: 'maintenance' as const,
-        asset_id: assetId,
+        vehicle_id: savedVehicleId,
       });
     }
 
@@ -186,19 +163,19 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
   };
 
   const handleMarkAsSold = async () => {
-    if (!isEditing || !assetToEdit) return;
+    if (!isEditing || !vehicleToEdit) return;
     if (
       !confirm(
-        `האם אתה בטוח שברצונך לסמן את הרכב "${assetToEdit.name}" כנמכר? פעולה זו תעביר אותו לארכיון.`,
+        `האם אתה בטוח שברצונך לסמן את הרכב "${vehicleToEdit.name}" כנמכר? פעולה זו תעביר אותו לארכיון.`,
       )
     )
       return;
 
     setLoading(true);
     const { error } = await supabase
-      .from('assets')
+      .from('vehicles')
       .update({ status: 'sold' })
-      .eq('id', assetToEdit.id);
+      .eq('id', vehicleToEdit.id);
 
     if (error) {
       console.error('Error archiving car:', error);
@@ -224,11 +201,11 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'עריכת פרטי רכב' : 'הוספת רכב חדש (נכס)'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'עריכת פרטי רכב' : 'הוספת רכב חדש'}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? 'עדכן את פרטי הרכב, ביטוחים וטיפולים, או סמן אותו כנמכר כדי להסירו מהתצוגה.'
-              : 'הזן את פרטי הרכב. רכבים מנוהלים כנכסים שמשפיעים על השווי הנקי (Net Worth) של המשפחה.'}
+              : 'הזן את פרטי הרכב. רכבים משפיעים על השווי הנקי (Net Worth) של המשפחה.'}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -337,7 +314,7 @@ export function CarAssetDialog({ triggerButton, assetToEdit }: AddCarAssetDialog
               <div />
             )}
             <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-              {loading ? 'שומר...' : isEditing ? 'עדכן את פרטי הרכב' : 'הוסף רכב כנכס'}
+              {loading ? 'שומר...' : isEditing ? 'עדכן את פרטי הרכב' : 'הוסף רכב'}
             </Button>
           </DialogFooter>
         </form>

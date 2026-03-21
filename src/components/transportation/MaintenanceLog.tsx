@@ -4,35 +4,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Database } from '@/types/database.types';
 import { Wrench, CarIcon, ShieldCheck, ClipboardList, Trash2 } from 'lucide-react';
 import { MaintenanceDialog } from './MaintenanceDialog';
-import { MaintenanceLogEntry, AssetMetadata } from '@/types/maintenance';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
 
-type AssetRow = Database['public']['Tables']['assets']['Row'];
+type VehicleRow = Database['public']['Tables']['vehicles']['Row'];
+type MaintenanceRow = Database['public']['Tables']['vehicle_maintenance']['Row'];
 
-export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
+interface MaintenanceWithCar extends MaintenanceRow {
+  carName: string;
+}
+
+export function MaintenanceLog({
+  cars,
+  maintenance,
+}: {
+  cars: VehicleRow[];
+  maintenance: MaintenanceRow[];
+}) {
   const router = useRouter();
   const supabase = createClient();
 
-  const handleDelete = async (carId: string, logId: string) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('האם למחוק רשומה זו? הפעולה אינה הפיכה.')) return;
-
-    const car = cars.find((c) => c.id === carId);
-    if (!car) return;
-
-    const metadata = (car.metadata as unknown as AssetMetadata) || {};
-    const existingLogs = metadata.maintenance_log || [];
-    const newLogs = existingLogs.filter((l: MaintenanceLogEntry) => l.id !== logId);
-
-    const payload = {
-      metadata: {
-        ...metadata,
-        maintenance_log: newLogs,
-      } as unknown as Database['public']['Tables']['assets']['Update']['metadata'],
-    };
-    const { error } = await supabase.from('assets').update(payload).eq('id', carId);
+    const { error } = await supabase.from('vehicle_maintenance').delete().eq('id', id);
     if (error) {
       console.error(error);
       alert('שגיאה במחיקה');
@@ -57,13 +53,13 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
     other: 'אחר',
   };
 
-  // Extract and flatten logs
-  const allLogs = cars
-    .flatMap((car) => {
-      const meta = (car.metadata as unknown as AssetMetadata) || {};
-      const logs = meta.maintenance_log || [];
-      return logs.map((log) => ({ ...log, carName: car.name, carId: car.id }));
-    })
+  const carNameMap = Object.fromEntries(cars.map((c) => [c.id, c.name]));
+
+  const allLogs: MaintenanceWithCar[] = maintenance
+    .map((log) => ({
+      ...log,
+      carName: carNameMap[log.vehicle_id] || 'רכב לא ידוע',
+    }))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
@@ -111,11 +107,7 @@ export function MaintenanceLog({ cars }: { cars: AssetRow[] }) {
                     {log.cost ? formatCurrency(-Number(log.cost), true) : ''}
                   </span>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(log.carId, log.id)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(log.id)}>
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>

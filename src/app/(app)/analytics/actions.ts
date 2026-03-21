@@ -45,19 +45,37 @@ export async function getAnalyticsData() {
 
   const recurringFlows = (rawFlows as unknown as RecurringFlow[]) || [];
 
-  // Fetch simple net worth (current balances)
-  const { data: accounts } = await supabase.from('accounts').select('current_balance');
-  const { data: assets } = await supabase
-    .from('assets')
-    .select('estimated_value')
-    .eq('status', 'active');
+  // Fetch simple net worth
+  const [{ data: accounts }, { data: properties }, { data: vehicles }, { data: pension }] =
+    await Promise.all([
+      supabase.from('accounts').select('current_balance'),
+      supabase.from('properties').select('estimated_value'),
+      supabase.from('vehicles').select('estimated_value').eq('status', 'active'),
+      supabase
+        .from('investment_accounts')
+        .select('current_balance')
+        .in('account_type', ['pension', 'gemel'])
+        .eq('is_active', true)
+        .eq('is_managed', true),
+    ]);
 
-  const accountsArr = (accounts as { current_balance: number | null }[]) || [];
-  const assetsArr = (assets as { estimated_value: number | null }[]) || [];
-
-  const totalCash = accountsArr.reduce((acc, curr) => acc + (curr.current_balance || 0), 0);
-  const totalAssets = assetsArr.reduce((acc, curr) => acc + (curr.estimated_value || 0), 0);
-  const currentNetWorth = totalCash + totalAssets;
+  const totalCash = (accounts || []).reduce(
+    (acc, curr) => acc + (Number(curr.current_balance) || 0),
+    0,
+  );
+  const totalProperties = (properties || []).reduce(
+    (acc, curr) => acc + (Number(curr.estimated_value) || 0),
+    0,
+  );
+  const totalVehicles = (vehicles || []).reduce(
+    (acc, curr) => acc + (Number(curr.estimated_value) || 0),
+    0,
+  );
+  const totalPension = (pension || []).reduce(
+    (acc, curr) => acc + (Number(curr.current_balance) || 0),
+    0,
+  );
+  const currentNetWorth = totalCash + totalProperties + totalVehicles + totalPension;
 
   return { transactions, recurringFlows, currentNetWorth, currentYear, currentMonth };
 }
