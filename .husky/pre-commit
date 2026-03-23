@@ -1,1 +1,1 @@
-npm run lint && npx vitest run --reporter=verbose related "$@"
+npx lint-staged

@@ -97,7 +97,7 @@ export default async function WealthPage() {
       bg: 'bg-violet-50 dark:bg-violet-900/20',
     },
     {
-      href: '/finance',
+      href: '/liquidity',
       label: 'עו״ש וכרטיסי אשראי',
       icon: Wallet,
       value: totalCash,

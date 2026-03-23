@@ -253,16 +253,10 @@ export default async function Home() {
             <CardDescription>גישה מהירה לפעולות נפוצות</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Link href="/transactions/uncategorized" className="block">
+            <Link href="/transactions" className="block">
               <Button variant="outline" className="w-full justify-start h-12">
                 <AlertCircle className="mr-2 ml-4 h-5 w-5 text-amber-500" />
                 תנועות ללא סיווג
-              </Button>
-            </Link>
-            <Link href="/finance" className="block">
-              <Button variant="outline" className="w-full justify-start h-12">
-                <Wallet className="mr-2 ml-4 h-5 w-5 text-indigo-500" />
-                ניהול חשבונות ונכסים
               </Button>
             </Link>
             <Link href="/liquidity" className="block">
