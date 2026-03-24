@@ -47,19 +47,14 @@ export default async function Home() {
     { data: accountsRaw },
     { data: propertiesRaw },
     { data: vehiclesRaw },
-    { data: pensionRaw },
+    { data: investmentsRaw },
     { data: transactionsRaw },
     { data: remindersRaw },
   ] = await Promise.all([
     supabase.from('accounts').select('current_balance'),
     supabase.from('properties').select('estimated_value'),
     supabase.from('vehicles').select('estimated_value').eq('status', 'active'),
-    supabase
-      .from('investment_accounts')
-      .select('current_balance')
-      .in('account_type', ['pension', 'gemel'])
-      .eq('is_active', true)
-      .eq('is_managed', true),
+    supabase.from('investment_accounts').select('current_balance').eq('is_active', true),
     supabase
       .from('transactions')
       .select(
@@ -90,11 +85,12 @@ export default async function Home() {
     (acc, curr) => acc + (Number(curr.estimated_value) || 0),
     0,
   );
-  const totalPensionValue = (pensionRaw || []).reduce(
-    (acc, curr) => acc + (Number(curr.current_balance) || 0),
+  const totalInvestmentsValue = (investmentsRaw || []).reduce(
+    (acc: number, curr: { current_balance: number | null }) =>
+      acc + (Number(curr.current_balance) || 0),
     0,
   );
-  const netWorth = totalBalance + totalPropertiesValue + totalVehiclesValue + totalPensionValue;
+  const netWorth = totalBalance + totalPropertiesValue + totalVehiclesValue + totalInvestmentsValue;
 
   const transactions = z.array(TransactionSchema).parse(transactionsRaw || []);
 

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server';
+import { RecurringFlowDialog } from '@/components/liquidity/RecurringFlowDialog';
 import { LiquidityAccountsTab } from '@/components/liquidity/LiquidityAccountsTab';
 import { RecurringFlowsTable } from '@/components/liquidity/RecurringFlowsTable';
 import { MonthlyProjectionTab } from '@/components/liquidity/MonthlyProjectionTab';
@@ -62,11 +63,14 @@ export default async function LiquidityPage() {
 
         <TabsContent value="recurring" className="mt-4">
           <Card className="border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-            <CardHeader>
-              <CardTitle>תקציב ותזרים קבוע (Recurring Flows)</CardTitle>
-              <CardDescription>
-                ניהול הכנסות והוצאות קבועות המשפיעות על היתרה הצפויה בסוף החודש.
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>תקציב ותזרים קבוע (Recurring Flows)</CardTitle>
+                <CardDescription>
+                  ניהול הכנסות והוצאות קבועות המשפיעות על היתרה הצפויה בסוף החודש.
+                </CardDescription>
+              </div>
+              <RecurringFlowDialog accounts={accounts} />
             </CardHeader>
             <CardContent className="p-0 sm:p-0 pt-0 sm:pt-0">
               <RecurringFlowsTable

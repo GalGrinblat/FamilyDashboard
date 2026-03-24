@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,9 +80,8 @@ export function RecurringFlowDialog({
   // Extra state for the domain selector (maps to category_id on submit)
   const [selectedDomain, setSelectedDomain] = useState<string>(CATEGORY_DOMAINS.GENERAL);
 
-  const handleOpenChange = (nextOpen: boolean) => {
-    setOpen(nextOpen);
-    if (nextOpen && isEditing && flowToEdit) {
+  useEffect(() => {
+    if (open && isEditing && flowToEdit) {
       reset({
         name: flowToEdit.name || '',
         amount: flowToEdit.amount ?? 0,
@@ -94,8 +93,14 @@ export function RecurringFlowDialog({
         start_date: flowToEdit.start_date ?? null,
         end_date: flowToEdit.end_date ?? null,
       });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedDomain(flowToEdit.categories?.domain ?? CATEGORY_DOMAINS.GENERAL);
-    } else if (!nextOpen) {
+    }
+  }, [open, isEditing, flowToEdit, reset]);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
       reset({
         name: '',
         amount: 0,
