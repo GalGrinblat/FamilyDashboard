@@ -1,17 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Database } from '@/types/database.types';
-import { CATEGORY_TYPES, FREQUENCY_TYPES } from '@/lib/constants';
+import {
+  CATEGORY_TYPES,
+  CATEGORY_DOMAINS,
+  CATEGORY_DOMAIN_LABELS,
+  FREQUENCY_TYPES,
+  CategoryDomain,
+} from '@/lib/constants';
 import { RecurringFlowFormSchema, RecurringFlowFormData } from '@/lib/schemas';
 import { upsertRecurringFlowAction } from '@/app/(app)/liquidity/actions';
 import type { Resolver } from 'react-hook-form';
 
-type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'];
+type RecurringFlowRow = Database['public']['Tables']['recurring_flows']['Row'] & {
+  categories?: { domain: string | null } | null;
+};
 
 import { Button } from '@/components/ui/button';
 import {
@@ -63,13 +71,18 @@ export function RecurringFlowDialog({
       type: CATEGORY_TYPES.INCOME,
       frequency: FREQUENCY_TYPES.MONTHLY,
       account_id: null,
+      category_id: null,
       start_date: null,
       end_date: null,
     },
   });
 
-  useEffect(() => {
-    if (open && isEditing && flowToEdit) {
+  // Extra state for the domain selector (maps to category_id on submit)
+  const [selectedDomain, setSelectedDomain] = useState<string>(CATEGORY_DOMAINS.GENERAL);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen && isEditing && flowToEdit) {
       reset({
         name: flowToEdit.name || '',
         amount: flowToEdit.amount ?? 0,
@@ -77,24 +90,31 @@ export function RecurringFlowDialog({
         frequency:
           (flowToEdit.frequency as 'monthly' | 'yearly' | 'weekly') ?? FREQUENCY_TYPES.MONTHLY,
         account_id: flowToEdit.account_id ?? null,
+        category_id: flowToEdit.category_id ?? null,
         start_date: flowToEdit.start_date ?? null,
         end_date: flowToEdit.end_date ?? null,
       });
-    } else if (!open) {
+      setSelectedDomain(flowToEdit.categories?.domain ?? CATEGORY_DOMAINS.GENERAL);
+    } else if (!nextOpen) {
       reset({
         name: '',
         amount: 0,
         type: CATEGORY_TYPES.INCOME,
         frequency: FREQUENCY_TYPES.MONTHLY,
         account_id: null,
+        category_id: null,
         start_date: null,
         end_date: null,
       });
+      setSelectedDomain(CATEGORY_DOMAINS.GENERAL);
     }
-  }, [open, isEditing, flowToEdit, reset]);
+  };
 
   const onSubmit = async (data: RecurringFlowFormData) => {
-    const result = await upsertRecurringFlowAction(data, flowToEdit?.id);
+    const result = await upsertRecurringFlowAction(
+      { ...data, domain: selectedDomain },
+      flowToEdit?.id,
+    );
     if (!result.success) {
       toast.error(result.error);
       return;
@@ -109,7 +129,7 @@ export function RecurringFlowDialog({
   const accountIdValue = useWatch({ control, name: 'account_id' });
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {triggerButton || (
           <Button variant={isEditing ? 'ghost' : 'default'} size={isEditing ? 'icon' : 'default'}>
@@ -197,6 +217,23 @@ export function RecurringFlowDialog({
                 <SelectItem value={FREQUENCY_TYPES.MONTHLY}>חודשי</SelectItem>
                 <SelectItem value={FREQUENCY_TYPES.YEARLY}>שנתי</SelectItem>
                 <SelectItem value={FREQUENCY_TYPES.WEEKLY}>שבועי</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="domain" className="text-right pt-2">
+              ענף
+            </Label>
+            <Select value={selectedDomain} onValueChange={(v) => setSelectedDomain(v)}>
+              <SelectTrigger className="col-span-3" dir="rtl">
+                <SelectValue placeholder="בחר ענף" />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                {Object.values(CATEGORY_DOMAINS).map((domain) => (
+                  <SelectItem key={domain} value={domain}>
+                    {CATEGORY_DOMAIN_LABELS[domain as CategoryDomain]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

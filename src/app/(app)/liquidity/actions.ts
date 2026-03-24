@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { Database } from '@/types/database.types';
 
 // Fetch necessary data for the Monthly Projection view
 export async function getMonthlyBalanceData(monthStart: Date, monthEnd: Date) {
@@ -210,6 +211,8 @@ export async function upsertRecurringFlowAction(
     type: 'income' | 'expense';
     frequency: 'monthly' | 'yearly' | 'weekly';
     account_id?: string | null;
+    category_id?: string | null;
+    domain?: string | null;
     start_date?: string | null;
     end_date?: string | null;
   },
@@ -222,12 +225,28 @@ export async function upsertRecurringFlowAction(
   } = await supabase.auth.getUser();
   if (authError || !user) return { success: false, error: 'לא מאומת' };
 
+  // Look up a category matching the chosen domain + type
+  let categoryId = data.category_id || null;
+  if (data.domain) {
+    const { data: matchingCat } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('domain', data.domain as Database['public']['Enums']['category_domain'])
+      .eq('type', data.type as Database['public']['Enums']['category_type'])
+      .limit(1)
+      .maybeSingle();
+    if (matchingCat) {
+      categoryId = matchingCat.id;
+    }
+  }
+
   const payload = {
     name: data.name,
     amount: data.amount,
     type: data.type,
     frequency: data.frequency,
     account_id: data.account_id || null,
+    category_id: categoryId,
     start_date: data.start_date || null,
     end_date: data.end_date || null,
     is_active: true,

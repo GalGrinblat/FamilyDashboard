@@ -241,6 +241,7 @@ export const RecurringFlowFormSchema = z.object({
   type: z.enum(['income', 'expense']),
   frequency: z.enum(['monthly', 'yearly', 'weekly']),
   account_id: z.string().nullable().optional(),
+  category_id: z.string().nullable().optional(),
   start_date: z.string().nullable().optional(),
   end_date: z.string().nullable().optional(),
 });
