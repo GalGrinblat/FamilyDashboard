@@ -23,27 +23,43 @@ export default async function WealthPage() {
     { data: pensionAccounts },
     { data: brokerageAccounts },
     { data: rsuAccounts },
+    { data: allSnapshots },
   ] = await Promise.all([
     supabase.from('accounts').select('current_balance'),
     supabase.from('properties').select('estimated_value').eq('status', 'active'),
     supabase.from('vehicles').select('estimated_value').eq('status', 'active'),
     supabase
       .from('investment_accounts')
-      .select('current_balance, account_type')
+      .select('id, current_balance, account_type')
       .in('account_type', ['pension', 'gemel'])
       .eq('is_active', true),
     supabase
       .from('investment_accounts')
-      .select('current_balance')
+      .select('id, current_balance')
       .in('account_type', ['brokerage', 'histalmut'])
-      .eq('is_active', true)
-      .eq('is_managed', false),
+      .eq('is_active', true),
     supabase
       .from('investment_accounts')
-      .select('current_balance')
+      .select('id, current_balance')
       .eq('account_type', 'rsu')
       .eq('is_active', true),
+    supabase
+      .from('portfolio_snapshots')
+      .select('investment_account_id, total_value_ils')
+      .order('snapshot_date', { ascending: false }),
   ]);
+
+  // Build a map of investment_account_id → latest snapshot value (first per account = latest)
+  const snapshotMap = new Map<string, number>();
+  for (const snap of allSnapshots ?? []) {
+    if (!snapshotMap.has(snap.investment_account_id)) {
+      snapshotMap.set(snap.investment_account_id, Number(snap.total_value_ils) || 0);
+    }
+  }
+
+  // Helper: get account value from current_balance or latest snapshot
+  const getAccountValue = (acc: { id: string; current_balance: number | null }) =>
+    Number(acc.current_balance) || snapshotMap.get(acc.id) || 0;
 
   const totalCash = (accounts || []).reduce((s, a) => s + (Number(a.current_balance) || 0), 0);
   const totalProperties = (properties || []).reduce(
@@ -51,15 +67,9 @@ export default async function WealthPage() {
     0,
   );
   const totalVehicles = (vehicles || []).reduce((s, v) => s + (Number(v.estimated_value) || 0), 0);
-  const totalPension = (pensionAccounts || []).reduce(
-    (s, a) => s + (Number(a.current_balance) || 0),
-    0,
-  );
-  const totalInvestments = (brokerageAccounts || []).reduce(
-    (s, a) => s + (Number(a.current_balance) || 0),
-    0,
-  );
-  const totalRsu = (rsuAccounts || []).reduce((s, a) => s + (Number(a.current_balance) || 0), 0);
+  const totalPension = (pensionAccounts || []).reduce((s, a) => s + getAccountValue(a), 0);
+  const totalInvestments = (brokerageAccounts || []).reduce((s, a) => s + getAccountValue(a), 0);
+  const totalRsu = (rsuAccounts || []).reduce((s, a) => s + getAccountValue(a), 0);
   const netWorth =
     totalCash + totalProperties + totalVehicles + totalPension + totalInvestments + totalRsu;
 
