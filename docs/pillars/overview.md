@@ -1,4 +1,4 @@
-# Monthly Balance (מאזן חודשי)
+# Overview (סקירה כללית)
 
 **Route:** `/`
 

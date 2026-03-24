@@ -6,7 +6,7 @@ A comprehensive Hebrew-first family management system for tracking finances, ass
 
 | Pillar | Hebrew | Route | Description |
 |--------|--------|-------|-------------|
-| Monthly Balance | מאזן חודשי | `/` | Dashboard — KPIs, net worth snapshot, upcoming reminders, cash flow overview |
+| Overview | סקירה כללית | `/` | Dashboard — KPIs, net worth snapshot, upcoming reminders, cash flow overview |
 | Daily Liquidity | עו״ש ותזרים | `/liquidity` | Bank/credit-card balances, recurring budget flows, monthly & yearly projections |
 | Transaction Hub | יומן תנועות | `/transactions` | CSV upload with AI classification, review queue, global search |
 | Wealth & Assets | הון ונכסים | `/wealth` | Investments, real estate, pension/Gemel, RSU vesting |
@@ -62,7 +62,7 @@ To add a Shadcn component: `npx shadcn@latest add <component>`
 - [Tech Stack](docs/tech-stack.md)
 - [Deployment Guide](docs/deployment.md)
 - **Pillars:**
-  - [Monthly Balance](docs/pillars/monthly-balance.md)
+  - [Overview](docs/pillars/overview.md)
   - [Daily Liquidity](docs/pillars/liquidity.md)
   - [Transaction Hub](docs/pillars/transactions.md)
   - [Wealth & Assets](docs/pillars/wealth.md)
