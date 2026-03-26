@@ -253,7 +253,7 @@ export default async function PlanningPage() {
           </TabsContent>
 
           <TabsContent value="calendar" className="mt-4">
-            <CalendarTab reminders={reminders} />
+            <CalendarTab reminders={reminders} trips={trips} />
           </TabsContent>
 
           <TabsContent value="vacation" className="mt-4">

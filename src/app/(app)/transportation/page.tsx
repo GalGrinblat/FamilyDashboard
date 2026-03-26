@@ -25,6 +25,7 @@ type ReminderRow = Database['public']['Tables']['reminders']['Row'];
 
 interface VehicleWithCost extends VehicleRow {
   total_spent: number;
+  monthly_recurring: number;
 }
 
 function CarsTable({ cars, reminders }: { cars: VehicleWithCost[]; reminders: ReminderRow[] }) {
@@ -55,6 +56,7 @@ function CarsTable({ cars, reminders }: { cars: VehicleWithCost[]; reminders: Re
               <TableHead className="text-right">מספר רישוי</TableHead>
               <TableHead className="text-right">שנתון</TableHead>
               <TableHead className="text-right">שווי מוערך</TableHead>
+              <TableHead className="text-right">תזרים קבוע (הוצאה)</TableHead>
               <TableHead className="text-right">השקעה מצטברת בהוצאות</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,6 +74,11 @@ function CarsTable({ cars, reminders }: { cars: VehicleWithCost[]; reminders: Re
                     <TableCell>{car.year || '-'}</TableCell>
                     <TableCell className={`font-medium ${getAmountColorClass('income')}`} dir="ltr">
                       {car.estimated_value ? formatCurrency(car.estimated_value) : '-'}
+                    </TableCell>
+                    <TableCell className="font-medium text-rose-600 dark:text-rose-400" dir="ltr">
+                      {car.monthly_recurring > 0
+                        ? formatCurrency(car.monthly_recurring)
+                        : formatCurrency(0)}
                     </TableCell>
                     <TableCell
                       className={`font-semibold ${getAmountColorClass('expense')}`}
@@ -118,12 +125,24 @@ function CarsTable({ cars, reminders }: { cars: VehicleWithCost[]; reminders: Re
                     <span className="font-medium text-zinc-500">שנתון:</span> {car.year || '-'}
                   </span>
                 </div>
+                <div className="flex justify-between items-center pt-1 border-t mt-2">
+                  <div className="text-sm font-medium text-zinc-500">תזרים קבוע (הוצאה):</div>
+                  <div className="font-medium text-rose-600 dark:text-rose-400" dir="ltr">
+                    {car.monthly_recurring > 0
+                      ? formatCurrency(car.monthly_recurring)
+                      : formatCurrency(0)}
+                  </div>
+                </div>
                 <div
-                  className={`pt-1 text-lg font-medium ${getAmountColorClass('expense')}`}
+                  className={`flex justify-between items-center text-sm font-medium ${getAmountColorClass('expense')}`}
                   dir="ltr"
                 >
-                  סך הוצאות מצטבר:{' '}
-                  {car.total_spent > 0 ? formatCurrency(-car.total_spent, true) : formatCurrency(0)}
+                  <span className="text-zinc-500 text-right">סך הוצאות מצטבר:</span>
+                  <span>
+                    {car.total_spent > 0
+                      ? formatCurrency(-car.total_spent, true)
+                      : formatCurrency(0)}
+                  </span>
                 </div>
               </div>
             }
@@ -176,7 +195,7 @@ export default async function TransportationPage() {
     await Promise.all([
       supabase
         .from('vehicles')
-        .select('*, transactions(amount)')
+        .select('*, transactions(amount), recurring_flows(amount, type, is_active)')
         .eq('status', 'active')
         .order('created_at', { ascending: false }),
       supabase.from('vehicle_maintenance').select('*').order('date', { ascending: false }),
@@ -191,9 +210,17 @@ export default async function TransportationPage() {
   const cars: VehicleWithCost[] = (vehiclesData || []).map((rawCar) => {
     const car = rawCar as unknown as VehicleRow & {
       transactions?: { amount: number | null }[] | null;
+      recurring_flows?: { amount: number; type: string; is_active: boolean }[] | null;
     };
-    const total = (car.transactions || []).reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
-    return { ...car, total_spent: total };
+    const totalTransactions = (car.transactions || []).reduce(
+      (sum, tx) => sum + (Number(tx.amount) || 0),
+      0,
+    );
+    const monthlyRecurring = (car.recurring_flows || [])
+      .filter((rf) => rf.is_active && rf.type === 'expense')
+      .reduce((sum, rf) => sum + Number(rf.amount), 0);
+
+    return { ...car, total_spent: totalTransactions, monthly_recurring: monthlyRecurring };
   });
 
   const maintenance = (maintenanceData as MaintenanceRow[]) || [];

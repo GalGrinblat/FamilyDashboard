@@ -50,6 +50,7 @@ export default async function Home() {
     { data: investmentsRaw },
     { data: transactionsRaw },
     { data: remindersRaw },
+    { data: recurringFlowsRaw },
   ] = await Promise.all([
     supabase.from('accounts').select('current_balance'),
     supabase.from('properties').select('estimated_value'),
@@ -71,6 +72,7 @@ export default async function Home() {
       .lte('due_date', in30Days.toISOString())
       .order('due_date', { ascending: true })
       .limit(5),
+    supabase.from('recurring_flows').select('amount, type').eq('is_active', true),
   ]);
 
   // 2. Process results — parse only the fields we actually selected
@@ -112,6 +114,16 @@ export default async function Home() {
     return acc;
   }, 0);
 
+  const expectedIncome = (recurringFlowsRaw || []).reduce(
+    (acc, curr) => (curr.type === 'income' ? acc + Number(curr.amount) : acc),
+    0,
+  );
+  const expectedBurnRate = (recurringFlowsRaw || []).reduce(
+    (acc, curr) => (curr.type === 'expense' ? acc + Number(curr.amount) : acc),
+    0,
+  );
+  const expectedCashFlow = expectedIncome - expectedBurnRate;
+
   const cashFlow = monthlyIncome - monthlyBurnRate;
   const reminders = z.array(ReminderSchema).parse(remindersRaw || []);
 
@@ -145,9 +157,12 @@ export default async function Home() {
             <div className={`text-2xl font-bold ${getAmountColorClass('income')}`} dir="ltr">
               {formatCurrency(monthlyIncome)}
             </div>
-            <p className="text-base text-muted-foreground mt-1">
-              מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
-            </p>
+            <div className="flex justify-between items-center text-sm text-muted-foreground mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <span>החודש</span>
+              <span className="font-medium" dir="ltr">
+                צפי: {formatCurrency(expectedIncome)}
+              </span>
+            </div>
           </CardContent>
         </Card>
 
@@ -161,9 +176,12 @@ export default async function Home() {
             <div className={`text-2xl font-bold ${getAmountColorClass('expense')}`} dir="ltr">
               {formatCurrency(-monthlyBurnRate, true)}
             </div>
-            <p className="text-base text-muted-foreground mt-1">
-              מתחילת החודש ({startOfMonth.toLocaleDateString('he-IL', { month: 'long' })})
-            </p>
+            <div className="flex justify-between items-center text-sm text-muted-foreground mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <span>החודש</span>
+              <span className="font-medium" dir="ltr">
+                צפי: {formatCurrency(-expectedBurnRate, true)}
+              </span>
+            </div>
           </CardContent>
         </Card>
 
@@ -179,7 +197,12 @@ export default async function Home() {
             >
               <span dir="ltr">{formatCurrency(cashFlow)}</span>
             </div>
-            <p className="text-base text-muted-foreground mt-1">הכנסות מול הוצאות בפועל</p>
+            <div className="flex justify-between items-center text-sm text-muted-foreground mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <span>בפועל</span>
+              <span className="font-medium" dir="ltr">
+                צפי: {formatCurrency(expectedCashFlow)}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>

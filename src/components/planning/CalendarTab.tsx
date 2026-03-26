@@ -26,15 +26,19 @@ const MONTH_NAMES_HE = [
   'דצמבר',
 ];
 
+type TripRow = Database['public']['Tables']['trips']['Row'];
+
 function MonthCard({
   year,
   monthIndex,
   reminders,
+  trips = [],
   today,
 }: {
   year: number;
   monthIndex: number;
   reminders: ReminderWithLinked[];
+  trips?: TripRow[];
   today: Date;
 }) {
   const monthDate = new Date(year, monthIndex, 1);
@@ -43,6 +47,12 @@ function MonthCard({
 
   const monthReminders = reminders.filter((r) => {
     const d = new Date(r.due_date);
+    return d.getFullYear() === year && d.getMonth() === monthIndex;
+  });
+
+  const monthTrips = trips.filter((t) => {
+    if (!t.start_date) return false;
+    const d = new Date(t.start_date);
     return d.getFullYear() === year && d.getMonth() === monthIndex;
   });
 
@@ -64,10 +74,33 @@ function MonthCard({
         {MONTH_NAMES_HE[monthIndex]} {year}
       </p>
 
-      {monthReminders.length === 0 ? (
-        <p className="text-base text-zinc-400 dark:text-zinc-600">אין תזכורות</p>
+      {monthReminders.length === 0 && monthTrips.length === 0 ? (
+        <p className="text-base text-zinc-400 dark:text-zinc-600">אין אירועים</p>
       ) : (
         <ul className="space-y-1.5">
+          {monthTrips.map((t) => {
+            if (!t.start_date) return null;
+            const startDate = new Date(t.start_date);
+            const tripIsPast = isBefore(startOfDay(startDate), today);
+
+            return (
+              <li key={`trip-${t.id}`} className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${tripIsPast ? 'bg-zinc-400' : 'bg-blue-500'}`}
+                  />
+                  <span
+                    className={`text-base font-medium ${tripIsPast ? 'line-through text-zinc-400' : 'text-blue-600 dark:text-blue-400'}`}
+                  >
+                    חופשה: {t.name}
+                  </span>
+                </div>
+                <p className="text-base text-zinc-400 dark:text-zinc-500 mr-3">
+                  {format(startDate, 'd בMMMM', { locale: he })}
+                </p>
+              </li>
+            );
+          })}
           {monthReminders.map((r) => {
             const dueDate = new Date(r.due_date);
             const overdue = !r.is_completed && isBefore(startOfDay(dueDate), today);
@@ -106,7 +139,13 @@ function MonthCard({
   );
 }
 
-export function CalendarTab({ reminders }: { reminders: ReminderWithLinked[] }) {
+export function CalendarTab({
+  reminders,
+  trips = [],
+}: {
+  reminders: ReminderWithLinked[];
+  trips?: TripRow[];
+}) {
   const today = startOfDay(new Date());
 
   // Show current month + 11 more = 12 months total
@@ -130,6 +169,7 @@ export function CalendarTab({ reminders }: { reminders: ReminderWithLinked[] }) 
               year={year}
               monthIndex={monthIndex}
               reminders={reminders}
+              trips={trips}
               today={today}
             />
           ))}

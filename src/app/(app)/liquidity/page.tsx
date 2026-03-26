@@ -26,6 +26,7 @@ export default async function LiquidityPage() {
     { data: recurringFlows },
     { data: rawOverrides },
     { data: rawPendingChanges },
+    { data: rawOneOffs },
   ] = await Promise.all([
     supabase.from('accounts').select('*').order('name', { ascending: true }),
     supabase
@@ -38,12 +39,14 @@ export default async function LiquidityPage() {
       .select('id, recurring_flow_id, target_account_id, title')
       .eq('type', REMINDER_TYPES.PAYMENT_METHOD_CHANGE)
       .eq('is_completed', false),
+    supabase.from('monthly_one_offs').select('*').gte('month_year', format(new Date(), 'yyyy-MM')),
   ]);
 
   const accounts = (rawAccounts as AccountRow[]) || [];
   const flows = (recurringFlows as unknown as FlowRow[]) || [];
   const overrides = rawOverrides ?? [];
   const pendingChanges = rawPendingChanges ?? [];
+  const oneOffs = rawOneOffs ?? [];
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -87,7 +90,12 @@ export default async function LiquidityPage() {
         </TabsContent>
 
         <TabsContent value="forecast" className="mt-4">
-          <CashFlowForecastTab accounts={accounts} flows={flows} overrides={overrides} />
+          <CashFlowForecastTab
+            accounts={accounts}
+            flows={flows}
+            overrides={overrides}
+            oneOffs={oneOffs}
+          />
         </TabsContent>
       </Tabs>
     </div>

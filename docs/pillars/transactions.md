@@ -58,7 +58,7 @@ The data-entry and audit layer. Upload bank/credit-card statements, let AI class
 
 ## Transaction Fields
 
-Key fields on each transaction: `account_id`, `category_id`, `trip_id` (optional), `amount`, `date`, `merchant`, `is_duplicate`.
+Key fields on each transaction: `account_id`, `category_id`, `trip_id` (optional), `vehicle_id` (optional), `amount`, `date`, `merchant`, `is_duplicate`.
 
 ## Deduplication Logic
 

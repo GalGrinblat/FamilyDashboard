@@ -8,6 +8,9 @@ import { PolicyDialog } from '@/components/insurances/PolicyDialog';
 import { PolicyCard } from '@/components/insurances/PolicyCard';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { SummaryKpisGrid } from '@/components/wealth/shared/SummaryKpisGrid';
+import { formatCurrency } from '@/lib/utils';
+import { Wallet, FileText } from 'lucide-react';
 
 import { PolicySchema } from '@/lib/schemas';
 import { z } from 'zod';
@@ -28,12 +31,33 @@ export default async function InsurancesPage() {
   const propertyPolicies = policies.filter((p) => p.type === INSURANCE_TYPES.PROPERTY);
   const vehiclePolicies = policies.filter((p) => p.type === INSURANCE_TYPES.VEHICLE);
 
+  const totalPremium = policies.reduce((sum, p) => sum + Number(p.premium_amount || 0), 0);
+  const activeCount = policies.length;
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <PageHeader
         title="תיק ביטוחים"
         icon={Shield}
         description="מרכז שליטה פוליסות ביטוח וכיסויים למשפחה, רכוש ורכבים."
+      />
+
+      <SummaryKpisGrid
+        items={[
+          {
+            label: 'סה״כ פרמיה חודשית',
+            value: formatCurrency(totalPremium),
+            subtitle: `בגין ${activeCount} פוליסות פעילות`,
+            valueClassName: 'text-rose-600 dark:text-rose-400',
+            icon: <Wallet className="h-8 w-8 text-muted-foreground/40" />,
+          },
+          {
+            label: 'פוליסות פעילות',
+            value: String(activeCount),
+            subtitle: `${healthPolicies.length} בריאות · ${propertyPolicies.length} מבנה · ${vehiclePolicies.length} רכב`,
+            icon: <FileText className="h-8 w-8 text-muted-foreground/40" />,
+          },
+        ]}
       />
 
       <Tabs defaultValue={INSURANCE_TYPES.HEALTH} className="w-full mt-4" dir="rtl">

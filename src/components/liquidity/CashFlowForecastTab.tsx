@@ -21,6 +21,7 @@ import { he } from 'date-fns/locale';
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 type FlowRow = Database['public']['Tables']['recurring_flows']['Row'];
 type Override = Database['public']['Tables']['monthly_overrides']['Row'];
+type OneOff = Database['public']['Tables']['monthly_one_offs']['Row'];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -54,9 +55,10 @@ interface Props {
   accounts: AccountRow[];
   flows: FlowRow[];
   overrides: Override[];
+  oneOffs: OneOff[];
 }
 
-export function CashFlowForecastTab({ accounts, flows, overrides }: Props) {
+export function CashFlowForecastTab({ accounts, flows, overrides, oneOffs }: Props) {
   const data = useMemo(() => {
     const startBalance = accounts
       .filter((a) => a.type === ACCOUNT_TYPES.BANK)
@@ -67,12 +69,23 @@ export function CashFlowForecastTab({ accounts, flows, overrides }: Props) {
     let running = startBalance;
     return months.map((month) => {
       const key = format(month, 'yyyy-MM');
-      const income = flows
+      let income = flows
         .filter((f) => f.type === CATEGORY_TYPES.INCOME && flowActiveInMonth(f, key))
         .reduce((s, f) => s + getMonthlyAmount(f, key, overrides), 0);
-      const expense = flows
+      let expense = flows
         .filter((f) => f.type === CATEGORY_TYPES.EXPENSE && flowActiveInMonth(f, key))
         .reduce((s, f) => s + getMonthlyAmount(f, key, overrides), 0);
+
+      const oneOffIncome = oneOffs
+        .filter((o) => o.type === CATEGORY_TYPES.INCOME && o.month_year === key)
+        .reduce((s, o) => s + Number(o.amount), 0);
+      const oneOffExpense = oneOffs
+        .filter((o) => o.type === CATEGORY_TYPES.EXPENSE && o.month_year === key)
+        .reduce((s, o) => s + Number(o.amount), 0);
+
+      income += oneOffIncome;
+      expense += oneOffExpense;
+
       running += income - expense;
       return {
         name: format(month, 'MMM yy', { locale: he }),
@@ -81,7 +94,7 @@ export function CashFlowForecastTab({ accounts, flows, overrides }: Props) {
         יתרה: running,
       };
     });
-  }, [accounts, flows, overrides]);
+  }, [accounts, flows, overrides, oneOffs]);
 
   const hasFlows = flows.some((f) => f.is_active);
 

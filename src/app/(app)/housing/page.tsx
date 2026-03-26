@@ -8,6 +8,7 @@ import { ItemsTable } from '@/components/household/ItemsTable';
 import { Database } from '@/types/database.types';
 import { ContractsTab } from '@/components/housing/ContractsTab';
 import { DomainTransactionsTab } from '@/components/transactions/DomainTransactionsTab';
+import { RealEstateTab } from '@/components/wealth/real-estate/RealEstateTab';
 import { SummaryKpisGrid } from '@/components/wealth/shared/SummaryKpisGrid';
 import { CATEGORY_DOMAINS } from '@/lib/constants';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -80,6 +81,7 @@ export default async function HousingPage() {
       <Tabs defaultValue="utilities" className="w-full mt-4" dir="rtl">
         <TabsList className="flex flex-wrap h-auto justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
           <TabsTrigger value="utilities">חוזים ושירותים</TabsTrigger>
+          <TabsTrigger value="properties">נכסים</TabsTrigger>
           <TabsTrigger value="appliances">מכשירי חשמל</TabsTrigger>
           <TabsTrigger value="furniture">ריהוט</TabsTrigger>
           <TabsTrigger value="electronics">אלקטרוניקה</TabsTrigger>
@@ -90,6 +92,10 @@ export default async function HousingPage() {
 
         <TabsContent value="utilities" className="mt-4">
           <ContractsTab contracts={contracts} />
+        </TabsContent>
+
+        <TabsContent value="properties" className="mt-4">
+          <RealEstateTab />
         </TabsContent>
 
         <TabsContent value="appliances" className="mt-4">

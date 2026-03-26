@@ -27,7 +27,8 @@ export default async function TransactionsPage() {
                 categories ( name_he, name_en, type, domain )
             `,
         )
-        .order('date', { ascending: false }),
+        .order('date', { ascending: false })
+        .limit(500),
       supabase
         .from('categories')
         .select('id, name_he, domain')
@@ -96,6 +97,7 @@ export default async function TransactionsPage() {
       <Tabs defaultValue="ai_engine" className="w-full mt-4" dir="rtl">
         <TabsList className="flex flex-wrap h-auto w-full justify-start gap-1 p-1 bg-zinc-100/50 dark:bg-zinc-800/50">
           <TabsTrigger value="ai_engine">מנוע הוצאות (AI Uploader)</TabsTrigger>
+          <TabsTrigger value="all">כל התנועות</TabsTrigger>
           <TabsTrigger value="income">הכנסות</TabsTrigger>
           <TabsTrigger value="housing">מגורים</TabsTrigger>
           <TabsTrigger value="car">תחבורה</TabsTrigger>
@@ -111,6 +113,20 @@ export default async function TransactionsPage() {
           {/* AI Engine Tab - Default */}
           <TabsContent value="ai_engine" className="mt-4">
             <ExpenseUploader categories={dbCategories} accounts={dbAccounts} />
+          </TabsContent>
+
+          <TabsContent value="all" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>כל התנועות</CardTitle>
+                <CardDescription>
+                  היסטוריית כל התנועות שהוזנו למערכת החל מהחדש לישן.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                <TransactionsTable transactions={transactions} />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="income" className="mt-4">
