@@ -32,3 +32,22 @@ export async function upsertAccountAction(
   }
   return { success: true };
 }
+
+export async function deleteAccountAction(
+  id: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, error: 'לא מאומת' };
+
+  const { error } = await supabase.from('accounts').delete().eq('id', id);
+
+  if (error) {
+    console.error('Error deleting account:', error);
+    return { success: false, error: 'שגיאה במחיקת החשבון' };
+  }
+  return { success: true };
+}

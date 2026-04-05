@@ -2,16 +2,32 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database } from '@/types/database.types';
-import { Landmark, CreditCard } from 'lucide-react';
+import { Landmark, CreditCard, Trash2 } from 'lucide-react';
 import { AccountDialog } from '@/components/finance/AccountDialog';
+import { Button } from '@/components/ui/button';
 import { ACCOUNT_TYPES } from '@/lib/constants';
 import { formatCurrency, getAmountColorClass } from '@/lib/utils';
+import { deleteAccountAction } from '@/app/(app)/finance/actions';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 type AccountRow = Database['public']['Tables']['accounts']['Row'];
 
 export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
+  const router = useRouter();
   const bankAccounts = accounts.filter((a) => a.type === ACCOUNT_TYPES.BANK);
   const creditAccounts = accounts.filter((a) => a.type === ACCOUNT_TYPES.CREDIT_CARD);
+
+  const handleDelete = async (account: AccountRow) => {
+    if (!window.confirm(`האם למחוק את "${account.name}" לצמיתות?`)) return;
+    const result = await deleteAccountAction(account.id);
+    if (!result.success) {
+      toast.error(result.error);
+    } else {
+      toast.success('החשבון נמחק בהצלחה');
+      router.refresh();
+    }
+  };
 
   const totalBank = bankAccounts.reduce((sum, a) => sum + Number(a.current_balance || 0), 0);
   const totalCredit = creditAccounts.reduce((sum, a) => sum + Number(a.current_balance || 0), 0);
@@ -61,8 +77,17 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                       >
                         {formatCurrency(Number(account.current_balance || 0))}
                       </span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <AccountDialog accountToEdit={account} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                          onClick={() => handleDelete(account)}
+                          title="מחק חשבון"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -106,8 +131,17 @@ export function LiquidityAccountsTab({ accounts }: { accounts: AccountRow[] }) {
                       <span className={`font-semibold ${getAmountColorClass('expense')}`} dir="ltr">
                         {formatCurrency(-Number(account.current_balance || 0), true)}
                       </span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <AccountDialog accountToEdit={account} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                          onClick={() => handleDelete(account)}
+                          title="מחק כרטיס"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
