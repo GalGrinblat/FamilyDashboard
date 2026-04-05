@@ -94,10 +94,12 @@ function HoldingRow({
   holding,
   prices,
   usdIlsRate,
+  totalValueIls,
 }: {
   holding: PortfolioHoldingWithLots;
   prices: Record<string, StockPrice>;
   usdIlsRate: number;
+  totalValueIls: number;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -121,6 +123,9 @@ function HoldingRow({
     unrealizedGain !== null && holding.totalCostBasis > 0
       ? (unrealizedGain / holding.totalCostBasis) * 100
       : null;
+
+  const weightPct =
+    totalValueIls > 0 && currentValueIls !== null ? (currentValueIls / totalValueIls) * 100 : null;
 
   const handleDelete = async () => {
     if (!confirm(`למחוק את ${holding.ticker} וכל הרכישות שלו?`)) return;
@@ -181,6 +186,10 @@ function HoldingRow({
         <td className="py-2 px-2 text-lg text-left tabular-nums font-medium">
           {currentValueIls !== null ? formatCurrency(currentValueIls) : '—'}
         </td>
+        {/* Weight */}
+        <td className="py-2 px-2 text-lg text-left tabular-nums">
+          {weightPct !== null ? `${weightPct.toFixed(1)}%` : '—'}
+        </td>
         {/* Gain */}
         <td className="py-2 px-2 text-lg text-left">
           {unrealizedGainPct !== null ? <GainBadge percent={unrealizedGainPct} /> : '—'}
@@ -221,6 +230,14 @@ function HoldingRow({
 }
 
 export function HoldingsTable({ holdings, prices, usdIlsRate }: HoldingsTableProps) {
+  const totalValueIls = holdings.reduce((sum, h) => {
+    const currentPrice = prices[h.ticker]?.price ?? null;
+    const currentValueInCurrency = currentPrice !== null ? h.openQuantity * currentPrice : 0;
+    const currentValueIls =
+      h.currency === 'ILS' ? currentValueInCurrency : currentValueInCurrency * usdIlsRate;
+    return sum + currentValueIls;
+  }, 0);
+
   if (holdings.length === 0) {
     return (
       <p className="text-lg text-muted-foreground text-center py-4">
@@ -241,6 +258,7 @@ export function HoldingsTable({ holdings, prices, usdIlsRate }: HoldingsTablePro
             <th className="py-2 px-2 font-medium text-left">עלות ממוצ׳</th>
             <th className="py-2 px-2 font-medium text-left">מחיר נוכחי</th>
             <th className="py-2 px-2 font-medium text-left">שווי (₪)</th>
+            <th className="py-2 px-2 font-medium text-left">משקל (%)</th>
             <th className="py-2 px-2 font-medium text-left">רווח</th>
             <th className="py-2 px-2 w-24" />
           </tr>
@@ -252,6 +270,7 @@ export function HoldingsTable({ holdings, prices, usdIlsRate }: HoldingsTablePro
               holding={holding}
               prices={prices}
               usdIlsRate={usdIlsRate}
+              totalValueIls={totalValueIls}
             />
           ))}
         </tbody>

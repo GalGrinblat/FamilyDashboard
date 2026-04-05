@@ -237,6 +237,7 @@ export async function upsertHoldingAction(
   name: string | null,
   assetClass: string,
   currency: string,
+  underlyingIndex: string | null,
   lotData: {
     purchase_date: string;
     quantity: number;
@@ -272,6 +273,7 @@ export async function upsertHoldingAction(
         name: name || null,
         asset_class: assetClass,
         currency,
+        underlying_index: underlyingIndex || null,
         is_active: true,
       })
       .select('id')

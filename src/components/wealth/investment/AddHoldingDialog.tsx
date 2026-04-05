@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Plus } from 'lucide-react';
+import { Plus, CheckCircle2, Loader2 } from 'lucide-react';
 import { ASSET_CLASSES, ASSET_CLASS_LABELS } from '@/lib/constants';
 import { isValidTicker } from '@/lib/stock-prices';
 import { AddHoldingFormSchema, AddHoldingFormData } from '@/lib/schemas';
@@ -38,6 +38,8 @@ interface AddHoldingDialogProps {
 
 export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHoldingDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isSearchingTicker, setIsSearchingTicker] = useState(false);
+  const [tickerFound, setTickerFound] = useState<{ price: number; currency: string } | null>(null);
   const router = useRouter();
 
   const today = new Date().toISOString().split('T')[0];
@@ -51,6 +53,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
     quantity: '' as unknown as number,
     price_per_unit: '' as unknown as number,
     fees: null,
+    underlying_index: '',
   };
 
   const {
@@ -71,6 +74,62 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
   const quantity = useWatch({ control, name: 'quantity' });
   const pricePerUnit = useWatch({ control, name: 'price_per_unit' });
   const fees = useWatch({ control, name: 'fees' });
+  const ticker = useWatch({ control, name: 'ticker' });
+
+  // Ticker Auto-Validation & ETF Index
+  useEffect(() => {
+    const normalizedTicker = (ticker || '').toUpperCase().trim();
+    if (!normalizedTicker || !isValidTicker(normalizedTicker)) {
+      setTickerFound(null);
+      return;
+    }
+
+    // Auto-select ETF index for well known tickers
+    if (assetClass === 'etf') {
+      if (['QQQ', 'TQQQ', 'SQQQ'].includes(normalizedTicker)) {
+        setValue('underlying_index', 'Nasdaq 100');
+      } else if (['SPY', 'VOO', 'IVV', 'UPRO', 'SPXU'].includes(normalizedTicker)) {
+        setValue('underlying_index', 'S&P 500');
+      } else if (['DIA'].includes(normalizedTicker)) {
+        setValue('underlying_index', 'Dow Jones');
+      } else if (['IWM'].includes(normalizedTicker)) {
+        setValue('underlying_index', 'Russell 2000');
+      }
+    }
+
+    const abortCtrl = new AbortController();
+    const timeoutId = setTimeout(async () => {
+      setIsSearchingTicker(true);
+      try {
+        const res = await fetch(`/api/stock-price?tickers=${normalizedTicker}`, {
+          signal: abortCtrl.signal,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data[normalizedTicker]) {
+            setTickerFound(data[normalizedTicker]);
+            // Auto-update currency if it was still default or we are confident
+            setValue('currency', data[normalizedTicker].currency);
+          } else {
+            setTickerFound(null);
+          }
+        } else {
+          setTickerFound(null);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setTickerFound(null);
+        }
+      } finally {
+        setIsSearchingTicker(false);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+      abortCtrl.abort();
+    };
+  }, [ticker, assetClass, setValue]);
 
   const totalCost =
     quantity && pricePerUnit
@@ -92,6 +151,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
       data.name || null,
       data.asset_class,
       data.currency,
+      data.underlying_index || null,
       {
         purchase_date: data.purchase_date,
         quantity: data.quantity,
@@ -137,6 +197,17 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
                 placeholder="למשל: AAPL, TEVA.TA, BTC-USD"
               />
               {errors.ticker && <p className="text-base text-rose-500">{errors.ticker.message}</p>}
+              {isSearchingTicker && (
+                <div className="flex items-center text-sm text-muted-foreground mt-1 gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" /> מחפש...
+                </div>
+              )}
+              {!isSearchingTicker && tickerFound && (
+                <div className="flex items-center text-sm text-emerald-600 dark:text-emerald-500 mt-1 gap-1">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  נמצא: {tickerFound.price} {tickerFound.currency}
+                </div>
+              )}
             </div>
           </div>
 
@@ -169,6 +240,20 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
               </SelectContent>
             </Select>
           </div>
+
+          {assetClass === 'etf' && (
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="underlying-index" className="text-right pt-2">
+                ממד בסיס
+              </Label>
+              <Input
+                id="underlying-index"
+                {...register('underlying_index')}
+                className="col-span-3"
+                placeholder="למשל: S&P 500"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="currency" className="text-right pt-2">
@@ -256,7 +341,7 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
 
           {totalCost !== null && (
             <p className="text-lg text-muted-foreground text-left">
-              סה״כ עלות: {currency === 'ILS' ? '₪' : '$'}
+              סה״כ עלות: {currency === 'ILS' ? '₪' : currency === 'EUR' ? '€' : '$'}
               {totalCost.toLocaleString('he-IL', { maximumFractionDigits: 2 })}
             </p>
           )}

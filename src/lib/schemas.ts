@@ -170,6 +170,7 @@ export const PortfolioHoldingSchema = z.object({
   name: z.string().nullable(),
   currency: z.string(),
   is_active: z.boolean(),
+  underlying_index: z.string().nullable(),
   notes: z.string().nullable(),
   created_at: z.string().nullable(),
   updated_at: z.string().nullable(),
@@ -375,6 +376,7 @@ export const AddHoldingFormSchema = z.object({
   quantity: z.coerce.number().positive('נדרשת כמות חיובית'),
   price_per_unit: z.coerce.number().positive('נדרש מחיר חיובי'),
   fees: z.coerce.number().min(0).nullable().optional(),
+  underlying_index: z.string().nullable().optional(),
 });
 export type AddHoldingFormData = z.infer<typeof AddHoldingFormSchema>;
 
