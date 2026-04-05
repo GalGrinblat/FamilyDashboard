@@ -94,7 +94,9 @@ export function RecurringFlowDialog({
         end_date: flowToEdit.end_date ?? null,
       });
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedDomain(flowToEdit.categories?.domain ?? CATEGORY_DOMAINS.GENERAL);
+      setSelectedDomain(
+        flowToEdit.domain ?? flowToEdit.categories?.domain ?? CATEGORY_DOMAINS.GENERAL,
+      );
     }
   }, [open, isEditing, flowToEdit, reset]);
 

@@ -192,8 +192,10 @@ function FlowTable({
                     : 'שבועי'}
               </TableCell>
               <TableCell className="text-zinc-500 text-lg">
-                {flow.categories?.domain
-                  ? CATEGORY_DOMAIN_SHORT_LABELS[flow.categories.domain as CategoryDomain] || 'כללי'
+                {flow.domain || flow.categories?.domain
+                  ? CATEGORY_DOMAIN_SHORT_LABELS[
+                      (flow.domain || flow.categories?.domain) as CategoryDomain
+                    ] || 'כללי'
                   : 'כללי'}
               </TableCell>
               <TableCell className="text-zinc-500 text-lg">
@@ -342,8 +344,10 @@ function MobileCard({
         </span>
         <span className="text-zinc-300 dark:text-zinc-600">•</span>
         <span>
-          {flow.categories?.domain
-            ? CATEGORY_DOMAIN_SHORT_LABELS[flow.categories.domain as CategoryDomain] || 'כללי'
+          {flow.domain || flow.categories?.domain
+            ? CATEGORY_DOMAIN_SHORT_LABELS[
+                (flow.domain || flow.categories?.domain) as CategoryDomain
+              ] || 'כללי'
             : 'כללי'}
         </span>
       </div>

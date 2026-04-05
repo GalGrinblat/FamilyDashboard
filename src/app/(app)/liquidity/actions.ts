@@ -247,6 +247,7 @@ export async function upsertRecurringFlowAction(
     frequency: data.frequency,
     account_id: data.account_id || null,
     category_id: categoryId,
+    domain: data.domain || null,
     start_date: data.start_date || null,
     end_date: data.end_date || null,
     is_active: true,
