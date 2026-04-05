@@ -3,7 +3,15 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Pencil, Link as LinkIcon, Trash2, Plus } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Link as LinkIcon,
+  Trash2,
+  Plus,
+  Check,
+} from 'lucide-react';
 import {
   upsertMonthlyOverride,
   getMonthlyBalanceData,
@@ -225,6 +233,34 @@ export function MonthlyProjectionTab() {
     else endBalance -= item.amount;
   });
 
+  // ── Today marker logic ──────────────────────────────────────────────────
+  const today = new Date();
+  const isCurrentMonth =
+    currentDate.getFullYear() === today.getFullYear() &&
+    currentDate.getMonth() === today.getMonth();
+  const todayDay = today.getDate();
+
+  // Compute running balance up to today (only for current month)
+  let balanceAtToday = startBalance;
+  if (isCurrentMonth) {
+    timeline.forEach((item) => {
+      if (item.date <= todayDay) {
+        if (item.type === CATEGORY_TYPES.INCOME) balanceAtToday += item.amount;
+        else balanceAtToday -= item.amount;
+      }
+    });
+  }
+
+  // Find the index where the divider should be inserted (after the last past item)
+  const todayDividerIndex = isCurrentMonth
+    ? timeline.findIndex((item) => item.date > todayDay)
+    : -1;
+
+  const todayLabel = today.toLocaleDateString('he-IL', {
+    day: 'numeric',
+    month: 'long',
+  });
+
   const handleEditClick = (item: TimelineItem) => {
     setEditingItem(item);
     setEditAmount(item.amount.toString());
@@ -431,58 +467,104 @@ export function MonthlyProjectionTab() {
             <p className="text-lg text-muted-foreground">אין תנועות צפויות החודש.</p>
           ) : (
             <div className="space-y-4">
-              {timeline.map((item, idx) => (
-                <div key={idx} className="flex items-center border-b pb-2 last:border-0 last:pb-0">
-                  <div className="w-12 text-lg text-muted-foreground font-medium border-l pl-2 ml-2">
-                    {item.date} בחודש
+              {timeline.map((item, idx) => {
+                const isPast = isCurrentMonth && item.date <= todayDay;
+                const showDivider = todayDividerIndex === idx;
+
+                return (
+                  <div key={idx}>
+                    {/* Today divider — inserted before the first future item */}
+                    {showDivider && (
+                      <div className="flex items-center gap-3 py-3 mb-4">
+                        <div className="flex-1 h-px bg-indigo-400/60 dark:bg-indigo-500/40" />
+                        <div className="flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+                          <span>היום, {todayLabel}</span>
+                          <span className="text-indigo-400 dark:text-indigo-500">·</span>
+                          <span dir="ltr">יתרה: {formatCurrency(balanceAtToday)}</span>
+                        </div>
+                        <div className="flex-1 h-px bg-indigo-400/60 dark:bg-indigo-500/40" />
+                      </div>
+                    )}
+                    <div
+                      className={`flex items-center border-b pb-2 last:border-0 last:pb-0 transition-opacity ${
+                        isPast ? 'opacity-55' : ''
+                      }`}
+                    >
+                      <div className="w-12 text-lg text-muted-foreground font-medium border-l pl-2 ml-2">
+                        {item.date} בחודש
+                      </div>
+                      <div className="flex-1 font-medium text-lg flex items-center gap-2">
+                        {item.title}
+                        {isPast && (
+                          <span className="inline-flex items-center gap-0.5 text-base text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded-md">
+                            <Check className="h-3 w-3" />
+                          </span>
+                        )}
+                        {(item.property_id || item.vehicle_id || item.policy_id) && (
+                          <span title="תזרים מנוהל אוטומטית">
+                            <LinkIcon className="h-4 w-4 text-zinc-400" />
+                          </span>
+                        )}
+                        {item.isActual && (
+                          <span className="mr-2 text-base bg-muted px-1 rounded">בוצע</span>
+                        )}
+                        {!item.isActual &&
+                          item.domain &&
+                          item.domain !== CATEGORY_DOMAINS.GENERAL && (
+                            <span className="text-base text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
+                              {CATEGORY_DOMAIN_SHORT_LABELS[item.domain as CategoryDomain] ||
+                                item.domain}
+                            </span>
+                          )}
+                        {item.oneOffId && (
+                          <button
+                            onClick={() => handleDeleteOneOff(item.oneOffId!)}
+                            className="ml-1 text-muted-foreground hover:text-destructive"
+                            title="מחק פריט"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      <div className={`text-lg font-bold ${getAmountColorClass(item.type)}`}>
+                        <span dir="ltr">
+                          {formatCurrency(
+                            item.type === CATEGORY_TYPES.EXPENSE ? -item.amount : item.amount,
+                            true,
+                          )}
+                        </span>
+                      </div>
+                      <div className="mr-2">
+                        {item.originalRecurringId && !item.isActual && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => handleEditClick(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 font-medium text-lg flex items-center gap-2">
-                    {item.title}
-                    {(item.property_id || item.vehicle_id || item.policy_id) && (
-                      <span title="תזרים מנוהל אוטומטית">
-                        <LinkIcon className="h-4 w-4 text-zinc-400" />
-                      </span>
-                    )}
-                    {item.isActual && (
-                      <span className="mr-2 text-base bg-muted px-1 rounded">בוצע</span>
-                    )}
-                    {!item.isActual && item.domain && item.domain !== CATEGORY_DOMAINS.GENERAL && (
-                      <span className="text-base text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md">
-                        {CATEGORY_DOMAIN_SHORT_LABELS[item.domain as CategoryDomain] || item.domain}
-                      </span>
-                    )}
-                    {item.oneOffId && (
-                      <button
-                        onClick={() => handleDeleteOneOff(item.oneOffId!)}
-                        className="ml-1 text-muted-foreground hover:text-destructive"
-                        title="מחק פריט"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    )}
+                );
+              })}
+              {/* If ALL items are in the past (divider goes at the end) */}
+              {isCurrentMonth &&
+                todayDividerIndex === -1 &&
+                timeline.length > 0 &&
+                timeline[timeline.length - 1].date <= todayDay && (
+                  <div className="flex items-center gap-3 py-3">
+                    <div className="flex-1 h-px bg-indigo-400/60 dark:bg-indigo-500/40" />
+                    <div className="flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+                      <span>היום, {todayLabel}</span>
+                      <span className="text-indigo-400 dark:text-indigo-500">·</span>
+                      <span dir="ltr">יתרה: {formatCurrency(balanceAtToday)}</span>
+                    </div>
+                    <div className="flex-1 h-px bg-indigo-400/60 dark:bg-indigo-500/40" />
                   </div>
-                  <div className={`text-lg font-bold ${getAmountColorClass(item.type)}`}>
-                    <span dir="ltr">
-                      {formatCurrency(
-                        item.type === CATEGORY_TYPES.EXPENSE ? -item.amount : item.amount,
-                        true,
-                      )}
-                    </span>
-                  </div>
-                  <div className="mr-2">
-                    {item.originalRecurringId && !item.isActual && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => handleEditClick(item)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                )}
             </div>
           )}
         </CardContent>
