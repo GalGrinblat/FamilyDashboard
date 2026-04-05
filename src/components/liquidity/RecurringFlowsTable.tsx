@@ -143,17 +143,17 @@ function FlowTable({
   };
 
   return (
-    <Table>
+    <Table className="table-fixed">
       <TableHeader>
         <TableRow className="bg-zinc-50/80 dark:bg-zinc-900/40">
-          <TableHead className="text-right w-[220px]">שם התזרים</TableHead>
-          <TableHead className="text-right w-[130px]">אמצעי תשלום</TableHead>
-          <TableHead className="text-right w-[80px]">תדירות</TableHead>
-          <TableHead className="text-right w-[80px]">ענף</TableHead>
-          <TableHead className="text-right w-[110px]">מתאריך</TableHead>
-          <TableHead className="text-right w-[110px]">עד תאריך</TableHead>
-          <TableHead className={`text-left w-[120px] ${colorClass}`}>סכום צפוי</TableHead>
-          <TableHead className="w-[150px]"></TableHead>
+          <TableHead className="text-right w-[22%]">שם התזרים</TableHead>
+          <TableHead className="text-right w-[12%]">אמצעי תשלום</TableHead>
+          <TableHead className="text-right w-[8%]">תדירות</TableHead>
+          <TableHead className="text-right w-[8%]">ענף</TableHead>
+          <TableHead className="text-right w-[11%]">מתאריך</TableHead>
+          <TableHead className="text-right w-[11%]">עד תאריך</TableHead>
+          <TableHead className={`text-left w-[12%] ${colorClass}`}>סכום צפוי</TableHead>
+          <TableHead className="w-[16%]"></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -166,9 +166,11 @@ function FlowTable({
               key={flow.id}
               className={inactive ? 'opacity-50 bg-zinc-50/50 dark:bg-zinc-900/20' : ''}
             >
-              <TableCell className="font-medium">
+              <TableCell className="font-medium truncate">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={inactive ? 'line-through text-zinc-400' : ''}>{flow.name}</span>
+                  <span className={`truncate ${inactive ? 'line-through text-zinc-400' : ''}`}>
+                    {flow.name}
+                  </span>
                   {(flow.property_id || flow.vehicle_id || flow.policy_id) && (
                     <span title="תזרים מנוהל אוטומטית">
                       <Link className="h-3 w-3 text-zinc-400" />
@@ -183,7 +185,9 @@ function FlowTable({
                   )}
                 </div>
               </TableCell>
-              <TableCell className="text-zinc-500 text-lg">{flow.accounts?.name || '-'}</TableCell>
+              <TableCell className="text-zinc-500 text-lg truncate">
+                {flow.accounts?.name || '-'}
+              </TableCell>
               <TableCell className="text-lg">
                 {flow.frequency === FREQUENCY_TYPES.MONTHLY
                   ? 'חודשי'
