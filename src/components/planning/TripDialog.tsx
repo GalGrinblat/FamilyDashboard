@@ -66,7 +66,7 @@ export function TripDialog({ triggerButton }: { triggerButton?: React.ReactNode 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
-          <Button variant="outline">
+          <Button variant="default">
             <Plus className="mr-2 h-4 w-4" />
             חופשה חדשה
           </Button>

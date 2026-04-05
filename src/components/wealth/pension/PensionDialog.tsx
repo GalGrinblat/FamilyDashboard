@@ -94,9 +94,14 @@ export function PensionDialog({ triggerButton, accountToEdit }: PensionDialogPro
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
-          <Button variant="outline" size="sm">
-            {isEditing ? <Pencil className="h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-            {isEditing ? '' : 'הוסף קרן/קופה'}
+          <Button variant={isEditing ? 'ghost' : 'default'} size={isEditing ? 'icon' : 'default'}>
+            {isEditing ? (
+              <Pencil className="h-4 w-4" />
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" /> הוסף קרן/קופה
+              </>
+            )}
           </Button>
         )}
       </DialogTrigger>

@@ -230,7 +230,7 @@ export function InvestmentAccountDialog({
 
           {/* Histalmut / Gemel contribution */}
           {(isHistalmut || isGemel) && (
-            <div className="col-span-4 border-t pt-3 mt-1">
+            <div className="border-t pt-3 mt-1">
               <p className="text-base font-semibold text-blue-700 dark:text-blue-400 mb-3">
                 📊 פרטי מס
               </p>

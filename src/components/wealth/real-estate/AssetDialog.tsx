@@ -159,7 +159,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
           </div>
 
           {/* Rent section */}
-          <div className="col-span-4 border-t pt-3 mt-1">
+          <div className="border-t pt-3 mt-1">
             <p className="text-base font-semibold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1">
               📥 שכירות (הכנסה)
             </p>
@@ -204,7 +204,7 @@ export function AssetDialog({ triggerButton, propertyToEdit }: AssetDialogProps)
           </div>
 
           {/* Mortgage section */}
-          <div className="col-span-4 border-t pt-3 mt-1">
+          <div className="border-t pt-3 mt-1">
             <p className="text-base font-semibold text-rose-700 dark:text-rose-400 mb-3 flex items-center gap-1">
               🏦 משכנתא (הוצאה)
             </p>

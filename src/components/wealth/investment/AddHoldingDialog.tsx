@@ -174,8 +174,8 @@ export function AddHoldingDialog({ investmentAccountId, triggerButton }: AddHold
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {triggerButton || (
-          <Button variant="outline" size="sm">
-            <Plus className="mr-1 h-3 w-3" /> הוסף נייר ערך
+          <Button variant="default">
+            <Plus className="mr-2 h-4 w-4" /> הוסף נייר ערך
           </Button>
         )}
       </DialogTrigger>
