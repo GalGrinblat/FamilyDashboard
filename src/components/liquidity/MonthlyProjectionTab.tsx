@@ -189,17 +189,14 @@ export function MonthlyProjectionTab() {
       // Or sum of transactions this period. Using current_balance is easiest for MVP.
       const billAmount = cc.current_balance ? Math.abs(cc.current_balance) : 0;
 
-      // Only add if there is a bill and it's > 0
-      if (billAmount > 0) {
-        timeline.push({
-          id: `cc-${cc.id}`,
-          date: billingDay,
-          title: `חיוב אשראי - ${cc.name}`,
-          amount: billAmount,
-          type: CATEGORY_TYPES.EXPENSE,
-          isActual: false,
-        });
-      }
+      timeline.push({
+        id: `cc-${cc.id}`,
+        date: billingDay,
+        title: `חיוב אשראי - ${cc.name}`,
+        amount: billAmount,
+        type: CATEGORY_TYPES.EXPENSE,
+        isActual: false,
+      });
     });
 
     // Section D: one-off items
