@@ -14,6 +14,7 @@ A comprehensive Hebrew-first family management system for tracking finances, ass
 | Transportation | תחבורה | `/transportation` | Vehicles, maintenance log |
 | Insurances | ביטוחים | `/insurances` | Health, property, vehicle policies |
 | Planning | תכנון | `/planning` | Reminders, financial goals, trip budgeting, calendar |
+| Tools | כלים | `/tools` | Salary calculator, IBKR capital gains tax, annual tax report (1301) guide |
 | Analytics | אנליטיקס | `/analytics` | Budget vs actual, cash flow trends, domain spending |
 | Settings | הגדרות | `/settings` | Category management |
 
@@ -70,5 +71,6 @@ To add a Shadcn component: `npx shadcn@latest add <component>`
   - [Transportation](docs/pillars/transportation.md)
   - [Insurances](docs/pillars/insurances.md)
   - [Planning](docs/pillars/planning.md)
+  - [Tools](docs/pillars/tools.md)
   - [Analytics](docs/pillars/analytics.md)
   - [Settings](docs/pillars/settings.md)

@@ -935,3 +935,10 @@ DROP POLICY IF EXISTS "Public read access to authorized_users" ON authorized_use
 CREATE POLICY "authenticated_can_read" ON authorized_users
   FOR SELECT TO authenticated USING (true);
 
+-- ==========================================
+-- Migration: 20260405000000_add_underlying_index.sql
+-- ==========================================
+
+-- Add underlying index for ETF portfolio holdings
+ALTER TABLE portfolio_holdings ADD COLUMN IF NOT EXISTS underlying_index text;
+

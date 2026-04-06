@@ -16,6 +16,10 @@ import {
   Briefcase,
   WalletCards,
   Award,
+  Wrench,
+  Calculator,
+  BarChart3,
+  FileText,
   LucideIcon,
 } from 'lucide-react';
 
@@ -47,6 +51,16 @@ const navItems: NavItem[] = [
   { href: '/transportation', label: 'תחבורה', icon: Car },
   { href: '/insurances', label: 'ביטוחים', icon: Shield },
   { href: '/planning', label: 'תכנון', icon: CalendarDays },
+  {
+    href: '/tools',
+    label: 'כלים',
+    icon: Wrench,
+    subItems: [
+      { href: '/tools/salary', label: 'מחשבון שכר' },
+      { href: '/tools/capital-gains', label: 'מס רווחי הון' },
+      { href: '/tools/tax-report', label: 'דוח מס שנתי' },
+    ],
+  },
   { href: '/analytics', label: 'דוחות ואנליטיקה', icon: LineChart },
   { href: '/settings', label: 'הגדרות', icon: Settings },
 ];
@@ -57,6 +71,9 @@ const subItemIcons: Record<string, LucideIcon> = {
   '/wealth/real-estate': Briefcase,
   '/wealth/pension': WalletCards,
   '/wealth/rsu': Award,
+  '/tools/salary': Calculator,
+  '/tools/capital-gains': BarChart3,
+  '/tools/tax-report': FileText,
 };
 
 function NavLinks({ pathname }: { pathname: string }) {
